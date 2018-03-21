@@ -10,26 +10,48 @@ $(function() {
     "select": '<div class="form-group">\
                 <input type="text" class="form-control">\
                 <button class="btn btn-primary" type="button">Add option</button>\
-              </div>'
+              </div>',
+    "input": '<div class="form-group">\
+                <label>Placeholder text</label>\
+                <input type="text" class="form-control">\
+              </div>',
+    "multiple-select": '<div class="form-group">\
+                          <label>Options</label>\
+                          <input type="text" class="form-control" placeholder="Option 1">\
+                          <input type="text" class="form-control" placeholder="Option 2">\
+                          <button class="btn btn-primary" type="button">Add option</button>\
+                        </div>'
   }
-
-  $('#example-getting-started').multiselect({templates: {
-    li: '<li><a href="javascript:void(0);"><label class="pl-2"></label></a></li>'
-  }});
 
   function getEditorForType(type, id) {
     var editor = $(editors[type]);
 
-    if (type === "label") {
+    if (type === "label" || type === "input") {
       editor.find("input").first().change(function() {
-        var labelController = $(this);
-        var val = labelController.val();
-        $("#" + id).text(val);
+        var inp = $(this);
+        var val = inp.val();
+
+        if (type === "label") {
+          $("#" + id).text(val);
+        } else {
+          $("#" + id).attr("placeholder", val);
+        }
       });
     } else if (type === "select") {
       var optionsInput = editor.find("input").first();
       editor.find(".btn").first().click(function() {
         $("#" + id).append($('<option>', { value: optionsInput.val(), text: optionsInput.val() }));
+      });
+    } else if (type === "multiple-select") {
+      var inputOption1 = editor.find("input").first();
+      var inputOption2 = editor.find("input").last();
+      var label1 = $("#" + id).find("label").first();
+      var label2 = $("#" + id).find("label").last();
+      inputOption1.change(function() {
+        label1.val($(this).val())
+      });
+      inputOption2.change(function() {
+        label2.val($(this).val())
       });
     }
 
@@ -44,7 +66,16 @@ $(function() {
     return function(elem) {
       elem.children().each(function() {
         var child = $(this);
-        child.attr("id", child.prop("nodeName") + "-" + counter++);
+
+        //If it's a div we're in a form-check
+        if (child.is("div")) {
+          child.children().each(function() {
+            var grandChild = $(this);
+            grandChild.attr("id", grandChild.prop("nodeName")  + "-" + counter++);
+          });
+        } else {
+          child.attr("id", child.prop("nodeName") + "-" + counter++);
+        }
       });
     }
   }
@@ -54,7 +85,7 @@ $(function() {
     var target = $(this);
     var cloneElem = target.clone();
     uniqueIdToChildren(cloneElem);
-    //cloneElem.click(formElemClick);
+    cloneElem.click(formElemClick);
     $("#x-form").append(cloneElem);
     return false;
   }
@@ -64,10 +95,16 @@ $(function() {
     var target = $(this);
     var editorView = $("<div></div>");
 
-    target.children().each(function () {
+    target.children().each(function() {
       var currentElement = $(this);
       var id = currentElement.attr("id");
       var type = currentElement.prop("nodeName").toLowerCase();
+
+      //If we find a div in children, that is required to be a form-check
+      if (type === "div") {
+        type = "multiple-select";
+      }
+
       var editor = getEditorForType(type, id);
       editorView.append(editor);
     });
