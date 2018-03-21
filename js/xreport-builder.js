@@ -3,32 +3,33 @@ $(function() {
   "use strict";
 
   var editors = {
-    "LABEL": '<div id="div-label-editor" class="form-group">\
+    "label": '<div id="div-label-editor" class="form-group">\
                 <label>Label name</label>\
                 <input type="text" class="form-control">\
               </div>',
-    "SELECT": '<div class="form-group">\
+    "select": '<div class="form-group">\
                 <input type="text" class="form-control">\
                 <button class="btn btn-primary" type="button">Add option</button>\
               </div>'
   }
 
+  $('#example-getting-started').multiselect({templates: {
+    li: '<li><a href="javascript:void(0);"><label class="pl-2"></label></a></li>'
+  }});
+
   function getEditorForType(type, id) {
     var editor = $(editors[type]);
 
-    if (type === "LABEL") {
+    if (type === "label") {
       editor.find("input").first().change(function() {
         var labelController = $(this);
         var val = labelController.val();
         $("#" + id).text(val);
       });
-    } else if (type === "SELECT") {
+    } else if (type === "select") {
       var optionsInput = editor.find("input").first();
       editor.find(".btn").first().click(function() {
-        $("#" + id).append($('<option>', {
-                                          value: optionsInput.val(),
-                                          text: optionsInput.val()
-                                      }));
+        $("#" + id).append($('<option>', { value: optionsInput.val(), text: optionsInput.val() }));
       });
     }
 
@@ -53,7 +54,7 @@ $(function() {
     var target = $(this);
     var cloneElem = target.clone();
     uniqueIdToChildren(cloneElem);
-    cloneElem.click(formElemClick);
+    //cloneElem.click(formElemClick);
     $("#x-form").append(cloneElem);
     return false;
   }
@@ -66,7 +67,7 @@ $(function() {
     target.children().each(function () {
       var currentElement = $(this);
       var id = currentElement.attr("id");
-      var type = currentElement.prop("nodeName");
+      var type = currentElement.prop("nodeName").toLowerCase();
       var editor = getEditorForType(type, id);
       editorView.append(editor);
     });
