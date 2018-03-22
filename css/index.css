@@ -1,0 +1,9 @@
+.x-template-wrapper {
+  position: relative;
+}
+
+.x-template-add-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}

@@ -3,7 +3,7 @@ $(function() {
   "use strict";
 
   var editors = {
-    "label": '<div id="div-label-editor" class="form-group">\
+    "label": '<div class="form-group">\
                 <label>Label name</label>\
                 <input type="text" class="form-control">\
               </div>',
@@ -83,7 +83,7 @@ $(function() {
   //Click on an element in the TEMPLATE SELECTOR
   function templateElemClick() {
     var target = $(this);
-    var cloneElem = target.clone();
+    var cloneElem = target.parent().find(".x-template").clone();
     uniqueIdToChildren(cloneElem);
     cloneElem.click(formElemClick);
     $("#x-form").append(cloneElem);
@@ -118,6 +118,6 @@ $(function() {
     $(this).tab('show');
   }
 
-  $(".x-template").click(templateElemClick);
+  $(".x-template-add-button").click(templateElemClick);
   $(".nav-tabs a").click(navTabsClick);
 });
