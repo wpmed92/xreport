@@ -2,7 +2,17 @@
   position: relative;
 }
 
+.x-form-wrapper {
+  position: relative;
+}
+
 .x-template-add-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.x-form-edit-button {
   position: absolute;
   bottom: 0;
   right: 0;

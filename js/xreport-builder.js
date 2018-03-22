@@ -85,14 +85,18 @@ $(function() {
     var target = $(this);
     var cloneElem = target.parent().find(".x-template").clone();
     uniqueIdToChildren(cloneElem);
-    cloneElem.click(formElemClick);
-    $("#x-form").append(cloneElem);
+    var formElemWrapper = $("<div class='x-form-wrapper'></div>");
+    formElemWrapper.append(cloneElem);
+    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-button'><i class='fas fa-pencil-alt'></i></button>");
+    editButton.click(formElemClick);
+    formElemWrapper.append(editButton);
+    $("#x-form").append(formElemWrapper);
     return false;
   }
 
   //Click on an element in the FORM currently being built
   function formElemClick() {
-    var target = $(this);
+    var target = $(this).parent().find(".x-template");
     var editorView = $("<div></div>");
 
     target.children().each(function() {
