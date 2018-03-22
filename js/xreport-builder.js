@@ -87,9 +87,16 @@ $(function() {
     uniqueIdToChildren(cloneElem);
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
     formElemWrapper.append(cloneElem);
-    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-button'><i class='fas fa-pencil-alt'></i></button>");
+    var buttonGroup = $("<div class='btn-group x-form-edit-button' role='group'></div>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-primary'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus-circle'></i></button>");
+    buttonGroup.append(editButton);
+    buttonGroup.append(removeButton);
     editButton.click(formElemClick);
-    formElemWrapper.append(editButton);
+    removeButton.click(function() {
+      formElemWrapper.remove();
+    });
+    formElemWrapper.append(buttonGroup);
     $("#x-form").append(formElemWrapper);
     return false;
   }
