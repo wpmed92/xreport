@@ -21,6 +21,10 @@ $(function() {
     return "x-elem-" + XFormElem.numInstances;
   }
 
+  XFormElem.prototype.bind = function(view) {
+    view.attr("data-x-id", this.id);
+  }
+
   XFormElem.prototype.buildEditor = function() {
 
   }
@@ -35,7 +39,7 @@ $(function() {
 
   XLabel.prototype.render = function() {
     var view = $("<label>" + this.val + "</label>");
-    view.attr("data-x-id", this.id);
+    this.bind(view);
     return view;
   }
 
@@ -93,6 +97,18 @@ $(function() {
               </div>");
   }
 
+  //textArea
+  function XTextArea(rows) {
+    XFormElem.call(this, "tarea");
+    this.rows = 3;
+  }
+
+  XTextArea.prototype = Object.create(XFormElem.prototype);
+
+  XTextArea.prototype.render = function() {
+    return $("<textarea class='form-control' rows='" + this.rows + "'></textarea>");
+  }
+
   //Select
   function XSel() {
     XFormElem.call(this, "sel");
@@ -103,7 +119,7 @@ $(function() {
 
   XSel.prototype.render = function() {
     var view = $("<select class='form-control'></select>");
-    view.attr("data-x-id", this.id);
+    this.bind(view);
     return view;
   }
 
@@ -147,7 +163,7 @@ $(function() {
 
   XMulSel.prototype.render = function() {
     var view = $("<select class='form-control' multiple></select>");
-    view.attr("data-x-id", this.id);
+    this.bind(view);
     return view;
   }
 
@@ -205,14 +221,10 @@ $(function() {
   }
 
   XFormGroup.prototype.render = function() {
-    var viewVertical = $("<div class='form-group'></div>");
-    viewVertical.attr("data-x-id", this.id);
-    var viewHorizontal = $("<div class='form-group row'></div>");
-    var view = "";
+    var view = $("<div class='form-group'></div>");
+    this.bind(view);
 
     if (this.orientation === "vertical") {
-      view = viewVertical;
-
       if (this.child.type === "inbool") {
         view.append(this.child.render().append(this.label.render()));
       } else {
@@ -221,6 +233,35 @@ $(function() {
       }
     } else {
       console.log("Unknown orientation");
+    }
+
+    return view;
+  }
+
+  //Form row (for custom elems)
+  function XFormRow() {
+    XFormElem.call(this, "row");
+    this.children = [];
+  }
+
+  XFormRow.prototype = Object.create(XFormElem.prototype);
+
+  XFormRow.prototype.addChild = function(child) {
+    this.children.push(child);
+  }
+
+  XFormRow.prototype.render = function() {
+    var view = $("<div class='form row'></div>");
+    this.bind(view);
+    var equalColWidth = Math.floor(this.children.length, 12);
+    var needsBalancing = this.children.length % 12;
+
+    if (equalColWidth >= 1) {
+      this.children.forEach(function(child) {
+        var col = $("<div class='col-" + equalColWidth + "'></div>");
+        col.append(child.render());
+        view.append(col);
+      });
     }
 
     return view;
@@ -239,9 +280,9 @@ $(function() {
   function addToForm(xelem) {
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
     formElemWrapper.append(xelem.render());
-    var buttonGroup = $("<div class='btn-group x-form-edit-button' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-primary'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus-circle'></i></button>");
+    var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
     editButton.click(function() {
@@ -256,6 +297,14 @@ $(function() {
     formElemWrapper.append(buttonGroup);
     $("#x-form").append(formElemWrapper);
   };
+
+  function replacer(key, value) {
+    if (key === "id") {
+      return undefined;
+    } else {
+      return value;
+    }
+  }
 
   function addFormElem(type) {
     switch (type) {
@@ -294,12 +343,19 @@ $(function() {
         addToForm(mulsel);
         break;
 
+      case "tarea":
+        var tarea = new XFormGroup("vertical", "Szabad szöveg");
+        tarea.addChild(new XTextArea(4));
+        xform.push(tarea);
+        addToForm(tarea);
+        break;
+
       default:
         console.log("Unknown form elem: " + type);
         break;
     }
 
-    console.log(JSON.stringify(xform));
+    console.log(JSON.stringify(xform, replacer));
   }
 
   function getSchemesFromStorage() {
@@ -337,12 +393,15 @@ $(function() {
   $("#btn-add-select-multiple").click(function() {
     addFormElem("mulsel");
   });
+  $("#btn-add-textarea").click(function() {
+    addFormElem("tarea");
+  });
   $("#btn-save-scheme").click(function() {
     localStorage.setItem(xscheme.title, JSON.stringify(xscheme.form));
   });
-  $("#input-scheme-title").on("change", function() {
-    var val = $(this).val();
-    xscheme.title = val;
+  $("#btn-toggle-edit").click(function(e) {
+    e.preventDefault();
+    $(".x-form-edit-btn").toggleClass("collapse");
   });
 
   //Navbar
