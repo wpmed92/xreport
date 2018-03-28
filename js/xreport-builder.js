@@ -201,6 +201,7 @@ $(function() {
 
   XFormGroup.prototype.render = function() {
     var viewVertical = $("<div class='form-group'></div>");
+    viewVertical.attr("data-x-id", this.id);
     var viewHorizontal = $("<div class='form-group row'></div>");
     var view = "";
 
@@ -243,6 +244,9 @@ $(function() {
     });
     removeButton.click(function() {
       formElemWrapper.remove();
+      xform = xform.filter(function(el) {
+        return el.id !== xelem.id;
+      });
     });
     formElemWrapper.append(buttonGroup);
     $("#x-form").append(formElemWrapper);
