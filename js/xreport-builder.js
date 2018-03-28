@@ -2,7 +2,12 @@
 $(function() {
   "use strict";
 
-  var xform = [];
+  var xscheme = {
+    title: "",
+    form: []
+  };
+
+  var xform = xscheme.form;
 
   //Base XFormElem
   function XFormElem(type) {
@@ -297,6 +302,24 @@ $(function() {
     console.log(JSON.stringify(xform));
   }
 
+  function getSchemesFromStorage() {
+    $("#div-grid-schemes").html("");
+
+    var keys = Object.keys(localStorage),
+        i = 0, key;
+
+    for (; key = keys[i]; i++) {
+      var col = $("<div class='col-3'></div>");
+      var card = $("<div class='card'></div>");
+      var cardBody = $("<div class='card-body'></div>");
+      cardBody.append("<div style='font-size:3em' class='d-flex justify-content-center'><i class='fas fa-file-medical-alt'></i></div>");
+      cardBody.append("<div class='d-flex justify-content-center'><h5 clas='card-title'>" + key + "</h5></div>");
+      card.append(cardBody);
+      col.append(card);
+      $("#div-grid-schemes").append(col);
+    }
+  }
+
   //Events
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
@@ -313,5 +336,23 @@ $(function() {
   });
   $("#btn-add-select-multiple").click(function() {
     addFormElem("mulsel");
+  });
+  $("#btn-save-scheme").click(function() {
+    localStorage.setItem(xscheme.title, JSON.stringify(xscheme.form));
+  });
+  $("#input-scheme-title").on("change", function() {
+    var val = $(this).val();
+    xscheme.title = val;
+  });
+
+  //Navbar
+  $("#a-builder").click(function() {
+    $("#div-builder").removeClass("collapse");
+    $("#div-schemes").addClass("collapse");
+  });
+  $("#a-schemes").click(function() {
+    $("#div-schemes").removeClass("collapse");
+    $("#div-builder").addClass("collapse");
+    getSchemesFromStorage();
   });
 });

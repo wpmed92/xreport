@@ -10,14 +10,27 @@
 </head>
 
 <body>
-  <div class="container-fluid">
-    <!-- Page header -->
-    <div class="p-3 mb-2 bg-secondary text-white">
-      <h3>
-        XReport
-        <small class="text-white">scheme builder</small>
-      </h3></div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#"><i class="fas fa-file-medical-alt"></i> XReport <span class="text-muted">builder</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a id="a-builder" class="nav-item nav-link active" href="#">Séma készítő <span class="sr-only">(current)</span></a>
+        <a id="a-schemes" class="nav-item nav-link" href="#">Sémák</a>
+      </div>
+    </div>
+  </nav>
 
+  <br>
+
+  <div id="div-schemes" class="container">
+    <div id="div-grid-schemes" class="row">
+    </div>
+  </div>
+
+  <div id="div-builder" class="container-fluid">
     <div class="row">
       <!-- Control panel -->
       <div class="col-4 offset-1">
@@ -109,7 +122,16 @@
         <form>
           <div class="card">
             <div class="card-header">
-              <input type="text" name="section-name" placeholder="Enter section name">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <input id="input-scheme-title" type="text" name="section-name" placeholder="Enter section name">
+                </div>
+
+                <div>
+                  <button id="btn-save-scheme" type="button" class="btn btn-success"><i class="fas fa-check"></i></button>
+                  <button id="btn-drop-scheme" type="button" class="btn btn-danger"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
             </div>
 
             <div id="x-form" class="card-body">
@@ -123,7 +145,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js" integrity="sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ" crossorigin="anonymous"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.0.9/js/all.js" integrity="sha384-8iPTk2s/jMVj81dnzb/iFR2sdA7u06vHJyyLlAd4snFpCl/SnyUjRrbdJsw1pGIl" crossorigin="anonymous"></script>
   <script src="js/xreport-builder.js"></script>
 
 </body>
