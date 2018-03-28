@@ -4,20 +4,54 @@ $(function() {
 
   var xform = [];
 
+  //Base XFormElem
   function XFormElem(type) {
     var that = this;
     that.type = type;
+    that.id = that.genUniqueId();
   }
 
-  XFormElem.prototype.getType = function() {
-    return this.type;
+  XFormElem.prototype.genUniqueId = function() {
+    XFormElem.numInstances = (XFormElem.numInstances || 0) + 1;
+    return "x-elem-" + XFormElem.numInstances;
   }
 
-  XFormElem.prototype.render = function() {
-    console.log("Render called.");
+  XFormElem.prototype.buildEditor = function() {
+
   }
 
+  //label
+  function XLabel(label) {
+    XFormElem.call(this, "label");
+    this.val = label;
+  }
 
+  XLabel.prototype = Object.create(XFormElem.prototype);
+
+  XLabel.prototype.render = function() {
+    var view = $("<label>" + this.val + "</label>");
+    view.attr("data-x-id", this.id);
+    return view;
+  }
+
+  XLabel.prototype.buildEditor = function() {
+    var model = this;
+    var editor = $("<div class='form-group'></div>");
+    editor.append("<label>Mező neve</label>");
+    var inp = $("<input type='text' class='form-control'>");
+
+    inp.on("change", function() {
+      var val = $(this).val();
+      model.val = val;
+      var view = $("*[data-x-id='" + model.id + "']");
+      view.text(val);
+    });
+
+    editor.append(inp);
+    return editor;
+  }
+
+  //Numberbox
   function XInNum(min, max) {
     XFormElem.call(this, "innum");
     this.min = min;
@@ -30,17 +64,23 @@ $(function() {
     return $("<input type='number' class='form-control'>");
   }
 
+  //Textbox
   function XInText() {
     XFormElem.call(this, "intext");
   }
+
+  XInText.prototype = Object.create(XFormElem.prototype);
 
   XInText.prototype.render = function() {
     return $("<input type='text' class='form-control'>");
   }
 
+  //Checkbox
   function XInBool() {
     XFormElem.call(this, "inbool");
   }
+
+  XInBool.prototype = Object.create(XFormElem.prototype);
 
   XInBool.prototype.render = function() {
     return $("<div class='form-check'>\
@@ -48,34 +88,84 @@ $(function() {
               </div>");
   }
 
+  //Select
   function XSel() {
     XFormElem.call(this, "sel");
     this.options = [];
   }
 
+  XSel.prototype = Object.create(XFormElem.prototype);
+
   XSel.prototype.render = function() {
-    return $("<select class='form-control'></select>");
+    var view = $("<select class='form-control'></select>");
+    view.attr("data-x-id", this.id);
+    return view;
   }
 
+  XSel.prototype.buildEditor = function() {
+    var model = this;
+    var editor = $("<div class='form-group'></div>");
+    editor.append("<label>Opciók</label>");
+    var inp = $("<input type='text' class='form-control'>");
+    var view = $("*[data-x-id='" + model.id + "']");
+
+    inp.on("change", function() {
+      var val = $(this).val();
+      model.options.push(val);
+      view.append($('<option>', {
+        value: val,
+        text : val
+      }));
+    });
+
+    editor.append(inp);
+    return editor;
+  }
+
+  //Multiple select
   function XMulSel() {
     XFormElem.call(this, "mulsel");
     this.options = [];
   }
 
-  XMulSel.prototype.addOption = function(option) {
-    this.options.push(option);
-  }
+  XMulSel.prototype = Object.create(XFormElem.prototype);
 
   XMulSel.prototype.render = function() {
-      return $("<select class='form-control' multiple></select>");
+    var view = $("<select class='form-control' multiple></select>");
+    view.attr("data-x-id", this.id);
+    return view;
   }
 
+  XMulSel.prototype.buildEditor = function() {
+    var model = this;
+    var editor = $("<div class='form-group'></div>");
+    editor.append("<label>Opciók</label>");
+    var inp = $("<input type='text' class='form-control'>");
+    var view = $("*[data-x-id='" + model.id + "']");
+
+    inp.on("change", function() {
+      var val = $(this).val();
+      model.options.push(val);
+      view.append($('<option>', {
+        value: val,
+        text : val
+      }));
+    });
+
+    editor.append(inp);
+    return editor;
+  }
+
+  //Form group
   //orientation can be "horizontal" or "vertical"
   function XFormGroup(orientation, label) {
+    XFormElem.call(this, "group");
     this.child = "";
-    this.label = label;
+    this.label = new XLabel(label);
     this.orientation = orientation;
   }
+
+  XFormGroup.prototype = Object.create(XFormElem.prototype);
 
   XFormGroup.prototype.addChild = function(child) {
     this.child = child;
@@ -83,14 +173,10 @@ $(function() {
 
   XFormGroup.prototype.buildEditor = function() {
     var model = this;
-    var labelEditor = $("<input type='text' class='form-control'>");
-    labelEditor.on("change", function() {
-      var inp = $(this).val();
-      model.label = inp;
-      console.log(JSON.stringify(xform));
-    });
-
-    return labelEditor;
+    var editor = $("<div></div>");
+    editor.append(this.label.buildEditor());
+    editor.append(this.child.buildEditor());
+    return editor;
   }
 
   XFormGroup.prototype.render = function() {
@@ -100,149 +186,18 @@ $(function() {
 
     if (this.orientation === "vertical") {
       view = viewVertical;
-      view.append($("<label>" + this.label + "</label>"));
-      view.append(this.child.render());
-    } else if (this.orientation === "horizontal") {
-      view = viewHorizontal;
-      view.append($("<label class='col-sm-2 col-form-label'>" + this.label + "</label>"));
-      view.append($("<div class='col-sm-10'></div>").append(this.child.render()));
+
+      if (this.child.type === "inbool") {
+        view.append(this.child.render().append(this.label.render()));
+      } else {
+        view.append(this.label.render());
+        view.append(this.child.render());
+      }
     } else {
       console.log("Unknown orientation");
     }
 
     return view;
-  }
-
-
-  var editors = {
-    "label": '<div class="form-group">\
-                <label>Label name</label>\
-                <input type="text" class="form-control">\
-              </div>',
-    "select": '<div class="form-group">\
-                <input type="text" class="form-control">\
-                <button class="btn btn-primary" type="button">Add option</button>\
-              </div>',
-    "input": '<div class="form-group">\
-                <label>Placeholder text</label>\
-                <input type="text" class="form-control">\
-              </div>',
-    "multiple-select": '<div class="form-group">\
-                          <label>Options</label>\
-                          <input type="text" class="form-control" placeholder="Option 1">\
-                          <input type="text" class="form-control" placeholder="Option 2">\
-                          <button class="btn btn-primary" type="button">Add option</button>\
-                        </div>'
-  }
-
-  function getEditorForType(type, id) {
-    var editor = $(editors[type]);
-
-    if (type === "label" || type === "input") {
-      editor.find("input").first().change(function() {
-        var inp = $(this);
-        var val = inp.val();
-
-        if (type === "label") {
-          $("#" + id).text(val);
-        } else {
-          $("#" + id).attr("placeholder", val);
-        }
-      });
-    } else if (type === "select") {
-      var optionsInput = editor.find("input").first();
-      editor.find(".btn").first().click(function() {
-        $("#" + id).append($('<option>', { value: optionsInput.val(), text: optionsInput.val() }));
-      });
-    } else if (type === "multiple-select") {
-      var inputOption1 = editor.find("input").first();
-      var inputOption2 = editor.find("input").last();
-      var label1 = $("#" + id).find("label").first();
-      var label2 = $("#" + id).find("label").last();
-      inputOption1.change(function() {
-        label1.val($(this).val())
-      });
-      inputOption2.change(function() {
-        label2.val($(this).val())
-      });
-    }
-
-    return editor;
-  }
-
-  var uniqueIdToChildren = giveUniqueIdToChildren();
-
-  function giveUniqueIdToChildren() {
-    var counter = 0;
-
-    return function(elem) {
-      elem.children().each(function() {
-        var child = $(this);
-
-        //If it's a div we're in a form-check
-        if (child.is("div")) {
-          child.children().each(function() {
-            var grandChild = $(this);
-            grandChild.attr("id", grandChild.prop("nodeName")  + "-" + counter++);
-          });
-        } else {
-          child.attr("id", child.prop("nodeName") + "-" + counter++);
-        }
-      });
-    }
-  }
-
-  //Click on an element in the TEMPLATE SELECTOR
-  function templateElemClick() {
-    var target = $(this);
-
-    //NOTE: this is the currently working code
-    /*var cloneElem = target.parent().find(".x-template").clone();
-    uniqueIdToChildren(cloneElem);
-    var formElemWrapper = $("<div class='x-form-wrapper'></div>");
-    formElemWrapper.append(cloneElem);
-    var buttonGroup = $("<div class='btn-group x-form-edit-button' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-primary'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus-circle'></i></button>");
-    buttonGroup.append(editButton);
-    buttonGroup.append(removeButton);
-    editButton.click(formElemClick);
-    removeButton.click(function() {
-      formElemWrapper.remove();
-    });
-    formElemWrapper.append(buttonGroup);
-    $("#x-form").append(formElemWrapper);*/
-
-    //NOTE: this is the experimental part
-    /*var testGroup = new XFormGroup("horizontal", "T2 gócok");
-    testGroup.addChild(new XInNum(1,10));
-
-    $("#x-form").append(testGroup.render());*/
-
-    return false;
-  }
-
-  //Click on an element in the FORM currently being built
-  function formElemClick() {
-    var target = $(this).parent().parent().find(".x-template");
-    var editorView = $("<div></div>");
-
-    target.children().each(function() {
-      var currentElement = $(this);
-      var id = currentElement.attr("id");
-      var type = currentElement.prop("nodeName").toLowerCase();
-
-      //If we find a div in children, that is required to be a form-check
-      if (type === "div") {
-        type = "multiple-select";
-      }
-
-      var editor = getEditorForType(type, id);
-      editorView.append(editor);
-    });
-
-    $("#editor").html(editorView)
-    $("#a-editor").tab("show");
   }
 
   //Handles tab navigation
@@ -255,8 +210,15 @@ $(function() {
     $("#a-editor").tab("show");
   }
 
+  function renderForm() {
+    $("#x-form").html("");
+
+    xform.forEach(function(xelem) {
+      addToForm(xelem);
+    });
+  }
+
   function addToForm(xelem) {
-    xform.push(xelem);
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
     formElemWrapper.append(xelem.render());
     var buttonGroup = $("<div class='btn-group x-form-edit-button' role='group'></div>");
@@ -272,32 +234,43 @@ $(function() {
     });
     formElemWrapper.append(buttonGroup);
     $("#x-form").append(formElemWrapper);
-  });
+  };
 
   function addFormElem(type) {
     switch (type) {
       case "intext":
         var text = new XFormGroup("vertical", "Szöveges mező");
         text.addChild(new XInText());
+        xform.push(text);
         addToForm(text);
         break;
 
       case "innum":
-        var num = new XFormGroup("horizontal", "Szám mező");
+        var num = new XFormGroup("vertical", "Szám mező");
         num.addChild(new XInNum());
+        xform.push(num);
         addToForm(num);
         break;
 
       case "inbool":
         var boolean = new XFormGroup("vertical", "Eldöntendő mező");
         boolean.addChild(new XInBool());
+        xform.push(boolean);
         addToForm(boolean);
         break;
 
       case "sel":
+        var sel = new XFormGroup("vertical", "Választás");
+        sel.addChild(new XSel());
+        xform.push(sel);
+        addToForm(sel);
         break;
 
       case "mulsel":
+        var mulsel = new XFormGroup("vertical", "Választás");
+        mulsel.addChild(new XMulSel());
+        xform.push(mulsel);
+        addToForm(mulsel);
         break;
 
       default:
@@ -308,7 +281,6 @@ $(function() {
     console.log(JSON.stringify(xform));
   }
 
-  $(".x-template-add-button").click(templateElemClick);
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
     addFormElem("intext");
@@ -321,5 +293,8 @@ $(function() {
   });
   $("#btn-add-select").click(function() {
     addFormElem("sel");
+  });
+  $("#btn-add-select-multiple").click(function() {
+    addFormElem("mulsel");
   });
 });

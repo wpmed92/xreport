@@ -24,10 +24,10 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
           <li class="nav-item">
-            <a id="a-templates" class="nav-link active" href="#templates"><i class="fas fa-code"></i> Templates</a>
+            <a id="a-templates" class="nav-link active" href="#templates"><i class="fas fa-code"></i> Minták</a>
           </li>
           <li class="nav-item">
-            <a id="a-editor" class="nav-link" href="#editor"><i class="fas fa-pencil-alt"></i> Editor</a>
+            <a id="a-editor" class="nav-link" href="#editor"><i class="fas fa-pencil-alt"></i> Szerkesztő</a>
           </li>
         </ul>
 
@@ -40,8 +40,8 @@
               <!-- TEXTBOX -->
               <div class="x-template-wrapper">
                 <div class="form-group x-template">
-                  <label>Textbox</label>
-                  <input class="form-control" type="text" placeholder="Textbox template">
+                  <label>Szöveges mező</label>
+                  <input class="form-control" type="text">
                 </div>
 
                 <button id="btn-add-textbox" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
@@ -50,8 +50,8 @@
               <!-- NUMBERBOX -->
               <div class="x-template-wrapper">
                 <div class="form-group x-template">
-                  <label>Numberbox</label>
-                  <input class="form-control" type="number" placeholder="Enter value">
+                  <label>Szám mező</label>
+                  <input class="form-control" type="number">
                 </div>
 
                 <button id="btn-add-numberbox" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
@@ -60,12 +60,23 @@
               <!-- SELECT -->
               <div class="x-template-wrapper">
                 <div class="form-group x-template">
-                  <label>Select</label>
+                  <label>Egyszeres választás</label>
                   <select class="form-control">
                     </select>
                 </div>
 
                 <button id="btn-add-select" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
+              </div>
+
+              <!-- MULTIPLE SELECT -->
+              <div class="x-template-wrapper">
+                <div class="form-group x-template">
+                  <label>Többszörös választás</label>
+                  <select class="form-control" multiple>
+                    </select>
+                </div>
+
+                <button id="btn-add-select-multiple" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
               </div>
 
               <!-- CHECKBOX -->
@@ -74,35 +85,12 @@
                   <div class="form-check x-template">
                     <input class="form-check-input" type="checkbox">
                     <label class="form-check-label">
-                        Default checkbox
+                        Eldöntendő mező
                       </label>
                   </div>
                 </div>
 
                 <button id="btn-add-checkbox" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-
-              <!-- MULTIPLE CHOICES -->
-              <div class="x-template-wrapper">
-                <div class="form-group x-template">
-                  <label>Multiple choices</label>
-
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox">
-                    <label class="form-check-label">
-                      Option 1
-                    </label>
-                  </div>
-
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox">
-                    <label class="form-check-label">
-                      Option 2
-                    </label>
-                  </div>
-                </div>
-
-                <button id="btn-add-multiplechoices" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
               </div>
 
             </form>
