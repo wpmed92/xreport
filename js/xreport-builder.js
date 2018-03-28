@@ -106,19 +106,29 @@ $(function() {
     var model = this;
     var editor = $("<div class='form-group'></div>");
     editor.append("<label>Opciók</label>");
-    var inp = $("<input type='text' class='form-control'>");
+    var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
     var view = $("*[data-x-id='" + model.id + "']");
 
-    inp.on("change", function() {
-      var val = $(this).val();
-      model.options.push(val);
-      view.append($('<option>', {
-        value: val,
-        text : val
-      }));
+    updateOptionsBtn.click(function() {
+      var text = textArea.val();
+      var splitted = text.split(';');
+
+      splitted.forEach(function(option) {
+        if (!option || option === "") {
+          return;
+        }
+
+        model.options.push(option);
+        view.append($('<option>', {
+          value: option,
+          text : option
+        }));
+      });
     });
 
-    editor.append(inp);
+    editor.append(textArea);
+    editor.append(updateOptionsBtn);
     return editor;
   }
 
@@ -140,19 +150,29 @@ $(function() {
     var model = this;
     var editor = $("<div class='form-group'></div>");
     editor.append("<label>Opciók</label>");
-    var inp = $("<input type='text' class='form-control'>");
+    var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
     var view = $("*[data-x-id='" + model.id + "']");
 
-    inp.on("change", function() {
-      var val = $(this).val();
-      model.options.push(val);
-      view.append($('<option>', {
-        value: val,
-        text : val
-      }));
+    updateOptionsBtn.click(function() {
+      var text = textArea.val();
+      var splitted = text.split(';');
+
+      splitted.forEach(function(option) {
+        if (!option || option === "") {
+          return;
+        }
+
+        model.options.push(option);
+        view.append($('<option>', {
+          value: option,
+          text : option
+        }));
+      });
     });
 
-    editor.append(inp);
+    editor.append(textArea);
+    editor.append(updateOptionsBtn);
     return editor;
   }
 
@@ -208,14 +228,6 @@ $(function() {
   function buildEditor(xelem) {
     $("#editor").html(xelem.buildEditor());
     $("#a-editor").tab("show");
-  }
-
-  function renderForm() {
-    $("#x-form").html("");
-
-    xform.forEach(function(xelem) {
-      addToForm(xelem);
-    });
   }
 
   function addToForm(xelem) {
@@ -281,6 +293,7 @@ $(function() {
     console.log(JSON.stringify(xform));
   }
 
+  //Events
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
     addFormElem("intext");
