@@ -2,6 +2,8 @@
 $(function() {
   "use strict";
 
+  var xform = [];
+
   function XFormElem(type) {
     var that = this;
     that.type = type;
@@ -60,6 +62,10 @@ $(function() {
     this.options = [];
   }
 
+  XMulSel.prototype.addOption = function(option) {
+    this.options.push(option);
+  }
+
   XMulSel.prototype.render = function() {
       return $("<select class='form-control' multiple></select>");
   }
@@ -73,6 +79,18 @@ $(function() {
 
   XFormGroup.prototype.addChild = function(child) {
     this.child = child;
+  }
+
+  XFormGroup.prototype.buildEditor = function() {
+    var model = this;
+    var labelEditor = $("<input type='text' class='form-control'>");
+    labelEditor.on("change", function() {
+      var inp = $(this).val();
+      model.label = inp;
+      console.log(JSON.stringify(xform));
+    });
+
+    return labelEditor;
   }
 
   XFormGroup.prototype.render = function() {
@@ -91,12 +109,10 @@ $(function() {
     } else {
       console.log("Unknown orientation");
     }
-    
+
     return view;
   }
 
-  var xNum = new XInNum(0, 10);
-  console.log(xNum.render());
 
   var editors = {
     "label": '<div class="form-group">\
@@ -198,10 +214,10 @@ $(function() {
     $("#x-form").append(formElemWrapper);*/
 
     //NOTE: this is the experimental part
-    var testGroup = new XFormGroup("horizontal", "T2 gócok");
+    /*var testGroup = new XFormGroup("horizontal", "T2 gócok");
     testGroup.addChild(new XInNum(1,10));
 
-    $("#x-form").append(testGroup.render());
+    $("#x-form").append(testGroup.render());*/
 
     return false;
   }
@@ -234,6 +250,76 @@ $(function() {
     $(this).tab('show');
   }
 
+  function buildEditor(xelem) {
+    $("#editor").html(xelem.buildEditor());
+    $("#a-editor").tab("show");
+  }
+
+  function addToForm(xelem) {
+    xform.push(xelem);
+    var formElemWrapper = $("<div class='x-form-wrapper'></div>");
+    formElemWrapper.append(xelem.render());
+    var buttonGroup = $("<div class='btn-group x-form-edit-button' role='group'></div>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-primary'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus-circle'></i></button>");
+    buttonGroup.append(editButton);
+    buttonGroup.append(removeButton);
+    editButton.click(function() {
+      buildEditor(xelem);
+    });
+    removeButton.click(function() {
+      formElemWrapper.remove();
+    });
+    formElemWrapper.append(buttonGroup);
+    $("#x-form").append(formElemWrapper);
+  });
+
+  function addFormElem(type) {
+    switch (type) {
+      case "intext":
+        var text = new XFormGroup("vertical", "Szöveges mező");
+        text.addChild(new XInText());
+        addToForm(text);
+        break;
+
+      case "innum":
+        var num = new XFormGroup("horizontal", "Szám mező");
+        num.addChild(new XInNum());
+        addToForm(num);
+        break;
+
+      case "inbool":
+        var boolean = new XFormGroup("vertical", "Eldöntendő mező");
+        boolean.addChild(new XInBool());
+        addToForm(boolean);
+        break;
+
+      case "sel":
+        break;
+
+      case "mulsel":
+        break;
+
+      default:
+        console.log("Unknown form elem: " + type);
+        break;
+    }
+
+    console.log(JSON.stringify(xform));
+  }
+
   $(".x-template-add-button").click(templateElemClick);
   $(".nav-tabs a").click(navTabsClick);
+  $("#btn-add-textbox").click(function() {
+    addFormElem("intext");
+  });
+  $("#btn-add-numberbox").click(function() {
+    addFormElem("innum");
+  });
+  $("#btn-add-checkbox").click(function() {
+    addFormElem("inbool");
+  });
+  $("#btn-add-select").click(function() {
+    addFormElem("sel");
+  });
 });
