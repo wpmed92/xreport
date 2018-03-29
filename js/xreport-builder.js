@@ -48,6 +48,7 @@ $(function() {
     var editor = $("<div class='form-group'></div>");
     editor.append("<label>Mező neve</label>");
     var inp = $("<input type='text' class='form-control'>");
+    inp.val(model.val);
 
     inp.on("change", function() {
       var val = $(this).val();
@@ -70,7 +71,40 @@ $(function() {
   XInNum.prototype = Object.create(XFormElem.prototype);
 
   XInNum.prototype.render = function() {
-    return $("<input type='number' class='form-control'>");
+    var view = $("<input type='number' class='form-control'>");
+    this.bind(view);
+    return view;
+  }
+
+  XInNum.prototype.buildEditor = function() {
+    var model = this;
+    var editor = $("<div></div>");
+    var view = $("*[data-x-id='" + model.id + "']");
+    var minWrapper = $("<div class='form-group'><label>Minimum érték</label></div>");
+    var minControl = $("<input type='number' class='form-control'>");
+    var maxWrapper = $("<div class='form-group'><label>Maximum érték</label></div>");
+    var maxControl = $("<input type='number' class='form-control'>");
+
+    minControl.val(model.min);
+    maxControl.val(model.max);
+    
+    minControl.on("change", function() {
+      var val = $(this).val();
+      model.min = val;
+      view.attr("min", val);
+    });
+
+    maxControl.on("change", function() {
+      var val = $(this).val();
+      model.max = val;
+      view.attr("max", val);
+    });
+
+    minWrapper.append(minControl);
+    maxWrapper.append(maxControl);
+    editor.append(minWrapper);
+    editor.append(maxWrapper);
+    return editor;
   }
 
   //Textbox

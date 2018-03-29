@@ -37,10 +37,13 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
           <li class="nav-item">
-            <a id="a-templates" class="nav-link active" href="#templates"><i class="fas fa-code"></i> Minták</a>
+            <a id="a-templates" class="nav-link active" href="#templates"><i class="fab fa-wpforms"></i> Minták</a>
           </li>
           <li class="nav-item">
             <a id="a-editor" class="nav-link" href="#editor"><i class="fas fa-pencil-alt"></i> Szerkesztő</a>
+          </li>
+          <li class="nav-item">
+            <a id="a-rules" class="nav-link" href="#rules"><i class="fas fa-code"></i> Szabályok</a>
           </li>
         </ul>
 
@@ -124,6 +127,14 @@
           <!-- Editing a specific field -->
           <div id="editor" class="tab-pane fade">
             <!-- Dynamic editor content -->
+          </div>
+
+          <!-- Writing rules for the form -->
+          <div id="rules" class="tab-pane fade">
+            <div class="form group">
+              <label>Szabályok</label>
+              <textarea class="form-control" rows="10"></textarea>
+            </div>
           </div>
         </div>
       </div>
