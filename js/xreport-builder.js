@@ -7,6 +7,8 @@ $(function() {
     form: []
   };
 
+  var rules = [];
+
   var xform = xscheme.form;
 
   //Base XFormElem
@@ -62,15 +64,17 @@ $(function() {
   }
 
   //Numberbox
-  function XInNum(min, max) {
+  function XInNum(min, max, rule) {
     XFormElem.call(this, "innum");
     this.min = min;
     this.max = max;
+    this.rule = rule;
   }
 
   XInNum.prototype = Object.create(XFormElem.prototype);
 
   XInNum.prototype.render = function() {
+    var model = this;
     var view = $("<input type='number' class='form-control'>");
     this.bind(view);
     return view;
@@ -87,7 +91,7 @@ $(function() {
 
     minControl.val(model.min);
     maxControl.val(model.max);
-    
+
     minControl.on("change", function() {
       var val = $(this).val();
       model.min = val;
@@ -127,7 +131,7 @@ $(function() {
 
   XInBool.prototype.render = function() {
     return $("<div class='form-check'>\
-                <input class='form-check-input' type='checkbox'>\
+                <input class='form-check-input' type='" + this.style + "'>\
               </div>");
   }
 
@@ -195,7 +199,7 @@ $(function() {
 
   XMulSel.prototype = Object.create(XFormElem.prototype);
 
-  XMulSel.prototype.render = function() {
+  XMulSel.prototype.render = function(customRenderer) {
     var view = $("<select class='form-control' multiple></select>");
     this.bind(view);
     return view;
@@ -255,8 +259,12 @@ $(function() {
   }
 
   XFormGroup.prototype.render = function() {
+    var viewWrapper = $("<div></div>");
     var view = $("<div class='form-group'></div>");
+    var diagnostic = $("<div><span class='text-info x-diagnostic'>group: " + this.id + "; label: " + this.label.id + "; input: " + this.child.id + "</span></div>");
+    viewWrapper.append(diagnostic);
     this.bind(view);
+    view.append(diagnostic);
 
     if (this.orientation === "vertical") {
       if (this.child.type === "inbool") {
@@ -269,7 +277,8 @@ $(function() {
       console.log("Unknown orientation");
     }
 
-    return view;
+    viewWrapper.append(view);
+    return viewWrapper;
   }
 
   //Form row (for custom elems)
@@ -410,6 +419,10 @@ $(function() {
     }
   }
 
+  function getElem(xid) {
+    return $("*[data-x-id='" + c + "']")
+  }
+
   //Events
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
@@ -436,6 +449,10 @@ $(function() {
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
     $(".x-form-edit-btn").toggleClass("collapse");
+    $(".x-diagnostic").toggleClass("collapse");
+  });
+  $("#btn-run-script").click(function() {
+    var scriptText = $("#script-area").val();
   });
 
   //Navbar
