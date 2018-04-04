@@ -123,8 +123,9 @@ $(function() {
   }
 
   //Checkbox
-  function XInBool() {
+  function XInBool(style) {
     XFormElem.call(this, "inbool");
+    this.style = style || "checkbox";
   }
 
   XInBool.prototype = Object.create(XFormElem.prototype);
@@ -148,15 +149,23 @@ $(function() {
   }
 
   //Select
-  function XSel() {
+  function XSel(style) {
     XFormElem.call(this, "sel");
+    this.style = style || "default";
     this.options = [];
   }
 
   XSel.prototype = Object.create(XFormElem.prototype);
 
   XSel.prototype.render = function() {
-    var view = $("<select class='form-control'></select>");
+    var view = "";
+
+    if (this.style === "radio") {
+      view = $("<div></div>");
+    } else {
+      view = $("<select class='form-control'></select>");
+    }
+
     this.bind(view);
     return view;
   }
@@ -172,6 +181,7 @@ $(function() {
     updateOptionsBtn.click(function() {
       var text = textArea.val();
       var splitted = text.split(';');
+      model.options = [];
 
       splitted.forEach(function(option) {
         if (!option || option === "") {
@@ -179,10 +189,19 @@ $(function() {
         }
 
         model.options.push(option);
-        view.append($('<option>', {
-          value: option,
-          text : option
-        }));
+
+        if (model.style === "radio") {
+            var inbool = new XInBool("radio");
+            var inboolView = inbool.render();
+            inboolView.find("input").first().attr("name", model.id);
+            var radio = inboolView.append(new XLabel(option).render());
+            view.append(radio);
+        } else {
+          view.append($('<option>', {
+            value: option,
+            text : option
+          }));
+        }
       });
     });
 
@@ -192,15 +211,23 @@ $(function() {
   }
 
   //Multiple select
-  function XMulSel() {
+  function XMulSel(style) {
     XFormElem.call(this, "mulsel");
+    this.style = style || "default";
     this.options = [];
   }
 
   XMulSel.prototype = Object.create(XFormElem.prototype);
 
-  XMulSel.prototype.render = function(customRenderer) {
-    var view = $("<select class='form-control' multiple></select>");
+  XMulSel.prototype.render = function() {
+    var view = "";
+
+    if (this.style === "checkbox") {
+      view = $("<div></div>");
+    } else {
+      view = $("<select class='form-control' multiple></select>");
+    }
+
     this.bind(view);
     return view;
   }
@@ -216,6 +243,8 @@ $(function() {
     updateOptionsBtn.click(function() {
       var text = textArea.val();
       var splitted = text.split(';');
+      view.empty();
+      model.options = [];
 
       splitted.forEach(function(option) {
         if (!option || option === "") {
@@ -223,10 +252,18 @@ $(function() {
         }
 
         model.options.push(option);
-        view.append($('<option>', {
-          value: option,
-          text : option
-        }));
+
+        if (model.style === "checkbox") {
+            var inbool = new XInBool();
+            var inboolView = inbool.render();
+            var check = inboolView.append(new XLabel(option).render());
+            view.append(check);
+        } else {
+          view.append($('<option>', {
+            value: option,
+            text : option
+          }));
+        }
       });
     });
 
@@ -381,7 +418,7 @@ $(function() {
 
       case "mulsel":
         var mulsel = new XFormGroup("vertical", "Választás");
-        mulsel.addChild(new XMulSel());
+        mulsel.addChild(new XMulSel("checkbox"));
         xform.push(mulsel);
         addToForm(mulsel);
         break;
