@@ -52,76 +52,25 @@
         <!-- Tab content -->
         <div class="tab-content">
           <div id="templates" class="tab-pane fade in active">
-            <form id="control-panel">
-              <!-- TEMPLATES -->
-              <h5>Kész séma elemek</h5>
+            <div class="list-group">
+              <a href="#" id="btn-add-textbox" class="list-group-item list-group-item-action"><i class="fas fa-font"></i> Szöveges mező</a>
+              <a href="#" id="btn-add-numberbox" class="list-group-item list-group-item-action"><i class="fas fa-hashtag"></i> Szám mező</a>
+              <a href="#" id="btn-add-checkbox" class="list-group-item list-group-item-action"><i class="far fa-check-square"></i> Eldöntendő mező</a>
+              <a href="#" id="btn-add-select" class="list-group-item list-group-item-action"><i class="fas fa-bars"></i> Egyszeres választás</a>
+              <a href="#" id="btn-add-select-multiple" class="list-group-item list-group-item-action"><i class="fas fa-list"></i> Többszörös választás</a>
+              <a href="#" id="btn-add-textarea" class="list-group-item list-group-item-action"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
+            </div>
 
-              <!-- TEXTBOX -->
-              <div class="x-template-wrapper">
-                <div class="form-group x-template">
-                  <label>Szöveges mező</label>
-                  <input class="form-control" type="text">
-                </div>
+            <br>
 
-                <button id="btn-add-textbox" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-
-              <!-- NUMBERBOX -->
-              <div class="x-template-wrapper">
-                <div class="form-group x-template">
-                  <label>Szám mező</label>
-                  <input class="form-control" type="number">
-                </div>
-
-                <button id="btn-add-numberbox" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-
-              <!-- CHECKBOX -->
-              <div class="x-template-wrapper">
-                <div class="form-group">
-                  <div class="form-check x-template">
-                    <input class="form-check-input" type="checkbox">
-                    <label class="form-check-label">
-                        Eldöntendő mező
-                      </label>
-                  </div>
-                </div>
-
-                <button id="btn-add-checkbox" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-
-              <!-- SELECT -->
-              <div class="x-template-wrapper">
-                <div class="form-group x-template">
-                  <label>Egyszeres választás</label>
-                  <select class="form-control">
-                    </select>
-                </div>
-
-                <button id="btn-add-select" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-
-              <!-- MULTIPLE SELECT -->
-              <div class="x-template-wrapper">
-                <div class="form-group x-template">
-                  <label>Többszörös választás</label>
-                  <select class="form-control" multiple>
-                    </select>
-                </div>
-
-                <button id="btn-add-select-multiple" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-
-              <!-- TEXTAREA -->
-              <div class="x-template-wrapper">
-                <div class="form-group x-template">
-                  <label>Szabad szöveges mező</label>
-                  <textarea class="form-control" rows="4"></textarea>
-                </div>
-
-                <button id="btn-add-textarea" type="button" class="btn btn-sm btn-info x-template-add-button"><i class="fas fa-plus"></i></button>
-              </div>
-            </form>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <label id="btn-newline" class="btn btn-secondary active">
+                <input type="radio" name="options" id="option1" autocomplete="off" checked> Új sorba
+              </label>
+              <label id="btn-inline" class="btn btn-secondary">
+                <input type="radio" name="options" id="option2" autocomplete="off"> Egy sorba
+              </label>
+            </div>
           </div>
 
           <!-- Editing a specific field -->

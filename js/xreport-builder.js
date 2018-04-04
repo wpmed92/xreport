@@ -299,9 +299,9 @@ $(function() {
     var viewWrapper = $("<div></div>");
     var view = $("<div class='form-group'></div>");
     var diagnostic = $("<div><span class='text-info x-diagnostic'>group: " + this.id + "; label: " + this.label.id + "; input: " + this.child.id + "</span></div>");
-    viewWrapper.append(diagnostic);
+    //viewWrapper.append(diagnostic);
     this.bind(view);
-    view.append(diagnostic);
+    //view.append(diagnostic);
 
     if (this.orientation === "vertical") {
       if (this.child.type === "inbool") {
@@ -333,7 +333,7 @@ $(function() {
   XFormRow.prototype.render = function() {
     var view = $("<div class='form row'></div>");
     this.bind(view);
-    var equalColWidth = Math.floor(this.children.length, 12);
+    var equalColWidth = Math.floor(12 / this.children.length);
     var needsBalancing = this.children.length % 12;
 
     if (equalColWidth >= 1) {
@@ -347,6 +347,17 @@ $(function() {
     return view;
   }
 
+  XFormRow.prototype.buildEditor = function() {
+    var model = this;
+    var editor = $("<div></div>");
+
+    model.children.forEach(function(child) {
+      editor.append(child.buildEditor());
+    });
+    
+    return editor;
+  }
+
   //Handles tab navigation
   function navTabsClick() {
     $(this).tab('show');
@@ -357,9 +368,17 @@ $(function() {
     $("#a-editor").tab("show");
   }
 
+  var formRow = new XFormRow();
+
   function addToForm(xelem) {
+    if (!isInlineMode()) {
+      formRow = new XFormRow();
+    }
+
+    xform.push(xelem);
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
-    formElemWrapper.append(xelem.render());
+    var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
+    formElemWrapperContent.append(xelem.render());
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
     var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
     var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
@@ -374,6 +393,7 @@ $(function() {
         return el.id !== xelem.id;
       });
     });
+    formElemWrapper.append(formElemWrapperContent);
     formElemWrapper.append(buttonGroup);
     $("#x-form").append(formElemWrapper);
   };
@@ -386,48 +406,54 @@ $(function() {
     }
   }
 
+  function addInline(elem) {
+    formRow.addChild(elem);
+
+    if (formRow.children.length > 1) {
+      var view = $("*[data-x-id='" + formRow.id + "']").parent();
+      view.empty();
+      view.append(formRow.render());
+    } else {
+      addToForm(formRow);
+    }
+  }
+
+  function isInlineMode() {
+    return $("#btn-inline").hasClass("active");
+  }
+
   function addFormElem(type) {
+    var elem = "";
+
     switch (type) {
       case "intext":
-        var text = new XFormGroup("vertical", "Szöveges mező");
-        text.addChild(new XInText());
-        xform.push(text);
-        addToForm(text);
+        elem = new XFormGroup("vertical", "Szöveges mező");
+        elem.addChild(new XInText());
         break;
 
       case "innum":
-        var num = new XFormGroup("vertical", "Szám mező");
-        num.addChild(new XInNum());
-        xform.push(num);
-        addToForm(num);
+        elem = new XFormGroup("vertical", "Szám mező");
+        elem.addChild(new XInNum());
         break;
 
       case "inbool":
-        var boolean = new XFormGroup("vertical", "Eldöntendő mező");
-        boolean.addChild(new XInBool());
-        xform.push(boolean);
-        addToForm(boolean);
+        elem = new XFormGroup("vertical", "Eldöntendő mező");
+        elem.addChild(new XInBool());
         break;
 
       case "sel":
-        var sel = new XFormGroup("vertical", "Választás");
-        sel.addChild(new XSel());
-        xform.push(sel);
-        addToForm(sel);
+        elem = new XFormGroup("vertical", "Egyszeres választás");
+        elem.addChild(new XSel());
         break;
 
       case "mulsel":
-        var mulsel = new XFormGroup("vertical", "Választás");
-        mulsel.addChild(new XMulSel("checkbox"));
-        xform.push(mulsel);
-        addToForm(mulsel);
+        elem = new XFormGroup("vertical", "Többszörös választás");
+        elem.addChild(new XMulSel("checkbox"));
         break;
 
       case "tarea":
-        var tarea = new XFormGroup("vertical", "Szabad szöveg");
-        tarea.addChild(new XTextArea(4));
-        xform.push(tarea);
-        addToForm(tarea);
+        elem = new XFormGroup("vertical", "Szabad szöveg");
+        elem.addChild(new XTextArea(4));
         break;
 
       default:
@@ -435,6 +461,13 @@ $(function() {
         break;
     }
 
+    if (isInlineMode()) {
+      addInline(elem);
+    } else {
+      addToForm(elem);
+    }
+
+    //Diagnostic
     console.log(JSON.stringify(xform, replacer));
   }
 
