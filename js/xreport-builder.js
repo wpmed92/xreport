@@ -64,11 +64,11 @@ $(function() {
   }
 
   //Numberbox
-  function XInNum(min, max, rule) {
+  function XInNum(min, max, unit) {
     XFormElem.call(this, "innum");
     this.min = min;
     this.max = max;
-    this.rule = rule;
+    this.unit = unit;
   }
 
   XInNum.prototype = Object.create(XFormElem.prototype);
@@ -88,6 +88,8 @@ $(function() {
     var minControl = $("<input type='number' class='form-control'>");
     var maxWrapper = $("<div class='form-group'><label>Maximum érték</label></div>");
     var maxControl = $("<input type='number' class='form-control'>");
+    var unitWrapper = $("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
+    var unitControl = $("<input type='text' class='form-control'>");
 
     minControl.val(model.min);
     maxControl.val(model.max);
@@ -104,10 +106,31 @@ $(function() {
       view.attr("max", val);
     });
 
+    unitControl.on("change", function() {
+      var val = $(this).val();
+      model.unit = val;
+
+      if (!val) {
+        view.parent().find(".input-group-append").remove();
+        return;
+      }
+
+      if (!view.parent().hasClass("input-group")) {
+        view.wrap("<div class='input-group mb-3'></div>");
+        view.parent().append("<div class='input-group-append'>\
+                                <span class='input-group-text'>" + model.unit + "</span>\
+                              </div>");
+      } else {
+        view.parent().find(".input-group-text").first().html(model.unit);
+      }
+    });
+
     minWrapper.append(minControl);
     maxWrapper.append(maxControl);
+    unitWrapper.append(unitControl);
     editor.append(minWrapper);
     editor.append(maxWrapper);
+    editor.append(unitWrapper);
     return editor;
   }
 
@@ -354,7 +377,7 @@ $(function() {
     model.children.forEach(function(child) {
       editor.append(child.buildEditor());
     });
-    
+
     return editor;
   }
 
