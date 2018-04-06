@@ -11,7 +11,7 @@ $(function() {
 
   var rules = [];
 
-  var xform = xscheme.report;
+  var xform = xscheme.clinics;
   var xformView = $("#x-form-clinics");
 
   //Base XFormElem
@@ -497,22 +497,16 @@ $(function() {
     console.log(JSON.stringify(xform, replacer));
   }
 
-  function getSchemesFromStorage() {
-    $("#div-grid-schemes").html("");
+  function getReports() {
+    $("#li-schemes").html("");
 
-    var keys = Object.keys(localStorage),
-        i = 0, key;
-
-    for (; key = keys[i]; i++) {
-      var col = $("<div class='col-3'></div>");
-      var card = $("<div class='card'></div>");
-      var cardBody = $("<div class='card-body'></div>");
-      cardBody.append("<div style='font-size:3em' class='d-flex justify-content-center'><i class='fas fa-file-medical-alt'></i></div>");
-      cardBody.append("<div class='d-flex justify-content-center'><h5 clas='card-title'>" + key + "</h5></div>");
-      card.append(cardBody);
-      col.append(card);
-      $("#div-grid-schemes").append(col);
-    }
+    api.getReports().then(function(reports) {
+      reports.forEach(function(report) {
+        $("#li-schemes").append("<a href='#' class='list-group-item list-group-item-action'>" + report.data().name + "</a>");
+      });
+    }).catch(function(error) {
+      console.log(error);
+    });
   }
 
   function getElem(xid) {
@@ -540,7 +534,9 @@ $(function() {
     addFormElem("tarea");
   });
   $("#btn-save-scheme").click(function() {
-    localStorage.setItem(xscheme.title, JSON.stringify(xscheme.form));
+    var reportJSON = JSON.stringify(xscheme);
+    var reportFile = new Blob([reportJSON], {type: "application/json"});
+    api.saveReport({file: reportFile, name: xscheme.title, creator: "Test User"});
   });
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
@@ -551,6 +547,10 @@ $(function() {
     var scriptText = $("#script-area").val();
   });
 
+  $("#input-scheme-title").on("change", function(e) {
+    e.preventDefault();
+    xscheme.title = $(this).val();
+  })
   //Report section selection
   $("#btn-clinics-section").click(function() {
     xform = xscheme.clinics;
@@ -573,6 +573,6 @@ $(function() {
   $("#a-schemes").click(function() {
     $("#div-schemes").removeClass("collapse");
     $("#div-builder").addClass("collapse");
-    getSchemesFromStorage();
+    getReports();
   });
 });
