@@ -87,9 +87,8 @@
       </div>
 
 
-      <!-- Form -->
-      <div class="col-6 offset-right-1">
-        <form>
+        <!-- Form -->
+        <div class="col-6 offset-right-1">
           <div class="card">
             <div class="card-header">
               <div class="d-flex justify-content-between">
@@ -105,13 +104,66 @@
               </div>
             </div>
 
-            <div id="x-form" class="card-body">
+            <div id="accordion">
+              <!-- Klinikum-->
+              <div class="card">
+                <div class="card-header" id="clinicsHeading">
+                  <h5 class="mb-0">
+                    <button id="btn-clinics-section" class="btn btn-link" data-toggle="collapse" data-target="#sectionClinics" aria-expanded="true" aria-controls="sectionClinics">
+                      <i class="fas fa-briefcase-medical"></i> Klinikum
+                    </button>
+                  </h5>
+                </div>
+
+                <div id="sectionClinics" class="collapse show" aria-labelledby="clinicsHeading" data-parent="#accordion">
+                  <div id="x-form-clinics" class="card-body">
+                    <!-- content of clinics -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lelet -->
+              <div class="card">
+                <div class="card-header" id=reportHeading>
+                  <h5 class="mb-0">
+                    <button id="btn-report-section" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sectionReport" aria-expanded="false" aria-controls="sectionReport">
+                      <i class="fas fa-file-medical-alt"></i> Lelet
+                    </button>
+                  </h5>
+                </div>
+                <div id="sectionReport" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                  <div id="x-form-report" class="card-body">
+                    <!-- content of lelet -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vélemény -->
+              <div class="card">
+                <div class="card-header" id="opinionHeading">
+                  <h5 class="mb-0">
+                    <button id="btn-opinion-section" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sectionOpinion" aria-expanded="false" aria-controls="sectionOpinion">
+                      <i class="fas fa-user-md"></i> Vélemény
+                    </button>
+                  </h5>
+                </div>
+                <div id="sectionOpinion" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                  <div id="x-form-opinion" class="card-body">
+                    <!-- content of opinion -->
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
+
+  <footer class="footer">
+    <div class="container">
+      <span class="text-muted">© 2018 Copyright: dr. Harmouche Ahmed Mouhamad</span>
+    </div>
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

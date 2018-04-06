@@ -4,12 +4,15 @@ $(function() {
 
   var xscheme = {
     title: "",
-    form: []
+    clinics: [],
+    report: [],
+    opinion: []
   };
 
   var rules = [];
 
-  var xform = xscheme.form;
+  var xform = xscheme.report;
+  var xformView = $("#x-form-clinics");
 
   //Base XFormElem
   function XFormElem(type) {
@@ -418,7 +421,7 @@ $(function() {
     });
     formElemWrapper.append(formElemWrapperContent);
     formElemWrapper.append(buttonGroup);
-    $("#x-form").append(formElemWrapper);
+    xformView.append(formElemWrapper);
   };
 
   function replacer(key, value) {
@@ -546,6 +549,20 @@ $(function() {
   });
   $("#btn-run-script").click(function() {
     var scriptText = $("#script-area").val();
+  });
+
+  //Report section selection
+  $("#btn-clinics-section").click(function() {
+    xform = xscheme.clinics;
+    xformView = $("#x-form-clinics");
+  });
+  $("#btn-report-section").click(function() {
+    xform = xscheme.report;
+    xformView = $("#x-form-report");
+  });
+  $("#btn-opinion-section").click(function() {
+    xform = xscheme.opinion;
+    xformView = $("#x-form-opinion");
   });
 
   //Navbar
