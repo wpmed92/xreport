@@ -15,15 +15,22 @@ var api = (function(fb) {
   var db = fb.firestore();
   var storage = firebase.storage();
   var storageRef = storage.ref();
-  var reportsRef = storageRef.child("reports");
 
   api.saveReport = function(report) {
-    return reportsRef.put(report.file).then(function(snapshot) {
-      return db.collection("reports").add({
-        name: report.name,
-        createdAt: SERVERTIME,
-        creator: report.creator
-      });
+    return db.collection("reports").add({
+      name: report.name,
+      createdAt: SERVERTIME,
+      creator: report.creator,
+      contentUrl: ""
+    }).then(function(initialDoc) {
+        return storageRef.child("reports/" + initialDoc.id).put(report.file)
+                .then(function(snapshot) {
+                  return { doc: initialDoc, downloadUrl: snapshot.downloadURL };
+                });
+    }).then(function(uploadResp) {
+        return uploadResp.doc.set({
+          contentUrl: uploadResp.downloadUrl
+        }, { merge: true });
     });
   }
 
