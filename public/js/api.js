@@ -34,6 +34,10 @@ var api = (function(fb) {
     });
   }
 
+  api.getReport = function(id) {
+    return db.collection("reports").doc(id).get();
+  }
+
   api.getReports = function() {
     return db.collection("reports").get();
   }

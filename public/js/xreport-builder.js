@@ -502,11 +502,44 @@ $(function() {
 
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
-        $("#li-schemes").append("<a href='#' class='list-group-item list-group-item-action'>" + report.data().name + "</a>");
+        $("#li-schemes").append("<a href='#' class='list-group-item list-group-item-action report-list-item' data-id='" + report.id + "'>" + report.data().name + "</a>");
       });
     }).catch(function(error) {
       console.log(error);
     });
+  }
+
+  function assigner(formElem) {
+    var type = formElem.type;
+
+    if (type === "group") {
+      var group = Object.assign(new XFormGroup, formElem);
+      group.label = Object.assign(new XLabel, formElem.label);
+
+      if (formElem.child.type === "inbool")
+      group.child = Object.assign(new XInBool, formElem.child);
+    } else if (type === "intext") {
+      return new XInText();
+    } else if (type === "innum") {
+      return new XInNum();
+    } else if ()
+  }
+  function buildReportFromJSON(json) {
+    //Build clinincs part
+    json.clinics.forEach(function(clinicsElem) {
+      if (clinicsElem.type === "group") {
+        var group = Object.assign(new XFormGroup, formElem);
+        group.label = Object.assign(new XLabel, formElem.label);
+
+        if (formElem.child.type === "inbool")
+        group.child = Object.assign(new XInBool, formElem.child);
+        addToForm(group);
+      }
+    });
+
+    //Build report part
+
+    //Build opinion part
   }
 
   function getElem(xid) {
@@ -536,7 +569,26 @@ $(function() {
   $("#btn-save-scheme").click(function() {
     var reportJSON = JSON.stringify(xscheme);
     var reportFile = new Blob([reportJSON], {type: "application/json"});
-    api.saveReport({file: reportFile, name: xscheme.title, creator: "Test User"});
+    api.saveReport({
+      file: reportFile,
+      name: xscheme.title,
+      creator: "Test User"
+    });
+  });
+  $("body").on('click', "#li-schemes a", function() {
+    var reportId = $(this).attr("data-id");
+    api.getReport(reportId).then(function(report) {
+        if (report.exists) {
+          console.log("Document data:", report.data());
+          $.getJSON(report.data().contentUrl, function(json) {
+            buildReportFromJSON(json);
+          });
+        } else {
+          console.log("No such document!");
+        }
+      }).catch(function(error) {
+        console.log("Error getting document:", error);
+      });
   });
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
