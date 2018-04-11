@@ -1,3 +1,4 @@
+//XReport form components
 var xReportForm = (function(jQ) {
   //Base XFormElem
   function XFormElem(type) {
