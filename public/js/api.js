@@ -15,7 +15,12 @@ var api = (function(fb) {
   var db = fb.firestore();
   var storage = firebase.storage();
   var storageRef = storage.ref();
+  var provider = new fb.auth.GoogleAuthProvider();
 
+  api.login = function() {
+    return firebase.auth().signInWithPopup(provider);
+  }
+  
   api.saveReport = function(report) {
     return db.collection("reports").add({
       name: report.name,

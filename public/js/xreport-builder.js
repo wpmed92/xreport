@@ -13,6 +13,9 @@ $(function() {
 
   var xform = xscheme.clinics;
   var xformView = $("#x-form-clinics");
+  var currentUser = null;
+
+  moment.locale("hu");
 
   //Base XFormElem
   function XFormElem(type) {
@@ -502,42 +505,63 @@ $(function() {
 
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
-        $("#li-schemes").append("<a href='#' class='list-group-item list-group-item-action report-list-item' data-id='" + report.id + "'>" + report.data().name + "</a>");
+        var cardDeckElem = '<div class="card">\
+                              <div class="card-body">\
+                                <h4 class="card-title">' + report.data().name + '</h4>\
+                                <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
+                                <p class="card-text"><small class="text-muted">Készítette ' + report.data().creator + ", " + moment(report.data().createdAt).fromNow()  + '</small></p>\
+                              </div>\
+                            </div>';
+        $("#li-schemes").append(cardDeckElem);
       });
     }).catch(function(error) {
       console.log(error);
     });
   }
 
-  function assigner(formElem) {
+  function createFormElemFromJSON(formElem) {
     var type = formElem.type;
 
     if (type === "group") {
       var group = Object.assign(new XFormGroup, formElem);
       group.label = Object.assign(new XLabel, formElem.label);
-
-      if (formElem.child.type === "inbool")
-      group.child = Object.assign(new XInBool, formElem.child);
+      group.child = createFormElemFromJSON(formElem.child);
+      return group;
     } else if (type === "intext") {
-      return new XInText();
+      return Object.assign(new XInText, formElem);
     } else if (type === "innum") {
-      return new XInNum();
-    } else if ()
+      return Object.assign(new XInNum, formElem);
+    } else if (type === "inbool") {
+      return Object.assign(new XInBool, formElem);
+    } else if (type === "tarea") {
+      return Object.assign(new XTextArea, formElem);
+    } else if (type === "sel") {
+      return Object.assign(new XSel, formElem);
+    } else if (type === "mulsel") {
+      return Object.assign(new XMulSel, formElem);
+    } else if (type === "row") {
+      var row = Object.assign(new XFormRow, formElem);
+      row.children.forEach(function(child) {
+        child = createFormElemFromJSON(child);
+      });
+      return row;
+    }
   }
+
   function buildReportFromJSON(json) {
     //Build clinincs part
+    xformView = $("#x-form-clinics");
     json.clinics.forEach(function(clinicsElem) {
-      if (clinicsElem.type === "group") {
-        var group = Object.assign(new XFormGroup, formElem);
-        group.label = Object.assign(new XLabel, formElem.label);
-
-        if (formElem.child.type === "inbool")
-        group.child = Object.assign(new XInBool, formElem.child);
-        addToForm(group);
-      }
+      var celem = createFormElemFromJSON(clinicsElem);
+      addToForm(celem);
     });
 
     //Build report part
+    xformView = $("#x-form-report");
+    json.report.forEach(function(reportElem) {
+      var relem = createFormElemFromJSON(reportElem);
+      addToForm(relem);
+    });
 
     //Build opinion part
   }
@@ -566,13 +590,24 @@ $(function() {
   $("#btn-add-textarea").click(function() {
     addFormElem("tarea");
   });
+  $("#a-login").click(function() {
+    api.login().then(function(result) {
+      currentUser = result.user;
+    }).catch(function(error) {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      var email = error.email;
+      var credential = error.credential;
+      console.log(error);
+    });
+  });
   $("#btn-save-scheme").click(function() {
     var reportJSON = JSON.stringify(xscheme);
     var reportFile = new Blob([reportJSON], {type: "application/json"});
     api.saveReport({
       file: reportFile,
       name: xscheme.title,
-      creator: "Test User"
+      creator: currentUser.displayName
     });
   });
   $("body").on('click', "#li-schemes a", function() {
