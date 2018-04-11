@@ -1,5 +1,5 @@
 //XReport form components
-var xReportForm = (function(jQ) {
+var XReportForm = (function(jQ) {
   //Base XFormElem
   function XFormElem(type) {
     var that = this;
@@ -371,14 +371,14 @@ var xReportForm = (function(jQ) {
   }
 
   return {
-    label: XLabel,
-    text: XInText,
-    num: XInNum,
-    bool: XInBool,
-    sel: XSel,
-    mulSel: XMulSel,
-    group: XFormGroup,
-    row: XFormRow,
-    textArea: XTextArea
+    Label: XLabel,
+    Text: XInText,
+    Num: XInNum,
+    Bool: XInBool,
+    Sel: XSel,
+    MulSel: XMulSel,
+    Group: XFormGroup,
+    Row: XFormRow,
+    TextArea: XTextArea
   }
 })($);
