@@ -2,67 +2,13 @@
 $(function() {
   "use strict";
 
-  var xscheme = {
-    title: "",
-    clinics: [],
-    report: [],
-    opinion: []
-  };
-
-  var rules = [];
-
-  var xform = xscheme.clinics;
-  var xformView = $("#x-form-clinics");
   var currentUser = null;
-
+  XReportBuilder.useClinicsSection();
   moment.locale("hu");
 
   //Handles tab navigation
   function navTabsClick() {
     $(this).tab('show');
-  }
-
-  function buildEditor(xelem) {
-    $("#editor").html(xelem.buildEditor());
-    $("#a-editor").tab("show");
-  }
-
-  var formRow = new XReportForm.Row();
-
-  function addToForm(xelem) {
-    if (!isInlineMode()) {
-      formRow = new XReportForm.Row();
-    }
-
-    xform.push(xelem);
-    var formElemWrapper = $("<div class='x-form-wrapper'></div>");
-    var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
-    formElemWrapperContent.append(xelem.render());
-    var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
-    buttonGroup.append(editButton);
-    buttonGroup.append(removeButton);
-    editButton.click(function() {
-      buildEditor(xelem);
-    });
-    removeButton.click(function() {
-      formElemWrapper.remove();
-      xform = xform.filter(function(el) {
-        return el.id !== xelem.id;
-      });
-    });
-    formElemWrapper.append(formElemWrapperContent);
-    formElemWrapper.append(buttonGroup);
-    xformView.append(formElemWrapper);
-  };
-
-  function replacer(key, value) {
-    if (key === "id") {
-      return undefined;
-    } else {
-      return value;
-    }
   }
 
   function addInline(elem) {
@@ -79,55 +25,6 @@ $(function() {
 
   function isInlineMode() {
     return $("#btn-inline").hasClass("active");
-  }
-
-  function addFormElem(type) {
-    var elem = "";
-
-    switch (type) {
-      case "intext":
-        elem = new XReportForm.Group("vertical", "Szöveges mező");
-        elem.addChild(new XReportForm.Text());
-        break;
-
-      case "innum":
-        elem = new XReportForm.Group("vertical", "Szám mező");
-        elem.addChild(new XReportForm.Num());
-        break;
-
-      case "inbool":
-        elem = new XReportForm.Group("vertical", "Eldöntendő mező");
-        elem.addChild(new XReportForm.Bool());
-        break;
-
-      case "sel":
-        elem = new XReportForm.Group("vertical", "Egyszeres választás");
-        elem.addChild(new XReportForm.Sel());
-        break;
-
-      case "mulsel":
-        elem = new XReportForm.Group("vertical", "Többszörös választás");
-        elem.addChild(new XReportForm.MulSel("checkbox"));
-        break;
-
-      case "tarea":
-        elem = new XReportForm.Group("vertical", "Szabad szöveg");
-        elem.addChild(new XReportForm.TextArea(4));
-        break;
-
-      default:
-        console.log("Unknown form elem: " + type);
-        break;
-    }
-
-    if (isInlineMode()) {
-      addInline(elem);
-    } else {
-      addToForm(elem);
-    }
-
-    //Diagnostic
-    console.log(JSON.stringify(xform, replacer));
   }
 
   function getReports() {
@@ -149,80 +46,25 @@ $(function() {
     });
   }
 
-  function createFormElemFromJSON(formElem) {
-    var type = formElem.type;
-
-    if (type === "group") {
-      var group = Object.assign(new XReportForm.Group, formElem);
-      group.label = Object.assign(new XReportForm.Label, formElem.label);
-      group.child = createFormElemFromJSON(formElem.child);
-      return group;
-    } else if (type === "intext") {
-      return Object.assign(new XReportForm.Text, formElem);
-    } else if (type === "innum") {
-      return Object.assign(new XReportForm.Num, formElem);
-    } else if (type === "inbool") {
-      return Object.assign(new XReportForm.Bool, formElem);
-    } else if (type === "tarea") {
-      return Object.assign(new XReportForm.TextArea, formElem);
-    } else if (type === "sel") {
-      return Object.assign(new XReportForm.Sel, formElem);
-    } else if (type === "mulsel") {
-      return Object.assign(new XReportForm.MulSel, formElem);
-    } else if (type === "row") {
-      var row = Object.assign(new XReportForm.Row, formElem);
-      row.children.forEach(function(child) {
-        child = createFormElemFromJSON(child);
-      });
-      return row;
-    }
-  }
-
-  function buildReportFromJSON(name, json) {
-    $("#input-scheme-title").val(name);
-
-    //Build clinincs part
-    xformView = $("#x-form-clinics");
-    xformView.html("");
-    json.clinics.forEach(function(clinicsElem) {
-      var celem = createFormElemFromJSON(clinicsElem);
-      addToForm(celem);
-    });
-
-    //Build report part
-    xformView = $("#x-form-report");
-    xformView.html("");
-    json.report.forEach(function(reportElem) {
-      var relem = createFormElemFromJSON(reportElem);
-      addToForm(relem);
-    });
-
-    //Build opinion part
-  }
-
-  function getElem(xid) {
-    return $("*[data-x-id='" + c + "']")
-  }
-
   //Events
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
-    addFormElem("intext");
+    XReportBuilder.addTextGroup();
   });
   $("#btn-add-numberbox").click(function() {
-    addFormElem("innum");
+    XReportBuilder.addNumberGroup();
   });
   $("#btn-add-checkbox").click(function() {
-    addFormElem("inbool");
+    XReportBuilder.addBoolGroup();
   });
   $("#btn-add-select").click(function() {
-    addFormElem("sel");
+    XReportBuilder.addSelGroup();
   });
   $("#btn-add-select-multiple").click(function() {
-    addFormElem("mulsel");
+    XReportBuilder.addMulSelGroup();
   });
   $("#btn-add-textarea").click(function() {
-    addFormElem("tarea");
+    XReportBuilder.addTextAreaGroup();
   });
   $("#a-login").click(function() {
     api.login().then(function(result) {
@@ -236,11 +78,9 @@ $(function() {
     });
   });
   $("#btn-save-scheme").click(function() {
-    var reportJSON = JSON.stringify(xscheme);
-    var reportFile = new Blob([reportJSON], {type: "application/json"});
     api.saveReport({
-      file: reportFile,
-      name: xscheme.title,
+      file: XReportBuilder.getReportInJSONFile(),
+      name: XReportBuilder.getReportTitle(),
       creator: currentUser.displayName
     });
   });
@@ -250,7 +90,7 @@ $(function() {
         if (report.exists) {
           console.log("Document data:", report.data());
           $.getJSON(report.data().contentUrl, function(json) {
-            buildReportFromJSON(report.data().name, json);
+            XReportBuilder.buildReportFromJSON(report.data().name, json);
             $("#div-builder").removeClass("collapse");
             $("#div-schemes").addClass("collapse");
           });
@@ -272,20 +112,17 @@ $(function() {
 
   $("#input-scheme-title").on("change", function(e) {
     e.preventDefault();
-    xscheme.title = $(this).val();
+    XReportBuilder.setReportTitle($(this).val());
   })
   //Report section selection
   $("#btn-clinics-section").click(function() {
-    xform = xscheme.clinics;
-    xformView = $("#x-form-clinics");
+    XReportBuilder.useClinicsSection();
   });
   $("#btn-report-section").click(function() {
-    xform = xscheme.report;
-    xformView = $("#x-form-report");
+    XReportBuilder.useReportSection();
   });
   $("#btn-opinion-section").click(function() {
-    xform = xscheme.opinion;
-    xformView = $("#x-form-opinion");
+    XReportBuilder.useOpinionSection();
   });
 
   //Navbar
