@@ -135,7 +135,7 @@ $(function() {
 
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
-        var cardDeckElem = '<div class="card">\
+        var cardDeckElem = '<div class="card report-list-item" data-id="' + report.id + '">\
                               <div class="card-body">\
                                 <h4 class="card-title">' + report.data().name + '</h4>\
                                 <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
@@ -154,7 +154,7 @@ $(function() {
 
     if (type === "group") {
       var group = Object.assign(new XReportForm.Group, formElem);
-      group.label = Object.assign(new xReportForm.label, formElem.label);
+      group.label = Object.assign(new XReportForm.Label, formElem.label);
       group.child = createFormElemFromJSON(formElem.child);
       return group;
     } else if (type === "intext") {
@@ -178,9 +178,12 @@ $(function() {
     }
   }
 
-  function buildReportFromJSON(json) {
+  function buildReportFromJSON(name, json) {
+    $("#input-scheme-title").val(name);
+
     //Build clinincs part
     xformView = $("#x-form-clinics");
+    xformView.html("");
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
       addToForm(celem);
@@ -188,6 +191,7 @@ $(function() {
 
     //Build report part
     xformView = $("#x-form-report");
+    xformView.html("");
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
       addToForm(relem);
@@ -240,13 +244,15 @@ $(function() {
       creator: currentUser.displayName
     });
   });
-  $("body").on('click', "#li-schemes a", function() {
+  $("body").on('click', ".report-list-item", function() {
     var reportId = $(this).attr("data-id");
     api.getReport(reportId).then(function(report) {
         if (report.exists) {
           console.log("Document data:", report.data());
           $.getJSON(report.data().contentUrl, function(json) {
-            buildReportFromJSON(json);
+            buildReportFromJSON(report.data().name, json);
+            $("#div-builder").removeClass("collapse");
+            $("#div-schemes").addClass("collapse");
           });
         } else {
           console.log("No such document!");
