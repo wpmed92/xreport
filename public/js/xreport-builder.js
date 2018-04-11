@@ -17,376 +17,6 @@ $(function() {
 
   moment.locale("hu");
 
-  //Base XFormElem
-  function XFormElem(type) {
-    var that = this;
-    that.type = type;
-    that.id = that.genUniqueId();
-  }
-
-  XFormElem.prototype.genUniqueId = function() {
-    XFormElem.numInstances = (XFormElem.numInstances || 0) + 1;
-    return "x-elem-" + XFormElem.numInstances;
-  }
-
-  XFormElem.prototype.bind = function(view) {
-    view.attr("data-x-id", this.id);
-  }
-
-  XFormElem.prototype.buildEditor = function() {
-
-  }
-
-  //label
-  function XLabel(label) {
-    XFormElem.call(this, "label");
-    this.val = label;
-  }
-
-  XLabel.prototype = Object.create(XFormElem.prototype);
-
-  XLabel.prototype.render = function() {
-    var view = $("<label>" + this.val + "</label>");
-    this.bind(view);
-    return view;
-  }
-
-  XLabel.prototype.buildEditor = function() {
-    var model = this;
-    var editor = $("<div class='form-group'></div>");
-    editor.append("<label>Mező neve</label>");
-    var inp = $("<input type='text' class='form-control'>");
-    inp.val(model.val);
-
-    inp.on("change", function() {
-      var val = $(this).val();
-      model.val = val;
-      var view = $("*[data-x-id='" + model.id + "']");
-      view.text(val);
-    });
-
-    editor.append(inp);
-    return editor;
-  }
-
-  //Numberbox
-  function XInNum(min, max, unit) {
-    XFormElem.call(this, "innum");
-    this.min = min;
-    this.max = max;
-    this.unit = unit;
-  }
-
-  XInNum.prototype = Object.create(XFormElem.prototype);
-
-  XInNum.prototype.render = function() {
-    var model = this;
-    var view = $("<input type='number' class='form-control'>");
-    this.bind(view);
-    return view;
-  }
-
-  XInNum.prototype.buildEditor = function() {
-    var model = this;
-    var editor = $("<div></div>");
-    var view = $("*[data-x-id='" + model.id + "']");
-    var minWrapper = $("<div class='form-group'><label>Minimum érték</label></div>");
-    var minControl = $("<input type='number' class='form-control'>");
-    var maxWrapper = $("<div class='form-group'><label>Maximum érték</label></div>");
-    var maxControl = $("<input type='number' class='form-control'>");
-    var unitWrapper = $("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
-    var unitControl = $("<input type='text' class='form-control'>");
-
-    minControl.val(model.min);
-    maxControl.val(model.max);
-
-    minControl.on("change", function() {
-      var val = $(this).val();
-      model.min = val;
-      view.attr("min", val);
-    });
-
-    maxControl.on("change", function() {
-      var val = $(this).val();
-      model.max = val;
-      view.attr("max", val);
-    });
-
-    unitControl.on("change", function() {
-      var val = $(this).val();
-      model.unit = val;
-
-      if (!val) {
-        view.parent().find(".input-group-append").remove();
-        return;
-      }
-
-      if (!view.parent().hasClass("input-group")) {
-        view.wrap("<div class='input-group mb-3'></div>");
-        view.parent().append("<div class='input-group-append'>\
-                                <span class='input-group-text'>" + model.unit + "</span>\
-                              </div>");
-      } else {
-        view.parent().find(".input-group-text").first().html(model.unit);
-      }
-    });
-
-    minWrapper.append(minControl);
-    maxWrapper.append(maxControl);
-    unitWrapper.append(unitControl);
-    editor.append(minWrapper);
-    editor.append(maxWrapper);
-    editor.append(unitWrapper);
-    return editor;
-  }
-
-  //Textbox
-  function XInText() {
-    XFormElem.call(this, "intext");
-  }
-
-  XInText.prototype = Object.create(XFormElem.prototype);
-
-  XInText.prototype.render = function() {
-    return $("<input type='text' class='form-control'>");
-  }
-
-  //Checkbox
-  function XInBool(style) {
-    XFormElem.call(this, "inbool");
-    this.style = style || "checkbox";
-  }
-
-  XInBool.prototype = Object.create(XFormElem.prototype);
-
-  XInBool.prototype.render = function() {
-    return $("<div class='form-check'>\
-                <input class='form-check-input' type='" + this.style + "'>\
-              </div>");
-  }
-
-  //textArea
-  function XTextArea(rows) {
-    XFormElem.call(this, "tarea");
-    this.rows = 3;
-  }
-
-  XTextArea.prototype = Object.create(XFormElem.prototype);
-
-  XTextArea.prototype.render = function() {
-    return $("<textarea class='form-control' rows='" + this.rows + "'></textarea>");
-  }
-
-  //Select
-  function XSel(style) {
-    XFormElem.call(this, "sel");
-    this.style = style || "default";
-    this.options = [];
-  }
-
-  XSel.prototype = Object.create(XFormElem.prototype);
-
-  XSel.prototype.render = function() {
-    var view = "";
-
-    if (this.style === "radio") {
-      view = $("<div></div>");
-    } else {
-      view = $("<select class='form-control'></select>");
-    }
-
-    this.bind(view);
-    return view;
-  }
-
-  XSel.prototype.buildEditor = function() {
-    var model = this;
-    var editor = $("<div class='form-group'></div>");
-    editor.append("<label>Opciók</label>");
-    var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-    var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
-    var view = $("*[data-x-id='" + model.id + "']");
-
-    updateOptionsBtn.click(function() {
-      var text = textArea.val();
-      var splitted = text.split(';');
-      model.options = [];
-
-      splitted.forEach(function(option) {
-        if (!option || option === "") {
-          return;
-        }
-
-        model.options.push(option);
-
-        if (model.style === "radio") {
-            var inbool = new XInBool("radio");
-            var inboolView = inbool.render();
-            inboolView.find("input").first().attr("name", model.id);
-            var radio = inboolView.append(new XLabel(option).render());
-            view.append(radio);
-        } else {
-          view.append($('<option>', {
-            value: option,
-            text : option
-          }));
-        }
-      });
-    });
-
-    editor.append(textArea);
-    editor.append(updateOptionsBtn);
-    return editor;
-  }
-
-  //Multiple select
-  function XMulSel(style) {
-    XFormElem.call(this, "mulsel");
-    this.style = style || "default";
-    this.options = [];
-  }
-
-  XMulSel.prototype = Object.create(XFormElem.prototype);
-
-  XMulSel.prototype.render = function() {
-    var view = "";
-
-    if (this.style === "checkbox") {
-      view = $("<div></div>");
-    } else {
-      view = $("<select class='form-control' multiple></select>");
-    }
-
-    this.bind(view);
-    return view;
-  }
-
-  XMulSel.prototype.buildEditor = function() {
-    var model = this;
-    var editor = $("<div class='form-group'></div>");
-    editor.append("<label>Opciók</label>");
-    var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-    var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
-    var view = $("*[data-x-id='" + model.id + "']");
-
-    updateOptionsBtn.click(function() {
-      var text = textArea.val();
-      var splitted = text.split(';');
-      view.empty();
-      model.options = [];
-
-      splitted.forEach(function(option) {
-        if (!option || option === "") {
-          return;
-        }
-
-        model.options.push(option);
-
-        if (model.style === "checkbox") {
-            var inbool = new XInBool();
-            var inboolView = inbool.render();
-            var check = inboolView.append(new XLabel(option).render());
-            view.append(check);
-        } else {
-          view.append($('<option>', {
-            value: option,
-            text : option
-          }));
-        }
-      });
-    });
-
-    editor.append(textArea);
-    editor.append(updateOptionsBtn);
-    return editor;
-  }
-
-  //Form group
-  //orientation can be "horizontal" or "vertical"
-  function XFormGroup(orientation, label) {
-    XFormElem.call(this, "group");
-    this.child = "";
-    this.label = new XLabel(label);
-    this.orientation = orientation;
-  }
-
-  XFormGroup.prototype = Object.create(XFormElem.prototype);
-
-  XFormGroup.prototype.addChild = function(child) {
-    this.child = child;
-  }
-
-  XFormGroup.prototype.buildEditor = function() {
-    var model = this;
-    var editor = $("<div></div>");
-    editor.append(this.label.buildEditor());
-    editor.append(this.child.buildEditor());
-    return editor;
-  }
-
-  XFormGroup.prototype.render = function() {
-    var viewWrapper = $("<div></div>");
-    var view = $("<div class='form-group'></div>");
-    var diagnostic = $("<div><span class='text-info x-diagnostic'>group: " + this.id + "; label: " + this.label.id + "; input: " + this.child.id + "</span></div>");
-    //viewWrapper.append(diagnostic);
-    this.bind(view);
-    //view.append(diagnostic);
-
-    if (this.orientation === "vertical") {
-      if (this.child.type === "inbool") {
-        view.append(this.child.render().append(this.label.render()));
-      } else {
-        view.append(this.label.render());
-        view.append(this.child.render());
-      }
-    } else {
-      console.log("Unknown orientation");
-    }
-
-    viewWrapper.append(view);
-    return viewWrapper;
-  }
-
-  //Form row (for custom elems)
-  function XFormRow() {
-    XFormElem.call(this, "row");
-    this.children = [];
-  }
-
-  XFormRow.prototype = Object.create(XFormElem.prototype);
-
-  XFormRow.prototype.addChild = function(child) {
-    this.children.push(child);
-  }
-
-  XFormRow.prototype.render = function() {
-    var view = $("<div class='form row'></div>");
-    this.bind(view);
-    var equalColWidth = Math.floor(12 / this.children.length);
-    var needsBalancing = this.children.length % 12;
-
-    if (equalColWidth >= 1) {
-      this.children.forEach(function(child) {
-        var col = $("<div class='col-" + equalColWidth + "'></div>");
-        col.append(child.render());
-        view.append(col);
-      });
-    }
-
-    return view;
-  }
-
-  XFormRow.prototype.buildEditor = function() {
-    var model = this;
-    var editor = $("<div></div>");
-
-    model.children.forEach(function(child) {
-      editor.append(child.buildEditor());
-    });
-
-    return editor;
-  }
-
   //Handles tab navigation
   function navTabsClick() {
     $(this).tab('show');
@@ -397,11 +27,11 @@ $(function() {
     $("#a-editor").tab("show");
   }
 
-  var formRow = new XFormRow();
+  var formRow = new xReportForm.row();
 
   function addToForm(xelem) {
     if (!isInlineMode()) {
-      formRow = new XFormRow();
+      formRow = new xReportForm.row();
     }
 
     xform.push(xelem);
@@ -456,33 +86,33 @@ $(function() {
 
     switch (type) {
       case "intext":
-        elem = new XFormGroup("vertical", "Szöveges mező");
-        elem.addChild(new XInText());
+        elem = new xReportForm.group("vertical", "Szöveges mező");
+        elem.addChild(new xReportForm.text());
         break;
 
       case "innum":
-        elem = new XFormGroup("vertical", "Szám mező");
-        elem.addChild(new XInNum());
+        elem = new xReportForm.group("vertical", "Szám mező");
+        elem.addChild(new xReportForm.num());
         break;
 
       case "inbool":
-        elem = new XFormGroup("vertical", "Eldöntendő mező");
-        elem.addChild(new XInBool());
+        elem = new xReportForm.group("vertical", "Eldöntendő mező");
+        elem.addChild(new xReportForm.bool());
         break;
 
       case "sel":
-        elem = new XFormGroup("vertical", "Egyszeres választás");
-        elem.addChild(new XSel());
+        elem = new xReportForm.group("vertical", "Egyszeres választás");
+        elem.addChild(new xReportForm.sel());
         break;
 
       case "mulsel":
-        elem = new XFormGroup("vertical", "Többszörös választás");
-        elem.addChild(new XMulSel("checkbox"));
+        elem = new xReportForm.group("vertical", "Többszörös választás");
+        elem.addChild(new xReportForm.mulSel("checkbox"));
         break;
 
       case "tarea":
-        elem = new XFormGroup("vertical", "Szabad szöveg");
-        elem.addChild(new XTextArea(4));
+        elem = new xReportForm.group("vertical", "Szabad szöveg");
+        elem.addChild(new xReportForm.textArea(4));
         break;
 
       default:
@@ -509,7 +139,7 @@ $(function() {
                               <div class="card-body">\
                                 <h4 class="card-title">' + report.data().name + '</h4>\
                                 <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
-                                <p class="card-text"><small class="text-muted">Készítette ' + report.data().creator + ", " + moment(report.data().createdAt).fromNow()  + '</small></p>\
+                                <p class="card-text"><small class="text-muted">Készítette <strong>' + report.data().creator + "</strong>, " + moment(report.data().createdAt).fromNow()  + '</small></p>\
                               </div>\
                             </div>';
         $("#li-schemes").append(cardDeckElem);
@@ -523,24 +153,24 @@ $(function() {
     var type = formElem.type;
 
     if (type === "group") {
-      var group = Object.assign(new XFormGroup, formElem);
-      group.label = Object.assign(new XLabel, formElem.label);
+      var group = Object.assign(new xReportForm.group, formElem);
+      group.label = Object.assign(new xReportForm.label, formElem.label);
       group.child = createFormElemFromJSON(formElem.child);
       return group;
     } else if (type === "intext") {
-      return Object.assign(new XInText, formElem);
+      return Object.assign(new xReportForm.text, formElem);
     } else if (type === "innum") {
-      return Object.assign(new XInNum, formElem);
+      return Object.assign(new xReportForm.num, formElem);
     } else if (type === "inbool") {
-      return Object.assign(new XInBool, formElem);
+      return Object.assign(new xReportForm.bool, formElem);
     } else if (type === "tarea") {
-      return Object.assign(new XTextArea, formElem);
+      return Object.assign(new xReportForm.textArea, formElem);
     } else if (type === "sel") {
-      return Object.assign(new XSel, formElem);
+      return Object.assign(new xReportForm.sel, formElem);
     } else if (type === "mulsel") {
-      return Object.assign(new XMulSel, formElem);
+      return Object.assign(new xReportForm.mulSel, formElem);
     } else if (type === "row") {
-      var row = Object.assign(new XFormRow, formElem);
+      var row = Object.assign(new xReportForm.row, formElem);
       row.children.forEach(function(child) {
         child = createFormElemFromJSON(child);
       });
