@@ -17,10 +17,24 @@ var api = (function(fb) {
   var storageRef = storage.ref();
   var provider = new fb.auth.GoogleAuthProvider();
 
-  api.login = function() {
+  api.onAuthStateChanged = function(cbSignedIn, cbSignedOut) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        cbSignedIn(user);
+      } else {
+        cbSignedOut();
+      }
+    });
+  }
+
+  api.logIn = function() {
     return firebase.auth().signInWithPopup(provider);
   }
-  
+
+  api.logOut = function() {
+    return firebase.auth().signOut();
+  }
+
   api.saveReport = function(report) {
     return db.collection("reports").add({
       name: report.name,

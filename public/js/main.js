@@ -6,6 +6,23 @@ $(function() {
   XReportBuilder.useClinicsSection();
   moment.locale("hu");
 
+  api.onAuthStateChanged(function(user) {
+    currentUser = user;
+    loggedInState();
+  }, function() {
+    loggedOutState();
+  });
+
+  function loggedInState() {
+    $("#a-login").addClass("d-none");
+    $("#a-logout").removeClass("d-none");
+    $("#user-info").text(currentUser.displayName);
+  }
+
+  function loggedOutState() {
+    $("#a-login").removeClass("d-none");
+    $("#a-logout").addClass("d-none");
+  }
   //Handles tab navigation
   function navTabsClick() {
     $(this).tab('show');
@@ -46,6 +63,23 @@ $(function() {
     });
   }
 
+  function googleLogin() {
+    api.logIn().then(function(result) {
+      //currentUser = result.user;
+      console.log("Google login succeeded.");
+    }).catch(function(error) {
+      /*var errorCode = error.code;
+      var errorMessage = error.message;
+      var email = error.email;
+      var credential = error.credential;*/
+      console.log(error);
+    });
+  }
+
+  function logOut() {
+    api.logOut();
+  }
+
   //Events
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
@@ -66,18 +100,20 @@ $(function() {
   $("#btn-add-textarea").click(function() {
     XReportBuilder.addTextAreaGroup();
   });
-  $("#a-login").click(function() {
-    api.login().then(function(result) {
-      currentUser = result.user;
-    }).catch(function(error) {
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      var email = error.email;
-      var credential = error.credential;
-      console.log(error);
-    });
-  });
+  $("#a-login").click(googleLogin);
+  $("#a-logout").click(logOut);
   $("#btn-save-scheme").click(function() {
+    if (!currentUser) {
+      doGoogleLogin();
+      return;
+    }
+
+    var title = XReportBuilder.getReportTitle();
+
+    if (!title) {
+      return; 
+    }
+
     api.saveReport({
       file: XReportBuilder.getReportInJSONFile(),
       name: XReportBuilder.getReportTitle(),
