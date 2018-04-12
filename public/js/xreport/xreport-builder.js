@@ -9,7 +9,9 @@ var XReportBuilder = (function(jQ, XReportForm) {
     opinion: []
   };
   var xForm = [];
+  var currentRow = new XReportForm.Row();
   var editState = false;
+  var inlineMode = false;
 
   function replacer(key, value) {
     if (key === "id") {
@@ -19,30 +21,72 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  function addToForm(xElem) {
-    /*if (!isInlineMode()) {
-      formRow = new xReportForm.row();
-    }*/
-
-    xForm.push(xElem);
+  //Wraps every XFormElem into an editor
+  function editorWrapper(xElem, row) {
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
     var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
     formElemWrapperContent.append(xElem.render());
+
+    //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
     var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
     var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
+
+    //Create editor menu
     editButton.click(function() {
       buildEditor(xElem);
     });
+
+    //Remove elem
     removeButton.click(function() {
       formElemWrapper.remove();
-      xForm.splice(xForm.indexOf(xElem), 1);
+      row.children.splice(row.children.indexOf(xElem), 1);
+
+      if (row.children.length == 0) {
+        xForm.splice(xForm.indexOf(row), 1);
+        var curRowIndex = xForm.length - 1;
+
+        if (curRowIndex >= 0) {
+          currentRow = xForm[curRowIndex];
+        }
+      } else {
+        rerenderRow(row);
+      }
     });
+
     formElemWrapper.append(formElemWrapperContent);
     formElemWrapper.append(buttonGroup);
-    xFormView.append(formElemWrapper);
+    return formElemWrapper;
+  }
+
+  function rerenderRow(row) {
+    var view = $("*[data-x-id='" + row.id + "']");
+    view.empty();
+    view.parent().append(row.render(editorWrapper));
+  }
+
+  function addRowToForm(row) {
+    xForm.push(row);
+    xFormView.append(row.render(editorWrapper));
+  }
+
+  function addToForm(xElem) {
+    if (!inlineMode) {
+      currentRow = new XReportForm.Row();
+      currentRow.addChild(xElem);
+    } else {
+      currentRow.addChild(xElem);
+
+      if (currentRow.children.length > 1) {
+        rerenderRow(currentRow);
+        return;
+      }
+    }
+
+    xForm.push(currentRow);
+    xFormView.append(currentRow.render(editorWrapper));
 
     //Diagnostic
     console.log(JSON.stringify(xForm, replacer));
@@ -77,11 +121,21 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.Datepicker, formElem);
     } else if (type === "row") {
       var row = Object.assign(new XReportForm.Row, formElem);
-      row.children.forEach(function(child) {
-        child = createFormElemFromJSON(child);
-      });
+
+      for (var i = 0; i < row.children.length; i++) {
+        row.children[i] = createFormElemFromJSON(row.children[i]);
+      }
+
       return row;
     }
+  }
+
+  _module.newLineMode = function() {
+    inlineMode = false;
+  }
+
+  _module.inlineMode = function() {
+    inlineMode = true;
   }
 
   _module.toggleEditState = function() {
@@ -113,7 +167,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.html("");
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
-      addToForm(celem);
+      addRowToForm(celem);
     });
 
     //Build report part
@@ -121,7 +175,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.html("");
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
-      addToForm(relem);
+      addRowToForm(relem);
     });
 
     //Build opinion part
@@ -129,7 +183,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.html("");
     json.opinion.forEach(function(opinionElem) {
       var oelem = createFormElemFromJSON(opinionElem);
-      addToForm(oelem);
+      addRowToForm(oelem);
     });
   }
 

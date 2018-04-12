@@ -202,6 +202,7 @@ var XReportForm = (function(jQ) {
       var text = textArea.val();
       var splitted = text.split(';');
       model.options = [];
+      view.html("");
 
       splitted.forEach(function(option) {
         if (!option || option === "") {
@@ -225,6 +226,13 @@ var XReportForm = (function(jQ) {
       });
     });
 
+    var optionsStringified = "";
+
+    model.options.forEach(function(option) {
+      optionsStringified += option + ";";
+    });
+
+    textArea.val(optionsStringified);
     editor.append(textArea);
     editor.append(updateOptionsBtn);
     return editor;
@@ -295,6 +303,13 @@ var XReportForm = (function(jQ) {
       });
     });
 
+    var optionsStringified = "";
+
+    model.options.forEach(function(option) {
+      optionsStringified += option + ";";
+    });
+
+    textArea.val(optionsStringified);
     editor.append(textArea);
     editor.append(updateOptionsBtn);
     return editor;
@@ -322,7 +337,6 @@ var XReportForm = (function(jQ) {
     XFormElem.call(this, "group");
     this.child = "";
     this.label = new XLabel(label);
-    this.orientation = orientation;
   }
 
   XFormGroup.prototype = Object.create(XFormElem.prototype);
@@ -347,15 +361,11 @@ var XReportForm = (function(jQ) {
     this.bind(view);
     //view.append(diagnostic);
 
-    if (this.orientation === "vertical") {
-      if (this.child.type === "inbool") {
-        view.append(this.child.render().append(this.label.render()));
-      } else {
-        view.append(this.label.render());
-        view.append(this.child.render());
-      }
+    if (this.child.type === "inbool") {
+      view.append(this.child.render().append(this.label.render()));
     } else {
-      console.log("Unknown orientation");
+      view.append(this.label.render());
+      view.append(this.child.render());
     }
 
     viewWrapper.append(view);
@@ -374,8 +384,9 @@ var XReportForm = (function(jQ) {
     this.children.push(child);
   }
 
-  XFormRow.prototype.render = function() {
+  XFormRow.prototype.render = function(editorWrapper) {
     var view = jQ("<div class='form row'></div>");
+    var model = this;
     this.bind(view);
     var equalColWidth = Math.floor(12 / this.children.length);
     var needsBalancing = this.children.length % 12;
@@ -383,7 +394,7 @@ var XReportForm = (function(jQ) {
     if (equalColWidth >= 1) {
       this.children.forEach(function(child) {
         var col = jQ("<div class='col-" + equalColWidth + "'></div>");
-        col.append(child.render());
+        col.append(editorWrapper(child, model));
         view.append(col);
       });
     }

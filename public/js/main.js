@@ -28,18 +28,6 @@ $(function() {
     $(this).tab('show');
   }
 
-  function addInline(elem) {
-    formRow.addChild(elem);
-
-    if (formRow.children.length > 1) {
-      var view = $("*[data-x-id='" + formRow.id + "']").parent();
-      view.empty();
-      view.append(formRow.render());
-    } else {
-      addToForm(formRow);
-    }
-  }
-
   function isInlineMode() {
     return $("#btn-inline").hasClass("active");
   }
@@ -165,6 +153,12 @@ $(function() {
   $('.navbar li').click(function(){
     $('.navbar li').removeClass('active');
     $(this).addClass('active');
+  });
+  $("#btn-newline").click(function() {
+    XReportBuilder.newLineMode();
+  });
+  $("#btn-inline").click(function() {
+    XReportBuilder.inlineMode();
   });
 
   //Navbar
