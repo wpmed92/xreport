@@ -284,6 +284,22 @@ var XReportForm = (function(jQ) {
     return editor;
   }
 
+  function XDate() {
+    XFormElem.call(this, "date");
+  }
+
+  XDate.prototype = Object.create(XFormElem.prototype);
+
+  XDate.prototype.render = function() {
+    var xDate = jQ('<div class="input-group">\
+                      <div class="input-group-prepend">\
+                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>\
+                      </div>\
+                      <input type="text" class="form-control" data-provide="datepicker" type="text" />\
+                    </div>');
+    return xDate;
+  }
+
   //Form group
   //orientation can be "horizontal" or "vertical"
   function XFormGroup(orientation, label) {
@@ -378,6 +394,7 @@ var XReportForm = (function(jQ) {
     Sel: XSel,
     MulSel: XMulSel,
     Group: XFormGroup,
+    Datepicker: XDate,
     Row: XFormRow,
     TextArea: XTextArea
   }

@@ -100,6 +100,9 @@ $(function() {
   $("#btn-add-textarea").click(function() {
     XReportBuilder.addTextAreaGroup();
   });
+  $("#btn-add-date").click(function() {
+    XReportBuilder.addDateGroup();
+  });
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
   $("#btn-save-scheme").click(function() {
@@ -111,7 +114,7 @@ $(function() {
     var title = XReportBuilder.getReportTitle();
 
     if (!title) {
-      return; 
+      return;
     }
 
     api.saveReport({
@@ -139,8 +142,7 @@ $(function() {
   });
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
-    $(".x-form-edit-btn").toggleClass("collapse");
-    $(".x-diagnostic").toggleClass("collapse");
+    XReportBuilder.toggleEditState();
   });
   $("#btn-run-script").click(function() {
     var scriptText = $("#script-area").val();

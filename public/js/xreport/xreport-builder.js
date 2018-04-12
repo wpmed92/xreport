@@ -10,6 +10,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   };
 
   var xForm = [];
+  var editState = false;
 
   function replacer(key, value) {
     if (key === "id") {
@@ -29,8 +30,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
     var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
     formElemWrapperContent.append(xElem.render());
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
     editButton.click(function() {
@@ -75,6 +76,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.Sel, formElem);
     } else if (type === "mulsel") {
       return Object.assign(new XReportForm.MulSel, formElem);
+    } else if (type === "date") {
+      return Object.assign(new XReportForm.Datepicker, formElem);
     } else if (type === "row") {
       var row = Object.assign(new XReportForm.Row, formElem);
       row.children.forEach(function(child) {
@@ -82,6 +85,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
       });
       return row;
     }
+  }
+
+  _module.toggleEditState = function() {
+    editState = !editState;
+    $(".x-form-edit-btn").toggleClass("collapse");
+    $(".x-diagnostic").toggleClass("collapse");
   }
 
   _module.useClinicsSection = function() {
@@ -170,6 +179,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
   _module.addTextAreaGroup = function() {
     var group = new XReportForm.Group("vertical", "Szabad szöveg");
     group.addChild(new XReportForm.TextArea(4));
+    addToForm(group);
+  }
+
+  _module.addDateGroup = function() {
+    var group = new XReportForm.Group("vertical", "Dátum");
+    group.addChild(new XReportForm.Datepicker());
     addToForm(group);
   }
 
