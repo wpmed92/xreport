@@ -38,9 +38,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
     removeButton.click(function() {
       formElemWrapper.remove();
-      xForm = xForm.filter(function(el) {
-        return el.id !== xElem.id;
-      });
+      xForm.splice(xForm.indexOf(xElem), 1);
     });
     formElemWrapper.append(formElemWrapperContent);
     formElemWrapper.append(buttonGroup);
@@ -127,6 +125,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     //Build opinion part
+    _module.useOpinionSection();
+    xFormView.html("");
+    json.opinion.forEach(function(opinionElem) {
+      var oelem = createFormElemFromJSON(opinionElem);
+      addToForm(oelem);
+    });
   }
 
   _module.setReportTitle = function(title) {

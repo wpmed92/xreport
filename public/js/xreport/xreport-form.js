@@ -171,11 +171,19 @@ var XReportForm = (function(jQ) {
 
   XSel.prototype.render = function() {
     var view = "";
+    var model = this;
 
     if (this.style === "radio") {
       view = jQ("<div></div>");
     } else {
       view = jQ("<select class='form-control'></select>");
+
+      model.options.forEach(function(option) {
+        view.append(jQ('<option>', {
+          value: option,
+          text : option
+        }));
+      });
     }
 
     this.bind(view);
@@ -233,9 +241,17 @@ var XReportForm = (function(jQ) {
 
   XMulSel.prototype.render = function() {
     var view = "";
+    var model = this;
 
     if (this.style === "checkbox") {
       view = jQ("<div></div>");
+
+      model.options.forEach(function(option) {
+        var inbool = new XInBool();
+        var inboolView = inbool.render();
+        var check = inboolView.append(new XLabel(option).render());
+        view.append(check);
+      });
     } else {
       view = jQ("<select class='form-control' multiple></select>");
     }

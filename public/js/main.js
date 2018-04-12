@@ -162,6 +162,10 @@ $(function() {
   $("#btn-opinion-section").click(function() {
     XReportBuilder.useOpinionSection();
   });
+  $('.navbar li').click(function(){
+    $('.navbar li').removeClass('active');
+    $(this).addClass('active');
+  });
 
   //Navbar
   $("#a-builder").click(function() {
