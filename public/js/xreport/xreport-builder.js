@@ -8,7 +8,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
     report: [],
     opinion: []
   };
-
   var xForm = [];
   var editState = false;
 
