@@ -53,6 +53,17 @@ var api = (function(fb) {
     });
   }
 
+  api.editReport = function(report, id) {
+    return db.collection("reports").doc(id).set({
+      name: report.name,
+      createdAt: SERVERTIME,
+      creator: report.creator
+    }, { merge: true })
+    .then(function(initialDoc) {
+        return storageRef.child("reports/" + id).put(report.file);
+    });
+  }
+
   api.getReport = function(id) {
     return db.collection("reports").doc(id).get();
   }

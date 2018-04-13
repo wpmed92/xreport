@@ -45,15 +45,14 @@ var XReportBuilder = (function(jQ, XReportForm) {
       row.children.splice(row.children.indexOf(xElem), 1);
 
       if (row.children.length == 0) {
-        xForm.splice(xForm.indexOf(row), 1);
-        var curRowIndex = xForm.length - 1;
-
-        if (curRowIndex >= 0) {
-          currentRow = xForm[curRowIndex];
-        }
+        var curRowIndex = xForm.indexOf(row);
+        xForm.splice(curRowIndex, 1);
+        currentRow = (curRowIndex < xForm.length) ? xForm[curRowIndex] : xForm[xForm.length-1];
       } else {
         rerenderRow(row);
       }
+
+      diagnosticPrint();
     });
 
     formElemWrapper.append(formElemWrapperContent);
@@ -63,8 +62,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   function rerenderRow(row) {
     var view = $("*[data-x-id='" + row.id + "']");
-    view.empty();
-    view.parent().append(row.render(editorWrapper));
+    view.replaceWith(row.render(editorWrapper));
   }
 
   function addRowToForm(row) {
@@ -81,14 +79,17 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
       if (currentRow.children.length > 1) {
         rerenderRow(currentRow);
+        diagnosticPrint();
         return;
       }
     }
 
     xForm.push(currentRow);
     xFormView.append(currentRow.render(editorWrapper));
+    diagnosticPrint();
+  }
 
-    //Diagnostic
+  function diagnosticPrint() {
     console.log(JSON.stringify(xForm, replacer));
   }
 
@@ -130,6 +131,15 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
+  _module.initBuilder = function() {
+    xScheme = {
+      title: "",
+      clinics: [],
+      report: [],
+      opinion: []
+    };
+  }
+
   _module.newLineMode = function() {
     inlineMode = false;
   }
@@ -142,6 +152,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     editState = !editState;
     $(".x-form-edit-btn").toggleClass("collapse");
     $(".x-diagnostic").toggleClass("collapse");
+    $("#div-editor-panel").toggleClass("collapse");
   }
 
   _module.useClinicsSection = function() {
@@ -168,6 +179,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
       addRowToForm(celem);
+      diagnosticPrint();
     });
 
     //Build report part
@@ -176,6 +188,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
       addRowToForm(relem);
+      diagnosticPrint();
     });
 
     //Build opinion part

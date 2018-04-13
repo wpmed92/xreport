@@ -3,6 +3,8 @@ $(function() {
   "use strict";
 
   var currentUser = null;
+  var currentReportId = null;
+
   XReportBuilder.useClinicsSection();
   moment.locale("hu");
 
@@ -91,30 +93,52 @@ $(function() {
       return;
     }
 
-    api.saveReport({
+    var payload = {
       file: XReportBuilder.getReportInJSONFile(),
       name: XReportBuilder.getReportTitle(),
       creator: currentUser.displayName
-    });
+    };
+
+    //Edit report
+    if (currentReportId) {
+      api.editReport(payload, currentReportId)
+      .then(function() {
+        console.log("Report editing successful.");
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+    //Save report
+    } else {
+      api.saveReport(payload)
+      .then(function() {
+        console.log("Report saving successful.");
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+    }
   }
 
   function loadReport() {
-    var reportId = $(this).attr("data-id");
+    XReportBuilder.initBuilder();
+    currentReportId = $(this).attr("data-id");
 
-    api.getReport(reportId).then(function(report) {
-        if (report.exists) {
-          console.log("Document data:", report.data());
-          $.getJSON(report.data().contentUrl, function(json) {
-            XReportBuilder.buildReportFromJSON(report.data().name, json);
-            $("#div-builder").removeClass("d-none");
-            $("#div-schemes").addClass("d-none");
-          });
-        } else {
-          console.log("No such document!");
-        }
-      }).catch(function(error) {
-        console.log("Error getting document:", error);
-      });
+    api.getReport(currentReportId).then(function(report) {
+      if (report.exists) {
+        console.log("Document data:", report.data());
+        $.getJSON(report.data().contentUrl, function(json) {
+          XReportBuilder.buildReportFromJSON(report.data().name, json);
+          $("#btn-clinics-section")[0].click();
+          $("#div-builder").removeClass("d-none");
+          $("#div-schemes").addClass("d-none");
+        });
+      } else {
+        console.log("No such document!");
+      }
+    }).catch(function(error) {
+      console.log("Error getting document:", error);
+    });
   }
 
   //Events
