@@ -37,13 +37,15 @@ $(function() {
 
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
-        var cardDeckElem = '<div class="card report-list-item" data-id="' + report.id + '">\
-                              <div class="card-body">\
-                                <h4 class="card-title">' + report.data().name + '</h4>\
-                                <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
-                                <p class="card-text"><small class="text-muted">Készítette <strong>' + report.data().creator + "</strong>, " + moment(report.data().createdAt).fromNow()  + '</small></p>\
+        var cardDeckElem = '<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12">\
+                              <div class="card report-list-item h-100" data-id="' + report.id + '">\
+                                <div class="card-body">\
+                                  <h4 class="card-title">' + report.data().name + '</h4>\
+                                  <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
+                                  <p class="card-text"><small class="text-muted">Készítette <strong>' + report.data().creator + "</strong>, " + moment(report.data().createdAt).fromNow()  + '</small></p>\
+                                </div>\
                               </div>\
-                            </div>';
+                            <div>';
         $("#li-schemes").append(cardDeckElem);
       });
     }).catch(function(error) {
