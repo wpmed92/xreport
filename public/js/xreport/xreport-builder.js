@@ -49,6 +49,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
         xForm.splice(curRowIndex, 1);
         currentRow = (curRowIndex < xForm.length) ? xForm[curRowIndex] : xForm[xForm.length-1];
       } else {
+        currentRow = row;
         rerenderRow(row);
       }
 
