@@ -23,17 +23,24 @@ $(function() {
     $("#a-login").removeClass("d-none");
     $("#a-logout").addClass("d-none");
   }
-  //Handles tab navigation
+
   function navTabsClick() {
     $(this).tab('show');
   }
 
-  function isInlineMode() {
-    return $("#btn-inline").hasClass("active");
+  function startLoading() {
+    $("#anim-loader").removeClass("d-none");
+    $("#li-schemes").addClass("d-none");
+  }
+
+  function stopLoading() {
+    $("#anim-loader").addClass("d-none");
+    $("#li-schemes").removeClass("d-none");
   }
 
   function getReports() {
     $("#li-schemes").html("");
+    startLoading();
 
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
@@ -47,8 +54,10 @@ $(function() {
                               </div>\
                             <div>';
         $("#li-schemes").append(cardDeckElem);
+        stopLoading();
       });
     }).catch(function(error) {
+      stopLoading();
       console.log(error);
     });
   }
@@ -120,8 +129,8 @@ $(function() {
           console.log("Document data:", report.data());
           $.getJSON(report.data().contentUrl, function(json) {
             XReportBuilder.buildReportFromJSON(report.data().name, json);
-            $("#div-builder").removeClass("collapse");
-            $("#div-schemes").addClass("collapse");
+            $("#div-builder").removeClass("d-none");
+            $("#div-schemes").addClass("d-none");
           });
         } else {
           console.log("No such document!");
@@ -165,12 +174,12 @@ $(function() {
 
   //Navbar
   $("#a-builder").click(function() {
-    $("#div-builder").removeClass("collapse");
-    $("#div-schemes").addClass("collapse");
+    $("#div-builder").removeClass("d-none");
+    $("#div-schemes").addClass("d-none");
   });
   $("#a-schemes").click(function() {
-    $("#div-schemes").removeClass("collapse");
-    $("#div-builder").addClass("collapse");
+    $("#div-schemes").removeClass("d-none");
+    $("#div-builder").addClass("d-none");
     getReports();
   });
 });

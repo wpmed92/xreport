@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.0-RC3/css/bootstrap-datepicker.standalone.css" />
+  <link rel="stylesheet" href="css/spinner.css">
   <link rel="stylesheet" href="css/index.css">
 </head>
 
@@ -31,22 +32,23 @@
       <ul class="navbar-nav">
         <li class="nav-item">
           <a id="a-login" href="#" class="nav-link"><i class="fas fa-sign-in-alt"></i> Bejelentkezés</a>
-          <a id="a-logout" href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span id="user-info"></span></a>
+          <a id="a-logout" href="#" class="nav-link d-none"><i class="fas fa-sign-out-alt"></i><span id="user-info"></span></a>
         </li>
       </ul>
     </div>
   </nav>
 
-  <br>
+  <div id="div-schemes" class="container d-none">
+    <div id="anim-loader" class="row h-100 justify-content-center align-items-center d-none">
+      <div class="spinner"></div>
+    </div>
 
-  <div id="div-schemes" class="container">
-    <div id="li-schemes"  class="row">
-        <!--<div id="li-schemes" class="list-group">
-        </div>-->
+    <div id="li-schemes"  class="row  mt-4">
+      <!-- Report list -->
     </div>
   </div>
 
-  <div id="div-builder" class="container-fluid">
+  <div id="div-builder" class="container-fluid mt-4">
     <div class="row">
       <!-- Control panel -->
       <div class="col-4">
