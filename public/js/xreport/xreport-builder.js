@@ -1,5 +1,4 @@
 var XReportBuilder = (function(jQ, XReportForm) {
-
   var _module = {};
   var xFormView = null;
   var xScheme = {
@@ -50,7 +49,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
         currentRow = (curRowIndex < xForm.length) ? xForm[curRowIndex] : xForm[xForm.length-1];
       } else {
         currentRow = row;
-        rerenderRow(row);
+        reRenderRow(row);
       }
 
       diagnosticPrint();
@@ -61,7 +60,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return formElemWrapper;
   }
 
-  function rerenderRow(row) {
+  function reRenderRow(row) {
     var view = $("*[data-x-id='" + row.id + "']");
     view.replaceWith(row.render(editorWrapper));
   }
@@ -79,7 +78,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       currentRow.addChild(xElem);
 
       if (currentRow.children.length > 1) {
-        rerenderRow(currentRow);
+        reRenderRow(currentRow);
         diagnosticPrint();
         return;
       }
