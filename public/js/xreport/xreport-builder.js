@@ -120,6 +120,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.MulSel, formElem);
     } else if (type === "date") {
       return Object.assign(new XReportForm.Datepicker, formElem);
+    } else if (type === "header") {
+      return Object.assign(new XReportForm.Header, formElem);
+    } else if (type === "info") {
+      return Object.assign(new XReportForm.Info, formElem);
     } else if (type === "row") {
       var row = Object.assign(new XReportForm.Row, formElem);
 
