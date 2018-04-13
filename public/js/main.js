@@ -15,6 +15,12 @@ $(function() {
     loggedOutState();
   });
 
+  function showMessage(msg) {
+    $("#div-msg-box .modal-title").text(msg.title);
+    $("#div-msg-box .modal-body").text(msg.text);
+    $("#div-msg-box").modal('show');
+  }
+
   function loggedInState() {
     $("#a-login").addClass("d-none");
     $("#a-logout").removeClass("d-none");
@@ -46,7 +52,7 @@ $(function() {
 
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
-        var cardDeckElem = '<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12">\
+        var cardDeckElem = '<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
                               <div class="card report-list-item h-100" data-id="' + report.id + '">\
                                 <div class="card-body">\
                                   <h4 class="card-title">' + report.data().name + '</h4>\
@@ -90,12 +96,15 @@ $(function() {
     var title = XReportBuilder.getReportTitle();
 
     if (!title) {
+      showMessage({ title: "Hiba", text: "Adja meg a séma nevét! " });
       return;
     }
 
+    waitingDialog.show("Séma mentése...");
+
     var payload = {
       file: XReportBuilder.getReportInJSONFile(),
-      name: XReportBuilder.getReportTitle(),
+      name: title,
       creator: currentUser.displayName
     };
 
@@ -104,23 +113,28 @@ $(function() {
       api.editReport(payload, currentReportId)
       .then(function() {
         console.log("Report editing successful.");
+        waitingDialog.hide();
       })
       .catch(function(error) {
         console.log(error);
+        waitingDialog.hide();
       });
     //Save report
     } else {
       api.saveReport(payload)
       .then(function() {
         console.log("Report saving successful.");
+        waitingDialog.hide();
       })
       .catch(function(error) {
+        waitingDialog.hide();
         console.log(error);
       });
     }
   }
 
   function loadReport() {
+    waitingDialog.show("Séma betöltése...");
     XReportBuilder.initBuilder();
     currentReportId = $(this).attr("data-id");
 
@@ -128,16 +142,22 @@ $(function() {
       if (report.exists) {
         console.log("Document data:", report.data());
         $.getJSON(report.data().contentUrl, function(json) {
+          XReportBuilder.setReportTitle(report.data().name);
           XReportBuilder.buildReportFromJSON(report.data().name, json);
           $("#btn-clinics-section")[0].click();
           $("#div-builder").removeClass("d-none");
           $("#div-schemes").addClass("d-none");
+          XReportBuilder.toggleEditState();
+          waitingDialog.hide();
         });
       } else {
+        waitingDialog.hide();
         console.log("No such document!");
       }
     }).catch(function(error) {
-      console.log("Error getting document:", error);
+        waitingDialog.hide();
+        showMessage({ title: "Hiba", text: "A séma betöltése sikertelen. " });
+        console.log(error);
     });
   }
 

@@ -113,7 +113,7 @@
             <div class="card-header">
               <div class="d-flex justify-content-between">
                 <div>
-                  <input id="input-scheme-title" type="text" name="section-name" placeholder="Írja be a lelet nevét">
+                  <input id="input-scheme-title" type="text" name="section-name" placeholder="Írja be a séma nevét">
                 </div>
 
                 <div>
@@ -179,6 +179,28 @@
     </div>
   </div>
 
+  <!-- Message box -->
+  <div class="modal fade" id="div-msg-box" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"></h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="container">
       <span class="text-muted">© 2018 Copyright: dr. Harmouche Ahmed Mouhamad</span>
@@ -205,6 +227,9 @@
 
   <!-- MOMENT -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js"></script>
+
+  <!-- BOOTSTRAP LOADING MODAL PLUGIN -->
+  <script src="js/lib/bootstrap-waitingfor.min.js"></script>
 
   <!-- APP -->
   <script src="js/api.js"></script>
