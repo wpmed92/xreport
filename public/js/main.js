@@ -79,6 +79,44 @@ $(function() {
     api.logOut();
   }
 
+  function saveScheme() {
+    if (!currentUser) {
+      doGoogleLogin();
+      return;
+    }
+
+    var title = XReportBuilder.getReportTitle();
+
+    if (!title) {
+      return;
+    }
+
+    api.saveReport({
+      file: XReportBuilder.getReportInJSONFile(),
+      name: XReportBuilder.getReportTitle(),
+      creator: currentUser.displayName
+    });
+  }
+
+  function loadReport() {
+    var reportId = $(this).attr("data-id");
+
+    api.getReport(reportId).then(function(report) {
+        if (report.exists) {
+          console.log("Document data:", report.data());
+          $.getJSON(report.data().contentUrl, function(json) {
+            XReportBuilder.buildReportFromJSON(report.data().name, json);
+            $("#div-builder").removeClass("d-none");
+            $("#div-schemes").addClass("d-none");
+          });
+        } else {
+          console.log("No such document!");
+        }
+      }).catch(function(error) {
+        console.log("Error getting document:", error);
+      });
+  }
+
   //Events
   $(".nav-tabs a").click(navTabsClick);
   $("#btn-add-textbox").click(function() {
@@ -104,41 +142,8 @@ $(function() {
   });
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
-  $("#btn-save-scheme").click(function() {
-    if (!currentUser) {
-      doGoogleLogin();
-      return;
-    }
-
-    var title = XReportBuilder.getReportTitle();
-
-    if (!title) {
-      return;
-    }
-
-    api.saveReport({
-      file: XReportBuilder.getReportInJSONFile(),
-      name: XReportBuilder.getReportTitle(),
-      creator: currentUser.displayName
-    });
-  });
-  $("body").on('click', ".report-list-item", function() {
-    var reportId = $(this).attr("data-id");
-    api.getReport(reportId).then(function(report) {
-        if (report.exists) {
-          console.log("Document data:", report.data());
-          $.getJSON(report.data().contentUrl, function(json) {
-            XReportBuilder.buildReportFromJSON(report.data().name, json);
-            $("#div-builder").removeClass("d-none");
-            $("#div-schemes").addClass("d-none");
-          });
-        } else {
-          console.log("No such document!");
-        }
-      }).catch(function(error) {
-        console.log("Error getting document:", error);
-      });
-  });
+  $("#btn-save-scheme").click(saveScheme);
+  $("body").on('click', ".report-list-item", loadReport);
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
     XReportBuilder.toggleEditState();
