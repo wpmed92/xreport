@@ -258,5 +258,13 @@ var XReportBuilder = (function(jQ, XReportForm) {
     addToForm(group);
   }
 
+  _module.addHeader = function() {
+    addToForm(new XReportForm.Header("Szekció cím"));
+  }
+
+  _module.addInfo = function() {
+    addToForm(new XReportForm.Info("Magyarázó szöveg"));
+  }
+
   return _module;
 })($, XReportForm);

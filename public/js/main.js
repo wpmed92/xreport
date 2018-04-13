@@ -184,6 +184,12 @@ $(function() {
   $("#btn-add-date").click(function() {
     XReportBuilder.addDateGroup();
   });
+  $("#btn-add-header").click(function() {
+    XReportBuilder.addHeader();
+  });
+  $("#btn-add-info").click(function() {
+    XReportBuilder.addInfo();
+  });
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
   $("#btn-save-scheme").click(saveScheme);

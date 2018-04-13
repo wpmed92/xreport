@@ -52,6 +52,34 @@ var XReportForm = (function(jQ) {
     return editor;
   }
 
+  //Label -> Header
+  function XHeader(text) {
+    XLabel.call(this, text);
+    this.type = "header";
+  }
+
+  XHeader.prototype = Object.create(XLabel.prototype);
+
+  XHeader.prototype.render = function() {
+    var view = jQ("<h4>" + this.val + "</h4>");
+    this.bind(view);
+    return view;
+  }
+
+  //Label -> Info
+  function XInfo(text) {
+    XLabel.call(this, text);
+    this.type = "info";
+  }
+
+  XInfo.prototype = Object.create(XLabel.prototype);
+
+  XInfo.prototype.render = function() {
+    var view = jQ("<div class='alert alert-info' role='alert'>" + this.val + "</div>");
+    this.bind(view);
+    return view;
+  }
+
   //Numberbox
   function XInNum(min, max, unit) {
     XFormElem.call(this, "innum");
@@ -416,6 +444,8 @@ var XReportForm = (function(jQ) {
   return {
     Label: XLabel,
     Text: XInText,
+    Header: XHeader,
+    Info: XInfo,
     Num: XInNum,
     Bool: XInBool,
     Sel: XSel,
