@@ -28,8 +28,9 @@ var XReportForm = (function(jQ) {
 
   XLabel.prototype = Object.create(XFormElem.prototype);
 
-  XLabel.prototype.render = function() {
-    var view = jQ("<label>" + this.val + "</label>");
+  XLabel.prototype.render = function(forId) {
+    var _for = (forId) ? ("for='" + forId + "'") : "";
+    var view = jQ("<label " + _for + ">" + this.val + "</label>");
     this.bind(view);
     return view;
   }
@@ -172,7 +173,7 @@ var XReportForm = (function(jQ) {
 
   XInBool.prototype.render = function() {
     return jQ("<div class='form-check'>\
-                <input class='form-check-input' type='" + this.style + "'>\
+                <input id='" + this.id + "' class='form-check-input' type='" + this.style + "'>\
               </div>");
   }
 
@@ -285,7 +286,7 @@ var XReportForm = (function(jQ) {
       model.options.forEach(function(option) {
         var inbool = new XInBool();
         var inboolView = inbool.render();
-        var check = inboolView.append(new XLabel(option).render());
+        var check = inboolView.append(new XLabel(option).render(inbool.id));
         view.append(check);
       });
     } else {
@@ -390,7 +391,7 @@ var XReportForm = (function(jQ) {
     //view.append(diagnostic);
 
     if (this.child.type === "inbool") {
-      view.append(this.child.render().append(this.label.render()));
+      view.append(this.child.render().append(this.label.render(this.child.id)));
     } else {
       view.append(this.label.render());
       view.append(this.child.render());
