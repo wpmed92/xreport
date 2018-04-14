@@ -267,7 +267,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   _module.addInfo = function() {
-    addToForm(new XReportForm.Info("Magyarázó szöveg"));
+    addToForm(new XReportForm.Info("Magyarázó szöveg", "info"));
   }
 
   return _module;
