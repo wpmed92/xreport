@@ -20,11 +20,26 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <!-- Left -->
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a id="a-builder" class="nav-link" href="#">Séma készítő <span class="sr-only">(current)</span></a>
-        </li>
+        <!-- Sablonok -->
         <li class="nav-item">
-          <a id="a-schemes" class="nav-link" href="#">Sémák</a>
+          <a id="a-schemes" class="nav-link" href="#">Sablonok</a>
+        </li>
+
+        <!-- Kategóriák -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Összes kategória
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="#">Neurológia</a>
+            <a class="dropdown-item" href="#">Kardiológia</a>
+            <a class="dropdown-item" href="#">Onkológia</a>
+          </div>
+        </li>
+
+        <!-- Új sablon -->
+        <li class="nav-item">
+          <button id="btn-new-scheme" class="btn btn-success" type="button"><i class="fas fa-plus"></i></button>
         </li>
       </ul>
 
@@ -115,7 +130,7 @@
             <div class="card-header">
               <div class="d-flex justify-content-between">
                 <div class="w-25">
-                  <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a séma nevét">
+                  <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
                 </div>
 
                 <div>
@@ -203,11 +218,11 @@
     </div>
   </div>
 
-  <footer class="footer">
+  <!--<footer class="footer">
     <div class="container">
       <span class="text-muted">© 2018 Copyright: dr. Harmouche Ahmed Mouhamad</span>
     </div>
-  </footer>
+  </footer>-->
 
   <!-- JQUERY -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

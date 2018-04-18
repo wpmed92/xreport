@@ -96,11 +96,11 @@ $(function() {
     var title = XReportBuilder.getReportTitle();
 
     if (!title) {
-      showMessage({ title: "Hiba", text: "Adja meg a séma nevét! " });
+      showMessage({ title: "Hiba", text: "Adja meg a sablon nevét! " });
       return;
     }
 
-    waitingDialog.show("Séma mentése...");
+    waitingDialog.show("Sablon mentése...");
 
     var payload = {
       file: XReportBuilder.getReportInJSONFile(),
@@ -134,7 +134,7 @@ $(function() {
   }
 
   function loadReport() {
-    waitingDialog.show("Séma betöltése...");
+    waitingDialog.show("Sablon betöltése...");
     XReportBuilder.initBuilder();
     currentReportId = $(this).attr("data-id");
 
@@ -156,7 +156,7 @@ $(function() {
       }
     }).catch(function(error) {
         waitingDialog.hide();
-        showMessage({ title: "Hiba", text: "A séma betöltése sikertelen. " });
+        showMessage({ title: "Hiba", text: "A sablon betöltése sikertelen. " });
         console.log(error);
     });
   }
@@ -228,7 +228,7 @@ $(function() {
   });
 
   //Navbar
-  $("#a-builder").click(function() {
+  $("#btn-new-scheme").click(function() {
     $("#div-builder").removeClass("d-none");
     $("#div-schemes").addClass("d-none");
   });
