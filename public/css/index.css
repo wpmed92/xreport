@@ -44,9 +44,6 @@ select.form-control:focus {
 
 .x-form-wrapper {
   position: relative;
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 5px;
 }
 
 .x-row-wrapper {
@@ -85,6 +82,11 @@ select.form-control:focus {
 
 a {
   transition: .25s all;
+}
+
+.card-slightly-shadowed {
+  overflow: hidden;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 2px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
 .card-shadowed {
