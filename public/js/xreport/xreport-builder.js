@@ -28,8 +28,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-primary x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-danger x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
 
@@ -94,8 +94,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function buildEditor(xElem) {
-    $("#editor").html(xElem.buildEditor());
-    $("#a-editor").tab("show");
+    var view = $("*[data-x-id='" + xElem.id + "']");
+    var editorWrapper = $("<div class='x-editor-wrapper'></div>");
+    editorWrapper.append(xElem.buildEditor());
+    view.append(editorWrapper);
   }
 
   function createFormElemFromJSON(formElem) {

@@ -39,7 +39,7 @@
 
         <!-- Új sablon -->
         <li class="nav-item">
-          <button id="btn-new-scheme" class="btn btn-success" type="button"><i class="fas fa-plus"></i></button>
+          <button id="btn-new-scheme" class="btn btn-outline-primary" type="button"><i class="fas fa-plus"></i></button>
         </li>
       </ul>
 
@@ -65,67 +65,8 @@
 
   <div id="div-builder" class="container-fluid mt-4">
     <div class="row">
-
-      <!-- Control panel -->
-      <div id="div-editor-panel" class="col-4">
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <a id="a-templates" class="nav-link active" href="#templates"><i class="fab fa-wpforms"></i> Minták</a>
-          </li>
-          <li class="nav-item">
-            <a id="a-editor" class="nav-link" href="#editor"><i class="fas fa-pencil-alt"></i> Szerkesztő</a>
-          </li>
-          <li class="nav-item">
-            <a id="a-rules" class="nav-link" href="#rules"><i class="fas fa-code"></i> Szabályok</a>
-          </li>
-        </ul>
-
-        <br>
-
-        <!-- Tab content -->
-        <div class="tab-content">
-          <div id="templates" class="tab-pane active">
-            <div class="list-group">
-              <a href="#" id="btn-add-textbox" class="list-group-item list-group-item-action"><i class="fas fa-font"></i> Szöveges mező</a>
-              <a href="#" id="btn-add-numberbox" class="list-group-item list-group-item-action"><i class="fas fa-hashtag"></i> Szám mező</a>
-              <a href="#" id="btn-add-checkbox" class="list-group-item list-group-item-action"><i class="far fa-check-square"></i> Eldöntendő mező</a>
-              <a href="#" id="btn-add-select" class="list-group-item list-group-item-action"><i class="fas fa-bars"></i> Egyszeres választás</a>
-              <a href="#" id="btn-add-select-multiple" class="list-group-item list-group-item-action"><i class="fas fa-list"></i> Többszörös választás</a>
-              <a href="#" id="btn-add-textarea" class="list-group-item list-group-item-action"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
-              <a href="#" id="btn-add-date" class="list-group-item list-group-item-action"><i class="fas fa-calendar-alt"></i> Dátum</a>
-              <a href="#" id="btn-add-header" class="list-group-item list-group-item-action"><i class="fas fa-heading"></i> Szekció cím</a>
-              <a href="#" id="btn-add-info" class="list-group-item list-group-item-action"><i class="fas fa-info"></i> Magyarázó szöveg</a>
-            </div>
-
-            <br>
-
-            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-              <label id="btn-newline" class="btn btn-secondary active">
-                <input type="radio" name="options" id="option1" autocomplete="off" checked> Új sorba
-              </label>
-              <label id="btn-inline" class="btn btn-secondary">
-                <input type="radio" name="options" id="option2" autocomplete="off"> Egy sorba
-              </label>
-            </div>
-          </div>
-
-          <!-- Editing a specific field -->
-          <div id="editor" class="tab-pane fade">
-            <!-- Dynamic editor content -->
-          </div>
-
-          <!-- Writing rules for the form -->
-          <div id="rules" class="tab-pane fade">
-            <textarea id="script-area" class="form-control" rows="10"></textarea>
-            <button id="btn-run-script" type="button" class="btn btn-success">Alkalmaz</button>
-          </div>
-        </div>
-      </div>
-
-
         <!-- Form -->
-        <div class="col">
+        <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
           <div class="card">
             <div class="card-header">
               <div class="d-flex justify-content-between">
@@ -140,57 +81,30 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <div id="accordion">
-              <!-- Klinikum-->
-              <div class="card">
-                <div class="card-header" id="clinicsHeading">
-                  <h5 class="mb-0">
-                    <button id="btn-clinics-section" class="btn btn-link" data-toggle="collapse" data-target="#sectionClinics" aria-expanded="true" aria-controls="sectionClinics">
-                      <i class="fas fa-briefcase-medical"></i> Klinikum
-                    </button>
-                  </h5>
-                </div>
+          <div id="x-form-report" class="x-row-wrapper">
+            <!-- content of lelet -->
 
-                <div id="sectionClinics" class="collapse show" aria-labelledby="clinicsHeading" data-parent="#accordion">
-                  <div id="x-form-clinics" class="card-body">
-                    <!-- content of clinics -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Lelet -->
-              <div class="card">
-                <div class="card-header" id=reportHeading>
-                  <h5 class="mb-0">
-                    <button id="btn-report-section" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sectionReport" aria-expanded="false" aria-controls="sectionReport">
-                      <i class="fas fa-file-medical-alt"></i> Lelet
-                    </button>
-                  </h5>
-                </div>
-                <div id="sectionReport" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                  <div id="x-form-report" class="card-body">
-                    <!-- content of lelet -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Vélemény -->
-              <div class="card">
-                <div class="card-header" id="opinionHeading">
-                  <h5 class="mb-0">
-                    <button id="btn-opinion-section" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sectionOpinion" aria-expanded="false" aria-controls="sectionOpinion">
-                      <i class="fas fa-user-md"></i> Vélemény
-                    </button>
-                  </h5>
-                </div>
-                <div id="sectionOpinion" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-                  <div id="x-form-opinion" class="card-body">
-                    <!-- content of opinion -->
-                  </div>
-                </div>
+          </div>
+          <div id="btn-add-new-elem" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center">
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-plus"></i>
+              </button>
+              <div class="dropdown-menu">
+                  <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>
+                  <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>
+                  <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>
+                  <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>
+                  <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>
+                  <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
+                  <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>
+                  <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>
+                  <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </div>

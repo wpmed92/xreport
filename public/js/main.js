@@ -5,7 +5,7 @@ $(function() {
   var currentUser = null;
   var currentReportId = null;
 
-  XReportBuilder.useClinicsSection();
+  XReportBuilder.useReportSection();
   moment.locale("hu");
 
   api.onAuthStateChanged(function(user) {
@@ -53,7 +53,7 @@ $(function() {
     api.getReports().then(function(reports) {
       reports.forEach(function(report) {
         var cardDeckElem = '<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                              <div class="card report-list-item h-100" data-id="' + report.id + '">\
+                              <div class="card card-shadowed report-list-item h-100" data-id="' + report.id + '">\
                                 <div class="card-body">\
                                   <h4 class="card-title">' + report.data().name + '</h4>\
                                   <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
@@ -144,7 +144,7 @@ $(function() {
         $.getJSON(report.data().contentUrl, function(json) {
           XReportBuilder.setReportTitle(report.data().name);
           XReportBuilder.buildReportFromJSON(report.data().name, json);
-          $("#btn-clinics-section")[0].click();
+          //$("#btn-clinics-section")[0].click();
           $("#div-builder").removeClass("d-none");
           $("#div-schemes").addClass("d-none");
           XReportBuilder.toggleEditState();
@@ -163,31 +163,31 @@ $(function() {
 
   //Events
   $(".nav-tabs a").click(navTabsClick);
-  $("#btn-add-textbox").click(function() {
+  $("body").on("click", "#btn-add-textbox", function() {
     XReportBuilder.addTextGroup();
   });
-  $("#btn-add-numberbox").click(function() {
+  $("body").on("click", "#btn-add-numberbox", function() {
     XReportBuilder.addNumberGroup();
   });
-  $("#btn-add-checkbox").click(function() {
+  $("body").on("click", "#btn-add-checkbox", function() {
     XReportBuilder.addBoolGroup();
   });
-  $("#btn-add-select").click(function() {
+  $("body").on("click","#btn-add-select", function() {
     XReportBuilder.addSelGroup();
   });
-  $("#btn-add-select-multiple").click(function() {
+  $("body").on("click","#btn-add-select-multiple", function() {
     XReportBuilder.addMulSelGroup();
   });
-  $("#btn-add-textarea").click(function() {
+  $("body").on("click","#btn-add-textarea", function() {
     XReportBuilder.addTextAreaGroup();
   });
-  $("#btn-add-date").click(function() {
+  $("body").on("click","#btn-add-date", function() {
     XReportBuilder.addDateGroup();
   });
-  $("#btn-add-header").click(function() {
+  $("body").on("click","#btn-add-header", function() {
     XReportBuilder.addHeader();
   });
-  $("#btn-add-info").click(function() {
+  $("body").on("click","#btn-add-info", function() {
     XReportBuilder.addInfo();
   });
   $("#a-login").click(googleLogin);

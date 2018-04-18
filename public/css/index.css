@@ -7,16 +7,50 @@ html, body {
   height: -webkit-calc(100% - 116px);
 }
 
+.x-add-new-elem-placeholder {
+  border: 1px dashed #ddd;
+  height: 40px;
+}
+
+/*.x-add-new-elem-placeholder:hover {
+  background-color: #f9f9f9;
+}*/
+
+/*Underline styled inputs*/
+
+/*input[type="text"],
+select.form-control {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #000000;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+input[type="text"]:focus,
+select.form-control:focus {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}*/
+
+.col-lg {
+  min-width: 770px;
+}
+
 .x-template-wrapper {
   position: relative;
 }
 
 .x-form-wrapper {
   position: relative;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 5px;
 }
 
 .x-row-wrapper {
-  box-shadow: 0 1px 1px -1px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
 .x-template-add-button {
@@ -29,6 +63,15 @@ html, body {
   position: absolute;
   bottom: 0;
   right: 0;
+}
+
+.x-editor-wrapper {
+  background-color: #f7f7f7;
+  border: 1px solid #c5c5c5;
+  margin-top: 10px;
+  border-radius: 3px;
+  padding: 10px;
+  border-color: #ddd;
 }
 
 .footer {
@@ -44,12 +87,12 @@ a {
   transition: .25s all;
 }
 
-.card {
+.card-shadowed {
   overflow: hidden;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
   transition: .25s box-shadow;
 }
-.card:focus, .card:hover {
+.card-shadowed:focus, .card-shadowed:hover {
   box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
 }
 
