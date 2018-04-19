@@ -55,8 +55,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       diagnosticPrint();
     });
 
-    formElemWrapper.append(buttonGroup);
     formElemWrapper.append(formElemWrapperContent);
+    formElemWrapper.append(buttonGroup);
     return formElemWrapper;
   }
 

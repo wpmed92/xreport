@@ -163,33 +163,41 @@ $(function() {
 
   //Events
   $(".nav-tabs a").click(navTabsClick);
-  $("body").on("click", "#btn-add-textbox", function() {
-    XReportBuilder.addTextGroup();
+  $("body").on("click", "#tool-menu .dropdown-item", function(e) {
+    e.preventDefault();
+    var id = $(this).attr("id");
+
+    switch (id) {
+      case "btn-add-textbox":
+        XReportBuilder.addTextGroup();
+        break;
+      case "btn-add-numberbox":
+        XReportBuilder.addNumberGroup();
+        break;
+      case "btn-add-checkbox":
+        XReportBuilder.addBoolGroup();
+        break;
+      case "btn-add-select":
+        XReportBuilder.addSelGroup();
+        break;
+      case "btn-add-select-multiple":
+        XReportBuilder.addMulSelGroup();
+        break;
+      case "btn-add-textarea":
+        XReportBuilder.addTextAreaGroup();
+        break;
+      case "btn-add-date":
+        XReportBuilder.addDateGroup();
+        break;
+      case "btn-add-header":
+        XReportBuilder.addHeader();
+        break;
+      case "btn-add-info":
+        XReportBuilder.addInfo();
+        break;
+    }
   });
-  $("body").on("click", "#btn-add-numberbox", function() {
-    XReportBuilder.addNumberGroup();
-  });
-  $("body").on("click", "#btn-add-checkbox", function() {
-    XReportBuilder.addBoolGroup();
-  });
-  $("body").on("click","#btn-add-select", function() {
-    XReportBuilder.addSelGroup();
-  });
-  $("body").on("click","#btn-add-select-multiple", function() {
-    XReportBuilder.addMulSelGroup();
-  });
-  $("body").on("click","#btn-add-textarea", function() {
-    XReportBuilder.addTextAreaGroup();
-  });
-  $("body").on("click","#btn-add-date", function() {
-    XReportBuilder.addDateGroup();
-  });
-  $("body").on("click","#btn-add-header", function() {
-    XReportBuilder.addHeader();
-  });
-  $("body").on("click","#btn-add-info", function() {
-    XReportBuilder.addInfo();
-  });
+
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
   $("#btn-save-scheme").click(saveScheme);
