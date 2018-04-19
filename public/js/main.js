@@ -195,6 +195,9 @@ $(function() {
       case "btn-add-info":
         XReportBuilder.addInfo();
         break;
+      case "btn-add-rating":
+        XReportBuilder.addRating();
+        break;
     }
   });
 

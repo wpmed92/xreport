@@ -278,5 +278,9 @@ var XReportBuilder = (function(jQ, XReportForm) {
     addToForm(new XReportForm.Info("Magyarázó szöveg", "info"));
   }
 
+  _module.addRating = function() {
+    addToForm(new XReportForm.Rating());
+  }
+
   return _module;
 })($, XReportForm);

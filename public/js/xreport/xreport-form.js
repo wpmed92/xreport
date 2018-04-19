@@ -385,6 +385,109 @@ var XReportForm = (function(jQ) {
     return xDate;
   }
 
+  //Rating table
+  function XRating() {
+    XFormElem.call(this, "rating");
+    this.rows = ["Paraméter 1", "Paraméter 2"];
+    this.headers = ["Érték 1", "Érték 2", "Érték 3"];
+    this.title = "Cím";
+  }
+
+  XRating.prototype = Object.create(XFormElem.prototype);
+
+  XRating.prototype.render = function() {
+    var view = jQ("<table class='table table-bordered'></table>");
+    var model = this;
+    this.bind(view);
+    var headerRow = jQ("<thead><tr></tr></thead>");
+    headerRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
+
+    model.headers.forEach(function(header) {
+      headerRow.append(jQ("<th scope='col'>" + header + "</th>"));
+    });
+
+    view.append(headerRow);
+    var newRow = "";
+    var i = 0;
+
+    model.rows.forEach(function(row) {
+      newRow = jQ("<tr></tr>");
+      newRow.append(jQ("<th scope='row'>" + row + "</th>"));
+      i++;
+
+      model.headers.forEach(function() {
+        newRow.append(jQ("<td class='align-middle text-center'>\
+                            <div class='form-check form-check-inline'>\
+                              <input class='form-check-input' type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
+                            </div>\
+                          </td>"));
+      });
+      view.append(newRow);
+    });
+
+    return view;
+  }
+
+  XRating.prototype.buildEditor = function() {
+    var model = this;
+    var editor = jQ("<div class='form-group'></div>");
+    var textAreaColHeader = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var textAreaRowHeader = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var updateOptionsBtn = jQ("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+    var textAreaCols = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+
+    updateOptionsBtn.click(function() {
+      var colHeader = textAreaColHeader.val();
+      var rowHeader = textAreaRowHeader.val();
+      var colHeaders = colHeader.split(';');
+      var rowHeaders = rowHeader.split(';');
+      var view = jQ("*[data-x-id='" + model.id + "']");
+      view.html("");
+      model.rows = [];
+      model.headers = [];
+
+      //Column headers
+      colHeaders.forEach(function(colHeader) {
+        if (!colHeader || colHeader === "") {
+          return;
+        }
+
+        model.headers.push(colHeader);
+      });
+
+      //Row headers
+      rowHeaders.forEach(function(rowHeader) {
+        if (!rowHeader || rowHeader === "") {
+          return;
+        }
+
+        model.rows.push(rowHeader);
+      });
+
+      view.replaceWith(model.render());
+    });
+
+    var titleEditor = jQ("<div class='form-group'><label>Táblázat címe</label></div>");
+    var inp = jQ("<input type='text' class='form-control'>");
+    inp.val(model.val);
+
+    inp.on("change", function() {
+      var val = jQ(this).val();
+      model.title = val;
+      jQ("*[data-x-id='" + model.id + "']").replaceWith(model.render());
+    });
+
+    titleEditor.append(inp);
+    editor.append(titleEditor);
+    editor.append("<label>Oszlop címek</label>");
+    editor.append(textAreaColHeader);
+    editor.append("<label>Sor címek</label>");
+    editor.append(textAreaRowHeader);
+    editor.append(updateOptionsBtn);
+
+    return editor;
+  }
+
   //Form group
   //orientation can be "horizontal" or "vertical"
   function XFormGroup(orientation, label) {
@@ -479,6 +582,7 @@ var XReportForm = (function(jQ) {
     Group: XFormGroup,
     Datepicker: XDate,
     Row: XFormRow,
-    TextArea: XTextArea
+    TextArea: XTextArea,
+    Rating: XRating
   }
 })($);
