@@ -55,8 +55,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       diagnosticPrint();
     });
 
-    formElemWrapper.append(formElemWrapperContent);
     formElemWrapper.append(buttonGroup);
+    formElemWrapper.append(formElemWrapperContent);
     return formElemWrapper;
   }
 
@@ -96,8 +96,13 @@ var XReportBuilder = (function(jQ, XReportForm) {
   function buildEditor(xElem) {
     var view = $("*[data-x-id='" + xElem.id + "']");
     var editorWrapper = $("<div class='x-editor-wrapper'></div>");
+    var closeBtn = $("<button type='button' class='btn btn-sm btn-outline-danger x-editor-close'><i class='far fa-times-circle'></i></div>");
+    closeBtn.click(function() {
+      $(this).parent().remove();
+    });
     editorWrapper.append(xElem.buildEditor());
-    view.append(editorWrapper);
+    editorWrapper.append(closeBtn);
+    view.parent().append(editorWrapper);
   }
 
   function createFormElemFromJSON(formElem) {
@@ -158,6 +163,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     editState = !editState;
     $(".x-form-edit-btn").toggleClass("collapse");
     $(".x-diagnostic").toggleClass("collapse");
+    $(".x-editor-wrapper").toggleClass("collapse");
     $("#div-editor-panel").toggleClass("collapse");
   }
 

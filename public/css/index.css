@@ -58,11 +58,18 @@ select.form-control:focus {
 
 .x-form-edit-group {
   position: absolute;
-  bottom: 0;
+  top: 0;
+  right: 0;
+}
+
+.x-editor-close {
+  position: absolute;
+  top: 0;
   right: 0;
 }
 
 .x-editor-wrapper {
+  position:relative;
   background-color: #f7f7f7;
   border: 1px solid #c5c5c5;
   margin-top: 10px;
