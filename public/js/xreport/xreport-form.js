@@ -218,7 +218,7 @@ var XReportForm = (function(jQ) {
   function XSel(style) {
     XFormElem.call(this, "sel");
     this.style = style || "default";
-    this.options = [];
+    this.options = ["Opció 1", "Opció 2"];
   }
 
   XSel.prototype = Object.create(XFormElem.prototype);
@@ -296,7 +296,7 @@ var XReportForm = (function(jQ) {
   function XMulSel(style) {
     XFormElem.call(this, "mulsel");
     this.style = style || "default";
-    this.options = [];
+    this.options = ["Opció 1", "Opció 2"];
   }
 
   XMulSel.prototype = Object.create(XFormElem.prototype);
@@ -470,7 +470,9 @@ var XReportForm = (function(jQ) {
         model.rows.push(rowHeader);
       });
 
-      view.replaceWith(model.render());
+      var newView = model.render();
+      newView.addClass(view.hasClass("d-none") ? "d-none" : "");
+      view.replaceWith(newView);
     });
 
     var titleEditor = jQ("<div class='form-group'><label>Táblázat címe</label></div>");
@@ -479,8 +481,11 @@ var XReportForm = (function(jQ) {
 
     inp.on("change", function() {
       var val = jQ(this).val();
+      var view = jQ("*[data-x-id='" + model.id + "']");
       model.title = val;
-      jQ("*[data-x-id='" + model.id + "']").replaceWith(model.render());
+      var newView = model.render();
+      newView.addClass(view.hasClass("d-none") ? "d-none" : "");
+      view.replaceWith(newView);
     });
 
     titleEditor.append(inp);
@@ -548,7 +553,7 @@ var XReportForm = (function(jQ) {
   }
 
   XFormRow.prototype.render = function(editorWrapper) {
-    var view = jQ("<div class='form row'></div>");
+    var view = jQ("<div class='form-row'></div>");
     var model = this;
     this.bind(view);
     var equalColWidth = Math.floor(12 / this.children.length);

@@ -97,12 +97,18 @@ var XReportBuilder = (function(jQ, XReportForm) {
     var view = $("*[data-x-id='" + xElem.id + "']");
     var editorWrapper = $("<div class='x-editor-wrapper'></div>");
     var closeBtn = $("<button type='button' class='btn btn-sm btn-outline-danger x-editor-close'><i class='far fa-times-circle'></i></div>");
+
     closeBtn.click(function() {
-      $(this).parent().remove();
+      $("*[data-x-id='" + xElem.id + "']").removeClass("d-none");
+      editorWrapper.remove();
+      $(".x-form-edit-btn").toggleClass("collapse");
     });
+
     editorWrapper.append(xElem.buildEditor());
     editorWrapper.append(closeBtn);
-    view.parent().append(editorWrapper);
+    $("*[data-x-id='" + xElem.id + "']").addClass("d-none");
+    $("*[data-x-id='" + xElem.id + "']").parent().append(editorWrapper);
+    $(".x-form-edit-btn").toggleClass("collapse");
   }
 
   function createFormElemFromJSON(formElem) {
@@ -176,6 +182,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
     var sortable = Sortable.create(document.getElementById("x-form-report"), {
+      handle: ".my-handle",
       onEnd: function (evt) {
     		var itemEl = evt.item;
         var temp = xForm[evt.oldIndex];
