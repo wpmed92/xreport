@@ -175,6 +175,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   _module.useReportSection = function() {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
+    var sortable = Sortable.create(document.getElementById("x-form-report"));
   }
 
   _module.useOpinionSection = function() {

@@ -399,14 +399,20 @@ var XReportForm = (function(jQ) {
     var view = jQ("<table class='table table-striped'></table>");
     var model = this;
     this.bind(view);
-    var headerRow = jQ("<thead><tr></tr></thead>");
+
+    //Build header
+    var header = jQ("<thead></thead>");
+    var headerRow = jQ("<tr></tr>");
     headerRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
 
     model.headers.forEach(function(header) {
       headerRow.append(jQ("<th scope='col' class='text-center'>" + header + "</th>"));
     });
 
-    view.append(headerRow);
+    header.append(headerRow);
+    view.append(header);
+
+    //Build body
     var body = jQ("<tbody></tbody>");
     var newRow = "";
     var i = 0;
