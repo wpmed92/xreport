@@ -231,12 +231,6 @@ $(function() {
     $('.navbar li').removeClass('active');
     $(this).addClass('active');
   });
-  $("#btn-newline").click(function() {
-    XReportBuilder.newLineMode();
-  });
-  $("#btn-inline").click(function() {
-    XReportBuilder.inlineMode();
-  });
 
   //Navbar
   $("#btn-new-scheme").click(function() {

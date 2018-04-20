@@ -10,7 +10,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var xForm = [];
   var currentRow = new XReportForm.Row();
   var editState = false;
-  var inlineMode = false;
   var sortable = null;
 
   function replacer(key, value) {
@@ -71,22 +70,65 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.append(row.render(editorWrapper));
   }
 
+  function addNewElemComponent() {
+    return $('\
+        <div class="dropdown">\
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+            <i class="fas fa-plus"></i>\
+          </button>\
+          <div class="dropdown-menu">\
+            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+            <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
+          </div>\
+        </div>'
+    );
+  }
+
   function addToForm(xElem) {
-    if (!inlineMode) {
-      currentRow = new XReportForm.Row();
-      currentRow.addChild(xElem);
-    } else {
-      currentRow.addChild(xElem);
+    var row = new XReportForm.Row();
+    row.addChild(xElem);
+    xForm.push(row);
+    var rowView = row.render(editorWrapper);
+    var comp = addNewElemComponent();
 
-      if (currentRow.children.length > 1) {
-        reRenderRow(currentRow);
-        diagnosticPrint();
-        return;
+    comp.find('.dropdown-menu').first().click(function(e) {
+      e.preventDefault();
+      var i = $(this).index();
+
+      switch (i) {
+        case 0:
+          _module.addTextGroup(row);
+          break;
+        case 1:
+          _module.addNumberGroup(row);
+          break;
+        case 2:
+          _module.addBoolGroup(row);
+          break;
+        case 3:
+          _module.addSelGroup(row);
+          break;
+        case 4:
+          _module.addMulSelGroup(row);
+          break;
+        case 5:
+          _module.addTextAreaGroup(row);
+          break;
+        case 6:
+          _module.addDateGroup(row);
+          break;
       }
-    }
 
-    xForm.push(currentRow);
-    xFormView.append(currentRow.render(editorWrapper));
+      reRenderRow(row);
+    });
+
+    rowView.append($("<div class='col-auto d-flex align-items-center'></div>").append(comp));
+    xFormView.append(rowView);
     diagnosticPrint();
   }
 
@@ -160,14 +202,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
       report: [],
       opinion: []
     };
-  }
-
-  _module.newLineMode = function() {
-    inlineMode = false;
-  }
-
-  _module.inlineMode = function() {
-    inlineMode = true;
   }
 
   _module.toggleEditState = function() {
@@ -249,45 +283,87 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return new Blob([_module.getReportInJSON()], {type: "application/json"});
   }
 
-  _module.addTextGroup = function() {
+  _module.addTextGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szöveges mező");
     group.addChild(new XReportForm.Text());
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 
-  _module.addNumberGroup = function() {
+  _module.addNumberGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szám mező");
     group.addChild(new XReportForm.Num());
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 
-  _module.addBoolGroup = function() {
+  _module.addBoolGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Eldöntendő mező");
     group.addChild(new XReportForm.Bool());
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 
-  _module.addSelGroup = function() {
+  _module.addSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Egyszeres választás");
     group.addChild(new XReportForm.Sel());
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 
-  _module.addMulSelGroup = function() {
+  _module.addMulSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Többszörös választás");
     group.addChild(new XReportForm.MulSel("checkbox"));
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 
-  _module.addTextAreaGroup = function() {
+  _module.addTextAreaGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szabad szöveg");
     group.addChild(new XReportForm.TextArea(4));
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 
-  _module.addDateGroup = function() {
+  _module.addDateGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Dátum");
     group.addChild(new XReportForm.Datepicker());
+
+    if (row) {
+      row.addChild(group);
+      return;
+    }
+
     addToForm(group);
   }
 

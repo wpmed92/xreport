@@ -577,21 +577,18 @@ var XReportForm = (function(jQ) {
     this.children.push(child);
   }
 
-  XFormRow.prototype.render = function(editorWrapper) {
+  XFormRow.prototype.render = function(editorWrapper, rowLevelEditors) {
     var view = jQ("<div class='form-row'></div>");
     var model = this;
     this.bind(view);
-    var equalColWidth = Math.floor(12 / this.children.length);
-    var needsBalancing = this.children.length % 12;
 
-    if (equalColWidth >= 1) {
-      this.children.forEach(function(child) {
-        var col = jQ("<div class='col-" + equalColWidth + "'></div>");
-        col.append(editorWrapper(child, model));
-        view.append(col);
-      });
-    }
+    this.children.forEach(function(child) {
+      var col = jQ("<div class='col'></div>");
+      col.append(editorWrapper(child, model));
+      view.append(col);
+    });
 
+    view.append(rowLevelEditors);
     return view;
   }
 
