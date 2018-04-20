@@ -30,7 +30,7 @@ var XReportForm = (function(jQ) {
 
   XLabel.prototype.render = function(forId) {
     var _for = (forId) ? ("for='" + forId + "'") : "";
-    var view = jQ("<label " + _for + " data-toggle='tooltip' data-placement='top' title='Tooltip on top'>" + this.val + "</label>");
+    var view = jQ("<label " + _for + ">" + this.val + "</label>");
     this.bind(view);
     return view;
   }
