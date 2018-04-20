@@ -416,10 +416,8 @@ var XReportForm = (function(jQ) {
       i++;
 
       model.headers.forEach(function() {
-        newRow.append(jQ("<td class='align-middle text-center'>\
-                            <div class='form-check form-check-inline'>\
-                              <input class='form-check-input' type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
-                            </div>\
+        newRow.append(jQ("<td class='text-center background-primary'>\
+                            <input type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
                           </td>"));
       });
       view.append(newRow);
