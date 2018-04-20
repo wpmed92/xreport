@@ -30,7 +30,7 @@ var XReportForm = (function(jQ) {
 
   XLabel.prototype.render = function(forId) {
     var _for = (forId) ? ("for='" + forId + "'") : "";
-    var view = jQ("<label " + _for + ">" + this.val + "</label>");
+    var view = jQ("<label " + _for + " data-toggle='tooltip' data-placement='top' title='Tooltip on top'>" + this.val + "</label>");
     this.bind(view);
     return view;
   }
@@ -396,17 +396,18 @@ var XReportForm = (function(jQ) {
   XRating.prototype = Object.create(XFormElem.prototype);
 
   XRating.prototype.render = function() {
-    var view = jQ("<table class='table table-bordered'></table>");
+    var view = jQ("<table class='table table-striped'></table>");
     var model = this;
     this.bind(view);
     var headerRow = jQ("<thead><tr></tr></thead>");
     headerRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
 
     model.headers.forEach(function(header) {
-      headerRow.append(jQ("<th scope='col'>" + header + "</th>"));
+      headerRow.append(jQ("<th scope='col' class='text-center'>" + header + "</th>"));
     });
 
     view.append(headerRow);
+    var body = jQ("<tbody></tbody>");
     var newRow = "";
     var i = 0;
 
@@ -416,13 +417,14 @@ var XReportForm = (function(jQ) {
       i++;
 
       model.headers.forEach(function() {
-        newRow.append(jQ("<td class='text-center background-primary'>\
+        newRow.append(jQ("<td class='text-center'>\
                             <input type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
                           </td>"));
       });
-      view.append(newRow);
+      body.append(newRow);
     });
 
+    view.append(body);
     return view;
   }
 
