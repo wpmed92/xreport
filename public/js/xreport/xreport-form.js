@@ -388,8 +388,8 @@ var XReportForm = (function(jQ) {
   //Rating table
   function XRating() {
     XFormElem.call(this, "rating");
-    this.rows = ["Paraméter 1", "Paraméter 2"];
-    this.headers = ["Érték 1", "Érték 2", "Érték 3"];
+    this.parameters = ["Paraméter 1", "Paraméter 2"];
+    this.ratings = ["Érték 1", "Érték 2", "Érték 3"];
     this.title = "Cím";
   }
 
@@ -402,14 +402,14 @@ var XReportForm = (function(jQ) {
 
     //Build header
     var header = jQ("<thead></thead>");
-    var headerRow = jQ("<tr></tr>");
-    headerRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
+    var ratingsRow = jQ("<tr></tr>");
+    ratingsRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
 
-    model.headers.forEach(function(header) {
-      headerRow.append(jQ("<th scope='col' class='text-center'>" + header + "</th>"));
+    model.ratings.forEach(function(rating) {
+      ratingsRow.append(jQ("<th scope='col' class='text-center'>" + rating + "</th>"));
     });
 
-    header.append(headerRow);
+    header.append(ratingsRow);
     view.append(header);
 
     //Build body
@@ -417,12 +417,12 @@ var XReportForm = (function(jQ) {
     var newRow = "";
     var i = 0;
 
-    model.rows.forEach(function(row) {
+    model.parameters.forEach(function(parameter) {
       newRow = jQ("<tr></tr>");
-      newRow.append(jQ("<th scope='row'>" + row + "</th>"));
+      newRow.append(jQ("<th scope='row'>" + parameter + "</th>"));
       i++;
 
-      model.headers.forEach(function() {
+      model.ratings.forEach(function() {
         newRow.append(jQ("<td class='text-center'>\
                             <input type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
                           </td>"));
@@ -437,40 +437,38 @@ var XReportForm = (function(jQ) {
   XRating.prototype.buildEditor = function() {
     var model = this;
     var editor = jQ("<div class='form-group'></div>");
-    var textAreaColHeader = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
-    var textAreaRowHeader = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var textAreaParameters = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var textAreaRatings = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
     var updateOptionsBtn = jQ("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
-    var textAreaCols = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
 
     updateOptionsBtn.click(function() {
-      var colHeader = textAreaColHeader.val();
-      var rowHeader = textAreaRowHeader.val();
-      var colHeaders = colHeader.split(';');
-      var rowHeaders = rowHeader.split(';');
+      var parameters = textAreaParameters.val().split(';');
+      var ratings = textAreaRatings.val().split(';');
       var view = jQ("*[data-x-id='" + model.id + "']");
+      var newView = "";
       view.html("");
-      model.rows = [];
-      model.headers = [];
+      model.parameters = [];
+      model.ratings = [];
 
-      //Column headers
-      colHeaders.forEach(function(colHeader) {
-        if (!colHeader || colHeader === "") {
+      //Parameters
+      parameters.forEach(function(parameter) {
+        if (!parameter || parameter === "") {
           return;
         }
 
-        model.headers.push(colHeader);
+        model.parameters.push(parameter);
       });
 
-      //Row headers
-      rowHeaders.forEach(function(rowHeader) {
-        if (!rowHeader || rowHeader === "") {
+      //Ratings
+      ratings.forEach(function(rating) {
+        if (!rating || rating === "") {
           return;
         }
 
-        model.rows.push(rowHeader);
+        model.ratings.push(rating);
       });
 
-      var newView = model.render();
+      newView = model.render();
       newView.addClass(view.hasClass("d-none") ? "d-none" : "");
       view.replaceWith(newView);
     });
@@ -482,18 +480,35 @@ var XReportForm = (function(jQ) {
     inp.on("change", function() {
       var val = jQ(this).val();
       var view = jQ("*[data-x-id='" + model.id + "']");
+      var newView = "";
       model.title = val;
-      var newView = model.render();
+      newView = model.render();
       newView.addClass(view.hasClass("d-none") ? "d-none" : "");
       view.replaceWith(newView);
     });
 
+    //Fill in model data to editor
+    var parametersString = "";
+    var ratingsString = "";
+
+    model.parameters.forEach(function(parameter) {
+      parametersString += parameter + ";";
+    });
+
+    model.ratings.forEach(function(rating) {
+       ratingsString += rating + ";";
+    });
+
+    inp.val(model.title);
+    
+    textAreaParameters.val(parametersString);
+    textAreaRatings.val(ratingsString);
     titleEditor.append(inp);
     editor.append(titleEditor);
     editor.append("<label>Értékek</label>");
-    editor.append(textAreaColHeader);
+    editor.append(textAreaRatings);
     editor.append("<label>Paraméterek</label>");
-    editor.append(textAreaRowHeader);
+    editor.append(textAreaParameters);
     editor.append(updateOptionsBtn);
 
     return editor;
