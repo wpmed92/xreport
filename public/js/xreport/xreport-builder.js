@@ -11,6 +11,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var currentRow = new XReportForm.Row();
   var editState = false;
   var inlineMode = false;
+  var sortable = null;
 
   function replacer(key, value) {
     if (key === "id") {
@@ -94,6 +95,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function buildEditor(xElem) {
+    sortable.option("disabled", true);
     var view = $("*[data-x-id='" + xElem.id + "']");
     var editorWrapper = $("<div class='x-editor-wrapper'></div>");
     var closeBtn = $("<button type='button' class='btn btn-sm btn-outline-danger x-editor-close'><i class='far fa-times-circle'></i></div>");
@@ -102,6 +104,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       $("*[data-x-id='" + xElem.id + "']").removeClass("d-none");
       editorWrapper.remove();
       $(".x-form-edit-btn").toggleClass("collapse");
+      sortable.option("disabled", false);
     });
 
     editorWrapper.append(xElem.buildEditor());
@@ -137,6 +140,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.Header, formElem);
     } else if (type === "info") {
       return Object.assign(new XReportForm.Info, formElem);
+    } else if (type === "rating") {
+      return Object.assign(new XReportForm.Rating, formElem);
     } else if (type === "row") {
       var row = Object.assign(new XReportForm.Row, formElem);
 
@@ -181,8 +186,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   _module.useReportSection = function() {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
-    var sortable = Sortable.create(document.getElementById("x-form-report"), {
-      handle: ".my-handle",
+    sortable = Sortable.create(document.getElementById("x-form-report"), {
       onEnd: function (evt) {
     		var itemEl = evt.item;
         var temp = xForm[evt.oldIndex];
@@ -225,6 +229,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       var oelem = createFormElemFromJSON(opinionElem);
       addRowToForm(oelem);
     });
+
+    _module.useReportSection();
   }
 
   _module.setReportTitle = function(title) {

@@ -76,7 +76,7 @@ var XReportForm = (function(jQ) {
   XInfo.prototype = Object.create(XLabel.prototype);
 
   XInfo.prototype.render = function() {
-    var view = jQ("<div class='alert alert-" + this.type + " role='alert'>" + this.val + "</div>");
+    var view = jQ("<div class='alert alert-" + this.type + "' role='alert'>" + this.val + "</div>");
     this.bind(view);
     return view;
   }
@@ -107,19 +107,28 @@ var XReportForm = (function(jQ) {
   }
 
   //Numberbox
-  function XInNum(min, max, unit) {
+  function XInNum() {
     XFormElem.call(this, "innum");
-    this.min = min;
-    this.max = max;
-    this.unit = unit;
+    this.min = 0;
+    this.max = Infinity;
+    this.unit = "";
   }
 
   XInNum.prototype = Object.create(XFormElem.prototype);
 
   XInNum.prototype.render = function() {
     var model = this;
-    var view = jQ("<input type='number' class='form-control'>");
+    var view = jQ("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' >");
     this.bind(view);
+
+    if (model.unit) {
+      view.wrap("<div class='input-group mb-3'></div>");
+      view.parent().append("<div class='input-group-append'>\
+                              <span class='input-group-text'>" + model.unit + "</span>\
+                            </div>");
+      view = view.parent();
+    }
+
     return view;
   }
 
@@ -500,7 +509,7 @@ var XReportForm = (function(jQ) {
     });
 
     inp.val(model.title);
-    
+
     textAreaParameters.val(parametersString);
     textAreaRatings.val(ratingsString);
     titleEditor.append(inp);
@@ -545,7 +554,8 @@ var XReportForm = (function(jQ) {
     //view.append(diagnostic);
 
     if (this.child.type === "inbool") {
-      view.append(this.child.render().append(this.label.render(this.child.id)));
+      var checkLabel = this.child.render();
+      view.append(checkLabel.append(this.label.render(this.child.id)));
     } else {
       view.append(this.label.render());
       view.append(this.child.render());
