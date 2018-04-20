@@ -477,9 +477,9 @@ var XReportForm = (function(jQ) {
 
     titleEditor.append(inp);
     editor.append(titleEditor);
-    editor.append("<label>Oszlop címek</label>");
+    editor.append("<label>Értékek</label>");
     editor.append(textAreaColHeader);
-    editor.append("<label>Sor címek</label>");
+    editor.append("<label>Paraméterek</label>");
     editor.append(textAreaRowHeader);
     editor.append(updateOptionsBtn);
 
