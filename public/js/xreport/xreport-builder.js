@@ -8,9 +8,81 @@ var XReportBuilder = (function(jQ, XReportForm) {
     opinion: []
   };
   var xForm = [];
-  var currentRow = new XReportForm.Row();
   var editState = false;
   var sortable = null;
+
+  var rowEditorComponent = (function() {
+    function getView() {
+      return $('\
+        <div class="dropdown">\
+          <button class="btn btn-sm btn-outline-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+            <i class="fas fa-ellipsis-v"></i>\
+          </button>\
+          <div class="dropdown-menu">\
+            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+            <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
+            <div class="dropdown-divider"></div>\
+            <a href="#" class="dropdown-item"><i class="fas fa-trash"></i> Törlés</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-copy"></i> Duplikálás</a>\
+          </div>\
+        </div>'
+      );
+    }
+
+    var init = function(row) {
+      var view = getView();
+      view.find('.dropdown-menu .dropdown-item').on("click", function(e) {
+
+        e.preventDefault();
+        var i = $(this).index();
+
+        switch (i) {
+          case 0:
+            _module.addTextGroup(row);
+            break;
+          case 1:
+            _module.addNumberGroup(row);
+            break;
+          case 2:
+            _module.addBoolGroup(row);
+            break;
+          case 3:
+            _module.addSelGroup(row);
+            break;
+          case 4:
+            _module.addMulSelGroup(row);
+            break;
+          case 5:
+            _module.addTextAreaGroup(row);
+            break;
+          case 6:
+            _module.addDateGroup(row);
+            break;
+
+          //Actions
+          //delete
+          case 8:
+            deleteRow(row);
+            break;
+          //duplicate
+          case 9:
+            duplicateRow(row);
+            break;
+        }
+      });
+
+      return view;
+    }
+
+    return {
+      createFor: init
+    }
+  })();
 
   function replacer(key, value) {
     if (key === "id") {
@@ -30,6 +102,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
     var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
     var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
+
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
 
@@ -46,10 +119,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       if (row.children.length == 0) {
         var curRowIndex = xForm.indexOf(row);
         xForm.splice(curRowIndex, 1);
-        currentRow = (curRowIndex < xForm.length) ? xForm[curRowIndex] : xForm[xForm.length-1];
       } else {
-        currentRow = row;
-        reRenderRow(row);
+        renderRow(row, /*rerender*/ true);
       }
 
       diagnosticPrint();
@@ -57,78 +128,61 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     formElemWrapper.append(formElemWrapperContent);
     formElemWrapper.append(buttonGroup);
+
     return formElemWrapper;
   }
 
-  function reRenderRow(row) {
-    var view = $("*[data-x-id='" + row.id + "']");
-    view.replaceWith(row.render(editorWrapper));
+  function renderRow(row, replace) {
+    var newRow = row.render();
+
+    if (replace) {
+      $("*[data-x-id='" + row.id + "']").replaceWith(newRow);
+    } else {
+      xFormView.append(newRow);
+    }
+
+    row.children.forEach(function(child) {
+      $("*[data-x-id='" + child.id + "']").replaceWith(editorWrapper(child, row));
+    });
+
+    newRow.append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
+    console.log("Rendering row...");
   }
 
   function addRowToForm(row) {
     xForm.push(row);
-    xFormView.append(row.render(editorWrapper));
+    renderRow(row, /*replace*/ false);
   }
 
-  function addNewElemComponent() {
-    return $('\
-        <div class="dropdown">\
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
-            <i class="fas fa-plus"></i>\
-          </button>\
-          <div class="dropdown-menu">\
-            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
-            <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
-          </div>\
-        </div>'
-    );
+  function duplicateRow(row) {
+    var curRowIndex = xForm.indexOf(row);
+    var newRow = new XReportForm.Row();
+
+    for (var i = 0; i < row.children.length; i++) {
+      newRow.addChild(createFormElemFromJSON(row.children[i]));
+      newRow.children[i].id = newRow.children[i].genUniqueId();
+
+      if (newRow.children[i].type === "group") {
+        newRow.children[i].label.id = newRow.children[i].label.genUniqueId();
+        newRow.children[i].child.id = newRow.children[i].child.genUniqueId();
+      }
+    }
+
+    xForm.splice(curRowIndex, 0, newRow);
+    renderRow(newRow, /*replace*/false);
+  }
+
+  function deleteRow(row, view) {
+    var curRowIndex = xForm.indexOf(row);
+    xForm.splice(curRowIndex, 1);
+    $("*[data-x-id='" + row.id + "']").remove();
   }
 
   function addToForm(xElem) {
     var row = new XReportForm.Row();
     row.addChild(xElem);
     xForm.push(row);
-    var rowView = row.render(editorWrapper);
-    var comp = addNewElemComponent();
-
-    comp.find('.dropdown-menu').first().click(function(e) {
-      e.preventDefault();
-      var i = $(this).index();
-
-      switch (i) {
-        case 0:
-          _module.addTextGroup(row);
-          break;
-        case 1:
-          _module.addNumberGroup(row);
-          break;
-        case 2:
-          _module.addBoolGroup(row);
-          break;
-        case 3:
-          _module.addSelGroup(row);
-          break;
-        case 4:
-          _module.addMulSelGroup(row);
-          break;
-        case 5:
-          _module.addTextAreaGroup(row);
-          break;
-        case 6:
-          _module.addDateGroup(row);
-          break;
-      }
-
-      reRenderRow(row);
-    });
-
-    rowView.append($("<div class='col-auto d-flex align-items-center'></div>").append(comp));
-    xFormView.append(rowView);
+    renderRow(row, /*rerender*/ false);
     diagnosticPrint();
   }
 
@@ -289,6 +343,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 
@@ -301,6 +356,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 
@@ -313,6 +369,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 
@@ -325,6 +382,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 
@@ -337,6 +395,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 
@@ -349,6 +408,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 
@@ -361,6 +421,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (row) {
       row.addChild(group);
+      renderRow(row, /*rerender*/ true);
       return;
     }
 

@@ -577,18 +577,17 @@ var XReportForm = (function(jQ) {
     this.children.push(child);
   }
 
-  XFormRow.prototype.render = function(editorWrapper, rowLevelEditors) {
+  XFormRow.prototype.render = function() {
     var view = jQ("<div class='form-row'></div>");
     var model = this;
     this.bind(view);
 
     this.children.forEach(function(child) {
       var col = jQ("<div class='col'></div>");
-      col.append(editorWrapper(child, model));
+      col.append(child.render());
       view.append(col);
     });
 
-    view.append(rowLevelEditors);
     return view;
   }
 
