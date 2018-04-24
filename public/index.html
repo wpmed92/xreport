@@ -26,7 +26,7 @@
         </li>
 
         <!-- Kategóriák -->
-        <li id="navbarCategorieDropdown" class="nav-item dropdown">
+        <li id="navbarCategoryDropdown" class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Összes kategória
           </a>
@@ -55,21 +55,26 @@
     </div>
   </div>
 
-  <div id="div-builder" class="container-fluid mt-4">
+  <div id="div-builder" class="container-fluid mt-4 d-none">
+    <!-- Controls -->
+    <div class="row mb-1">
+        <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button id="btn-save-scheme" type="button" class="btn btn-success">Mentés</button>
+            <button id="btn-drop-scheme" type="button" class="btn btn-danger">Kilépés</button>
+            <button id="btn-toggle-edit" type="button" class="btn btn-primary">Előnézet</button>
+          </div>
+        </div>
+    </div>
+
+    <!-- Form -->
     <div class="row">
-        <!-- Form -->
         <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
           <div class="card card-slightly-shadowed">
             <div class="card-header">
               <div class="d-flex justify-content-between">
                 <div class="w-25">
                   <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
-                </div>
-
-                <div>
-                  <button id="btn-save-scheme" type="button" class="btn btn-success"><i class="fas fa-check"></i></button>
-                  <!--<button id="btn-drop-scheme" type="button" class="btn btn-danger"><i class="fas fa-times"></i></button>-->
-                  <button id="btn-toggle-edit" type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
                 </div>
               </div>
             </div>
@@ -106,7 +111,6 @@
   <!-- Message box -->
   <div class="modal fade" id="div-msg-box" role="dialog">
     <div class="modal-dialog">
-
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -120,6 +124,39 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modal-new-scheme" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Új sablon</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <!-- Scheme title -->
+            <div class="form-group">
+              <label for="recipient-name" class="col-form-label">Cím</label>
+              <input type="text" class="form-control" id="modal-scheme-name">
+            </div>
+
+            <!-- Scheme category -->
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">Kategória</label>
+              <select class="form-control" id="modal-scheme-category"></select>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-new-scheme" type="button" class="btn btn-primary">Létrehoz</button>
         </div>
       </div>
     </div>

@@ -57,7 +57,8 @@ var api = (function(fb) {
     return db.collection("reports").doc(id).set({
       name: report.name,
       createdAt: SERVERTIME,
-      creator: report.creator
+      creator: report.creator,
+      category: report.category
     }, { merge: true })
     .then(function(initialDoc) {
         return storageRef.child("reports/" + id).put(report.file);

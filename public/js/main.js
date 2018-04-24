@@ -5,22 +5,41 @@ $(function() {
   //#region INIT
   var currentUser = null;
   var currentReportId = null;
-
-  XReportBuilder.useReportSection();
   moment.locale("hu");
   getCategories();
+  loadSchemesPage();
   //#endregion
 
+  //#region COMPONENTS
+  function schemeButton() {
+    return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
+                <h4 class="text-muted">Új sablon hozzáadása</h4>\
+                <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
+                  <div class="card-body text-center">\
+                    <img src="image/add.png" style="height: 64px; width: 64px"></i>\
+                  </div>\
+                </div>\
+              <div>');
+  }
 
-  //#region VIEW
-  var newSchemeButton =  $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                              <h4 class="text-muted">Új sablon hozzáadása</h4>\
-                              <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
-                                <div class="card-body text-center">\
-                                  <img src="image/add.png" style="height: 64px; width: 64px"></i>\
-                                </div>\
-                              </div>\
-                            <div>');
+  function schemeListElem(scheme) {
+    return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
+                <div class="card card-shadowed report-list-item h-100" data-id="' + scheme.id + '">\
+                  <div class="card-body">\
+                    <h4 class="card-title">' + scheme.name + '</h4>\
+                    <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
+                    <p class="card-text"><small class="text-muted">Készítette <strong>' + scheme.creator + "</strong>, " + moment(scheme.createdAt).fromNow()  + '</small></p>\
+                  </div>\
+                </div>\
+              <div>');
+  }
+  //#endregion
+
+  //#region UI
+  function newSchemeModal() {
+    $('#modal-new-scheme').modal();
+    $("#modal-new-scheme").modal('show');
+  }
 
   function showMessage(msg) {
     $("#div-msg-box .modal-title").text(msg.title);
@@ -52,6 +71,22 @@ $(function() {
     $("#anim-loader").addClass("d-none");
     $("#li-schemes").removeClass("d-none");
   }
+
+  function loadSchemesPage() {
+    $("#div-schemes").removeClass("d-none");
+    $("#div-builder").addClass("d-none");
+    getReports();
+  }
+
+  function loadEditorPage() {
+    $("#div-builder").removeClass("d-none");
+    $("#div-schemes").addClass("d-none");
+    var title = $("#modal-scheme-name").val();
+    $("#input-scheme-title").val(title);
+    XReportBuilder.initBuilder();
+    XReportBuilder.useReportSection();
+    XReportBuilder.setReportTitle(title);
+  }
   //#endregion
 
   //#region NETWORKING
@@ -62,11 +97,14 @@ $(function() {
     loggedOutState();
   });
 
-
   function getCategories() {
     api.getCategories().then(function(categories) {
-      categories.forEach(function(categorie) {
-        $("#navbarCategorieDropdown .dropdown-menu").append('<a class="dropdown-item" href="#" data-id="' + categorie.id + '">' + categorie.data().name + '</a>');
+      categories.forEach(function(category) {
+        $("#modal-scheme-category").append($('<option>', {
+          value: category.id,
+          text : category.data().name
+        }));
+        $("#navbarCategoryDropdown .dropdown-menu").append('<a class="dropdown-item" href="#" data-id="' + category.id + '">' + category.data().name + '</a>');
       });
     });
   }
@@ -76,19 +114,13 @@ $(function() {
     startLoading();
 
     api.getReports().then(function(reports) {
-      $("#li-schemes").append(newSchemeButton);
+      $("#li-schemes").append(schemeButton());
 
       reports.forEach(function(report) {
-        var cardDeckElem = '<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                              <div class="card card-shadowed report-list-item h-100" data-id="' + report.id + '">\
-                                <div class="card-body">\
-                                  <h4 class="card-title">' + report.data().name + '</h4>\
-                                  <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
-                                  <p class="card-text"><small class="text-muted">Készítette <strong>' + report.data().creator + "</strong>, " + moment(report.data().createdAt).fromNow()  + '</small></p>\
-                                </div>\
-                              </div>\
-                            <div>';
-        $("#li-schemes").append(cardDeckElem);
+        $("#li-schemes").append(schemeListElem({ id: report.id,
+                                                 name: report.data().name,
+                                                 creator: report.data().creator,
+                                                 createdAt: report.data().createdAt } ));
       });
 
       stopLoading();
@@ -117,7 +149,7 @@ $(function() {
 
   function saveScheme() {
     if (!currentUser) {
-      doGoogleLogin();
+      googleLogin();
       return;
     }
 
@@ -162,6 +194,11 @@ $(function() {
   }
 
   function loadReport() {
+    if ($(this).attr("data-id") === "new") {
+      newSchemeModal();
+      return;
+    }
+
     waitingDialog.show("Sablon betöltése...");
     XReportBuilder.initBuilder();
     currentReportId = $(this).attr("data-id");
@@ -264,13 +301,10 @@ $(function() {
 
   //Navbar
   $("#btn-new-scheme").click(function() {
-    $("#div-builder").removeClass("d-none");
-    $("#div-schemes").addClass("d-none");
+    loadEditorPage();
   });
   $("#a-schemes").click(function() {
-    $("#div-schemes").removeClass("d-none");
-    $("#div-builder").addClass("d-none");
-    getReports();
+    loadSchemesPage();
   });
   //#endregion
 });
