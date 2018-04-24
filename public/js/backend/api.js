@@ -72,5 +72,9 @@ var api = (function(fb) {
     return db.collection("reports").get();
   }
 
+  api.getCategories = function() {
+    return db.collection("categories").get();
+  }
+
   return api;
 })(firebase);

@@ -2,11 +2,24 @@
 $(function() {
   "use strict";
 
+  //#region INIT
   var currentUser = null;
   var currentReportId = null;
 
   XReportBuilder.useReportSection();
   moment.locale("hu");
+  getCategories();
+
+  //#endregion
+
+  var newSchemeButton =  $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
+                              <h4 class="text-muted">Új sablon hozzáadása</h4>\
+                              <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
+                                <div class="card-body text-center">\
+                                  <img src="image/add.png" style="height: 64px; width: 64px"></i>\
+                                </div>\
+                              </div>\
+                            <div>');
 
   api.onAuthStateChanged(function(user) {
     currentUser = user;
@@ -46,11 +59,22 @@ $(function() {
     $("#li-schemes").removeClass("d-none");
   }
 
+  //#region NETWORKING
+  function getCategories() {
+    api.getCategories().then(function(categories) {
+      categories.forEach(function(categorie) {
+        $("#navbarCategorieDropdown .dropdown-menu").append('<a class="dropdown-item" href="#" data-id="' + categorie.id + '">' + categorie.data().name + '</a>');
+      });
+    });
+  }
+
   function getReports() {
     $("#li-schemes").html("");
     startLoading();
 
     api.getReports().then(function(reports) {
+      $("#li-schemes").append(newSchemeButton);
+
       reports.forEach(function(report) {
         var cardDeckElem = '<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
                               <div class="card card-shadowed report-list-item h-100" data-id="' + report.id + '">\
@@ -62,8 +86,9 @@ $(function() {
                               </div>\
                             <div>';
         $("#li-schemes").append(cardDeckElem);
-        stopLoading();
       });
+
+      stopLoading();
     }).catch(function(error) {
       stopLoading();
       console.log(error);
@@ -160,6 +185,7 @@ $(function() {
         console.log(error);
     });
   }
+  //#endregion
 
   //Events
   $(".nav-tabs a").click(navTabsClick);
@@ -201,6 +227,7 @@ $(function() {
     }
   });
 
+  //#region EVENT HANDLERS
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
   $("#btn-save-scheme").click(saveScheme);
@@ -242,4 +269,5 @@ $(function() {
     $("#div-builder").addClass("d-none");
     getReports();
   });
+  //#endregion
 });

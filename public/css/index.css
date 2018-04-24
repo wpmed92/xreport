@@ -7,11 +7,6 @@ html, body {
   height: -webkit-calc(100% - 116px);
 }
 
-.x-add-new-elem-placeholder {
-  border: 1px dashed #ddd;
-  height: 40px;
-}
-
 /*.x-add-new-elem-placeholder:hover {
   background-color: #f9f9f9;
 }*/
