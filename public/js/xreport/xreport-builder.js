@@ -1,5 +1,5 @@
 var XReportBuilder = (function(jQ, XReportForm) {
-  //#region VARIABLES
+  //#region PRIVATE VARIABLES
   var _module = {};
   var xFormView = null;
   var xScheme = {
@@ -86,15 +86,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   })();
   //#endregion
 
-  function replacer(key, value) {
-    if (key === "id") {
-      return undefined;
-    } else {
-      return value;
-    }
-  }
-
-  //Wraps every XFormElem into an editor
+  //#region EDITOR CONTROLS
   function editorWrapper(xElem, row) {
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
     var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
@@ -132,65 +124,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
     formElemWrapper.append(buttonGroup);
 
     return formElemWrapper;
-  }
-
-  //#region ROW MANUPULATION
-  function renderRow(row, replace) {
-    var newRow = row.render();
-
-    if (replace) {
-      $("*[data-x-id='" + row.id + "']").replaceWith(newRow);
-    } else {
-      xFormView.append(newRow);
-    }
-
-    row.children.forEach(function(child) {
-      $("*[data-x-id='" + child.id + "']").replaceWith(editorWrapper(child, row));
-    });
-
-    newRow.append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
-  }
-
-  function addRowToForm(row) {
-    xForm.push(row);
-    renderRow(row, /*replace*/ false);
-  }
-
-  function duplicateRow(row) {
-    var curRowIndex = xForm.indexOf(row);
-    var newRow = new XReportForm.Row();
-
-    for (var i = 0; i < row.children.length; i++) {
-      newRow.addChild(createFormElemFromJSON(row.children[i]));
-      newRow.children[i].id = newRow.children[i].genUniqueId();
-
-      if (newRow.children[i].type === "group") {
-        newRow.children[i].label.id = newRow.children[i].label.genUniqueId();
-        newRow.children[i].child.id = newRow.children[i].child.genUniqueId();
-      }
-    }
-
-    xForm.splice(curRowIndex, 0, newRow);
-    renderRow(newRow, /*replace*/false);
-  }
-
-  function deleteRow(row, view) {
-    var curRowIndex = xForm.indexOf(row);
-    xForm.splice(curRowIndex, 1);
-    $("*[data-x-id='" + row.id + "']").remove();
-  }
-  //#endregion
-
-  function addToForm(xElem) {
-    var row = new XReportForm.Row();
-    row.addChild(xElem);
-    xForm.push(row);
-    renderRow(row, /*rerender*/ false);
-    diagnosticPrint();
-  }
-
-  function diagnosticPrint() {
-    console.log(JSON.stringify(xForm, replacer));
   }
 
   function buildEditor(xElem) {
@@ -251,6 +184,76 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return row;
     }
   }
+
+  function addToForm(xElem) {
+    var row = new XReportForm.Row();
+    row.addChild(xElem);
+    xForm.push(row);
+    renderRow(row, /*rerender*/ false);
+    diagnosticPrint();
+  }
+  //#endregion
+
+  //#region ROW MANUPULATION
+  function renderRow(row, replace) {
+    var newRow = row.render();
+
+    if (replace) {
+      $("*[data-x-id='" + row.id + "']").replaceWith(newRow);
+    } else {
+      xFormView.append(newRow);
+    }
+
+    row.children.forEach(function(child) {
+      $("*[data-x-id='" + child.id + "']").replaceWith(editorWrapper(child, row));
+    });
+
+    newRow.append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
+  }
+
+  function addRowToForm(row) {
+    xForm.push(row);
+    renderRow(row, /*replace*/ false);
+  }
+
+  function duplicateRow(row) {
+    var curRowIndex = xForm.indexOf(row);
+    var newRow = new XReportForm.Row();
+
+    for (var i = 0; i < row.children.length; i++) {
+      newRow.addChild(createFormElemFromJSON(row.children[i]));
+      newRow.children[i].id = newRow.children[i].genUniqueId();
+
+      if (newRow.children[i].type === "group") {
+        newRow.children[i].label.id = newRow.children[i].label.genUniqueId();
+        newRow.children[i].child.id = newRow.children[i].child.genUniqueId();
+      }
+    }
+
+    xForm.splice(curRowIndex, 0, newRow);
+    renderRow(newRow, /*replace*/false);
+  }
+
+  function deleteRow(row, view) {
+    var curRowIndex = xForm.indexOf(row);
+    xForm.splice(curRowIndex, 1);
+    $("*[data-x-id='" + row.id + "']").remove();
+  }
+  //#endregion
+
+  //#region UTILS
+  function replacer(key, value) {
+    if (key === "id") {
+      return undefined;
+    } else {
+      return value;
+    }
+  }
+
+  function diagnosticPrint() {
+    console.log(JSON.stringify(xForm, replacer));
+  }
+  //#endregion
 
   //#region API
   _module.initBuilder = function() {
