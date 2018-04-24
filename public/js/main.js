@@ -230,7 +230,7 @@ $(function() {
   }
   //#endregion
 
-  //Events
+  //#region EVENT HANDLERS
   $(".nav-tabs a").click(navTabsClick);
   $("body").on("click", "#tool-menu .dropdown-item", function(e) {
     e.preventDefault();
@@ -270,7 +270,6 @@ $(function() {
     }
   });
 
-  //#region EVENT HANDLERS
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
   $("#btn-save-scheme").click(saveScheme);
@@ -279,6 +278,7 @@ $(function() {
     e.preventDefault();
     XReportBuilder.toggleEditState();
   });
+  
   $("#btn-run-script").click(function() {
     var scriptText = $("#script-area").val();
   });
@@ -287,7 +287,7 @@ $(function() {
     e.preventDefault();
     XReportBuilder.setReportTitle($(this).val());
   });
-  
+
   $('.navbar li').click(function(){
     $('.navbar li').removeClass('active');
     $(this).addClass('active');
