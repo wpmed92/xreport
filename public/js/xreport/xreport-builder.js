@@ -1,4 +1,5 @@
 var XReportBuilder = (function(jQ, XReportForm) {
+  //#region VARIABLES
   var _module = {};
   var xFormView = null;
   var xScheme = {
@@ -83,6 +84,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       createFor: init
     }
   })();
+  //#endregion
 
   function replacer(key, value) {
     if (key === "id") {
@@ -132,6 +134,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return formElemWrapper;
   }
 
+  //#region ROW MANUPULATION
   function renderRow(row, replace) {
     var newRow = row.render();
 
@@ -146,7 +149,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     newRow.append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
-    console.log("Rendering row...");
   }
 
   function addRowToForm(row) {
@@ -177,6 +179,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xForm.splice(curRowIndex, 1);
     $("*[data-x-id='" + row.id + "']").remove();
   }
+  //#endregion
 
   function addToForm(xElem) {
     var row = new XReportForm.Row();
@@ -249,6 +252,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
+  //#region API
   _module.initBuilder = function() {
     xScheme = {
       title: "",
@@ -439,6 +443,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   _module.addRating = function() {
     addToForm(new XReportForm.Rating());
   }
+  //#endregion
 
   return _module;
 })($, XReportForm);
