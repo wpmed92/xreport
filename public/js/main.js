@@ -3,6 +3,12 @@ $(function() {
   "use strict";
 
   //#region INIT
+  var myReport = {
+    name: "",
+    creator: "",
+    category: "",
+    file: ""
+  }
   var currentUser = null;
   var currentReportId = null;
   moment.locale("hu");
@@ -37,6 +43,7 @@ $(function() {
 
   //#region UI
   function showNewSchemeModal() {
+    $("#modal-scheme-name").val("");
     $("#modal-new-scheme").modal('show');
   }
 
@@ -81,17 +88,16 @@ $(function() {
     getReports();
   }
 
-  function loadEditorPage() {
-    var title = $("#modal-scheme-name").val();
-    var category = $("#modal-scheme-category").val();
+  function loadEditorPage(json) {
     $("#div-builder").removeClass("d-none");
     $("#div-schemes").addClass("d-none");
-    $("#input-scheme-title").val(title);
-
-    XReportBuilder.initBuilder();
+    $("#input-scheme-title").val(myReport.name);
+    XReportBuilder.initBuilder("x-form-report");
     XReportBuilder.useReportSection();
-    XReportBuilder.setReportTitle(title);
-    XReportBuilder.setReportCategory(category);
+
+    if (json) {
+      XReportBuilder.buildReportFromJSON(json);
+    }
   }
   //#endregion
 
@@ -117,11 +123,10 @@ $(function() {
 
   function getReports() {
     $("#li-schemes").html("");
+    $("#li-schemes").append(schemeButton());
     startLoading();
 
     api.getReports().then(function(reports) {
-      $("#li-schemes").append(schemeButton());
-
       reports.forEach(function(report) {
         api.getCategory(report.data().category).then(function(category) {
           $("#li-schemes").append(schemeListElem({ id: report.id,
@@ -141,13 +146,8 @@ $(function() {
 
   function googleLogin() {
     api.logIn().then(function(result) {
-      //currentUser = result.user;
       console.log("Google login succeeded.");
     }).catch(function(error) {
-      /*var errorCode = error.code;
-      var errorMessage = error.message;
-      var email = error.email;
-      var credential = error.credential;*/
       console.log(error);
     });
   }
@@ -162,26 +162,19 @@ $(function() {
       return;
     }
 
-    var title = XReportBuilder.getReportTitle();
-    var category = XReportBuilder.getReportCategory();
-
-    if (!title) {
+    if (!myReport.name) {
       showMessage({ title: "Hiba", text: "Adja meg a sablon nevét! " });
       return;
     }
 
     waitingDialog.show("Sablon mentése...");
 
-    var payload = {
-      file: XReportBuilder.getReportInJSONFile(),
-      name: title,
-      creator: currentUser.displayName,
-      category: category
-    };
+    myReport.file = XReportBuilder.getReportInJSONFile();
+    myReport.creator = currentUser.displayName;
 
     //Edit report
     if (currentReportId) {
-      api.editReport(payload, currentReportId)
+      api.editReport(myReport, currentReportId)
       .then(function() {
         console.log("Report editing successful.");
         waitingDialog.hide();
@@ -192,7 +185,7 @@ $(function() {
       });
     //Save report
     } else {
-      api.saveReport(payload)
+      api.saveReport(myReport)
       .then(function() {
         console.log("Report saving successful.");
         waitingDialog.hide();
@@ -206,24 +199,22 @@ $(function() {
 
   function loadReport() {
     if ($(this).attr("data-id") === "new") {
+      currentReportId = "";
       showNewSchemeModal();
       return;
     }
 
     waitingDialog.show("Sablon betöltése...");
-    XReportBuilder.initBuilder();
+    XReportBuilder.initBuilder("x-form-report");
     currentReportId = $(this).attr("data-id");
 
     api.getReport(currentReportId).then(function(report) {
       if (report.exists) {
         console.log("Document data:", report.data());
         $.getJSON(report.data().contentUrl, function(json) {
-          XReportBuilder.setReportTitle(report.data().name);
-          XReportBuilder.buildReportFromJSON(report.data().name, json);
-          //$("#btn-clinics-section")[0].click();
-          $("#div-builder").removeClass("d-none");
-          $("#div-schemes").addClass("d-none");
-          XReportBuilder.toggleEditState();
+          myReport.name = report.data().name;
+          myReport.category = report.data().category;
+          loadEditorPage(json);
           waitingDialog.hide();
         });
       } else {
@@ -280,8 +271,11 @@ $(function() {
 
   $("#a-login").click(googleLogin);
   $("#a-logout").click(logOut);
-  $("#btn-save-scheme").click(saveScheme);
   $("body").on('click', ".report-list-item", loadReport);
+  $("#btn-save-scheme").click(saveScheme);
+  $("#btn-drop-scheme").click(function() {
+    loadSchemesPage();
+  });
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
     XReportBuilder.toggleEditState();
@@ -293,7 +287,7 @@ $(function() {
 
   $("#input-scheme-title").on("change", function(e) {
     e.preventDefault();
-    XReportBuilder.setReportTitle($(this).val());
+    myReport.name = $(this).val();
   });
 
   $('.navbar li').click(function(){
@@ -303,6 +297,8 @@ $(function() {
 
   //Navbar
   $("#btn-new-scheme").click(function() {
+    myReport.name = $("#modal-scheme-name").val();
+    myReport.category = $("#modal-scheme-category").val();
     loadEditorPage();
     hideNewSchemeModal();
   });
