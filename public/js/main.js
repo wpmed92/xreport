@@ -36,9 +36,12 @@ $(function() {
   //#endregion
 
   //#region UI
-  function newSchemeModal() {
-    $('#modal-new-scheme').modal();
+  function showNewSchemeModal() {
     $("#modal-new-scheme").modal('show');
+  }
+
+  function hideNewSchemeModal() {
+    $("#modal-new-scheme").modal('hide');
   }
 
   function showMessage(msg) {
@@ -195,7 +198,7 @@ $(function() {
 
   function loadReport() {
     if ($(this).attr("data-id") === "new") {
-      newSchemeModal();
+      showNewSchemeModal();
       return;
     }
 
@@ -283,17 +286,8 @@ $(function() {
   $("#input-scheme-title").on("change", function(e) {
     e.preventDefault();
     XReportBuilder.setReportTitle($(this).val());
-  })
-  //Report section selection
-  $("#btn-clinics-section").click(function() {
-    XReportBuilder.useClinicsSection();
   });
-  $("#btn-report-section").click(function() {
-    XReportBuilder.useReportSection();
-  });
-  $("#btn-opinion-section").click(function() {
-    XReportBuilder.useOpinionSection();
-  });
+  
   $('.navbar li').click(function(){
     $('.navbar li').removeClass('active');
     $(this).addClass('active');
@@ -302,6 +296,7 @@ $(function() {
   //Navbar
   $("#btn-new-scheme").click(function() {
     loadEditorPage();
+    hideNewSchemeModal();
   });
   $("#a-schemes").click(function() {
     loadSchemesPage();
