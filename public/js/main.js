@@ -9,9 +9,10 @@ $(function() {
   XReportBuilder.useReportSection();
   moment.locale("hu");
   getCategories();
-
   //#endregion
 
+
+  //#region VIEW
   var newSchemeButton =  $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
                               <h4 class="text-muted">Új sablon hozzáadása</h4>\
                               <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
@@ -20,13 +21,6 @@ $(function() {
                                 </div>\
                               </div>\
                             <div>');
-
-  api.onAuthStateChanged(function(user) {
-    currentUser = user;
-    loggedInState();
-  }, function() {
-    loggedOutState();
-  });
 
   function showMessage(msg) {
     $("#div-msg-box .modal-title").text(msg.title);
@@ -58,8 +52,17 @@ $(function() {
     $("#anim-loader").addClass("d-none");
     $("#li-schemes").removeClass("d-none");
   }
+  //#endregion
 
   //#region NETWORKING
+  api.onAuthStateChanged(function(user) {
+    currentUser = user;
+    loggedInState();
+  }, function() {
+    loggedOutState();
+  });
+
+
   function getCategories() {
     api.getCategories().then(function(categories) {
       categories.forEach(function(categorie) {
