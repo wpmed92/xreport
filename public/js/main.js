@@ -27,7 +27,7 @@ $(function() {
                 <div class="card card-shadowed report-list-item h-100" data-id="' + scheme.id + '">\
                   <div class="card-body">\
                     <h4 class="card-title">' + scheme.name + '</h4>\
-                    <h6 class="card-subtitle mb-2 text-muted">' + "Neuroradiológia" + '</h6>\
+                    <h6 class="card-subtitle mb-2 text-muted">' + scheme.category + '</h6>\
                     <p class="card-text"><small class="text-muted">Készítette <strong>' + scheme.creator + "</strong>, " + moment(scheme.createdAt).fromNow()  + '</small></p>\
                   </div>\
                 </div>\
@@ -82,13 +82,16 @@ $(function() {
   }
 
   function loadEditorPage() {
+    var title = $("#modal-scheme-name").val();
+    var category = $("#modal-scheme-category").val();
     $("#div-builder").removeClass("d-none");
     $("#div-schemes").addClass("d-none");
-    var title = $("#modal-scheme-name").val();
     $("#input-scheme-title").val(title);
+
     XReportBuilder.initBuilder();
     XReportBuilder.useReportSection();
     XReportBuilder.setReportTitle(title);
+    XReportBuilder.setReportCategory(category);
   }
   //#endregion
 
@@ -120,10 +123,13 @@ $(function() {
       $("#li-schemes").append(schemeButton());
 
       reports.forEach(function(report) {
-        $("#li-schemes").append(schemeListElem({ id: report.id,
-                                                 name: report.data().name,
-                                                 creator: report.data().creator,
-                                                 createdAt: report.data().createdAt } ));
+        api.getCategory(report.data().category).then(function(category) {
+          $("#li-schemes").append(schemeListElem({ id: report.id,
+                                                   name: report.data().name,
+                                                   creator: report.data().creator,
+                                                   createdAt: report.data().createdAt,
+                                                   category: category.data().name }));
+        });
       });
 
       stopLoading();
@@ -157,6 +163,7 @@ $(function() {
     }
 
     var title = XReportBuilder.getReportTitle();
+    var category = XReportBuilder.getReportCategory();
 
     if (!title) {
       showMessage({ title: "Hiba", text: "Adja meg a sablon nevét! " });
@@ -168,7 +175,8 @@ $(function() {
     var payload = {
       file: XReportBuilder.getReportInJSONFile(),
       name: title,
-      creator: currentUser.displayName
+      creator: currentUser.displayName,
+      category: category
     };
 
     //Edit report
@@ -278,7 +286,7 @@ $(function() {
     e.preventDefault();
     XReportBuilder.toggleEditState();
   });
-  
+
   $("#btn-run-script").click(function() {
     var scriptText = $("#script-area").val();
   });

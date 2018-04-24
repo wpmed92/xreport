@@ -40,6 +40,7 @@ var api = (function(fb) {
       name: report.name,
       createdAt: SERVERTIME,
       creator: report.creator,
+      category: report.category,
       contentUrl: ""
     }).then(function(initialDoc) {
         return storageRef.child("reports/" + initialDoc.id).put(report.file)
@@ -75,6 +76,10 @@ var api = (function(fb) {
 
   api.getCategories = function() {
     return db.collection("categories").get();
+  }
+
+  api.getCategory = function(id) {
+    return db.collection("categories").doc(id).get();
   }
 
   return api;

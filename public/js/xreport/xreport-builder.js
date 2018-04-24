@@ -4,6 +4,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var xFormView = null;
   var xScheme = {
     title: "",
+    category: "",
     clinics: [],
     report: [],
     opinion: []
@@ -259,6 +260,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   _module.initBuilder = function() {
     xScheme = {
       title: "",
+      category: "",
       clinics: [],
       report: [],
       opinion: []
@@ -326,6 +328,18 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     _module.useReportSection();
+  }
+
+  _module.setReportTitle = function(title) {
+    xScheme.title = title;
+  }
+
+  _module.setReportCategory = function(category) {
+    xScheme.category = category;
+  }
+
+  _module.getReportCategory = function(category) {
+    return xScheme.category;
   }
 
   _module.setReportTitle = function(title) {
