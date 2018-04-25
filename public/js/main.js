@@ -92,8 +92,8 @@ $(function() {
     $("#div-builder").removeClass("d-none");
     $("#div-schemes").addClass("d-none");
     $("#input-scheme-title").val(myReport.name);
-    XReportBuilder.initBuilder("x-form-report");
-    XReportBuilder.useReportSection();
+    XReportBuilder.initBuilder();
+    XReportBuilder.useReportSection(/*clear*/ true);
 
     if (json) {
       XReportBuilder.buildReportFromJSON(json);

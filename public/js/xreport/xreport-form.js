@@ -63,6 +63,7 @@ var XReportForm = (function(jQ) {
 
   XHeader.prototype.render = function() {
     var view = jQ("<h5>" + this.val + "</h5>");
+    view.append("<hr>");
     this.bind(view);
     return view;
   }

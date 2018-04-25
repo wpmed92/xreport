@@ -3,8 +3,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var _module = {};
   var xFormView = null;
   var xScheme = {
-    title: "",
-    category: "",
     clinics: [],
     report: [],
     opinion: []
@@ -114,6 +112,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       if (row.children.length == 0) {
         var curRowIndex = xForm.indexOf(row);
         xForm.splice(curRowIndex, 1);
+        $("*[data-x-id='" + row.id + "']").remove();
       } else {
         renderRow(row, /*rerender*/ true);
       }
@@ -259,8 +258,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#region API
   _module.initBuilder = function() {
     xScheme = {
-      title: "",
-      category: "",
       clinics: [],
       report: [],
       opinion: []
@@ -280,9 +277,22 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView = jQ("#x-form-clinics");
   }
 
-  _module.useReportSection = function() {
+  _module.useReportSection = function(clear) {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
+
+    if (clear) {
+      xFormView.html("");
+    }
+
+    sortable = Sortable.create(document.getElementById("x-form-report"), {
+      onEnd: function (evt) {
+    		var itemEl = evt.item;
+        var temp = xForm[evt.oldIndex];
+        xForm[evt.oldIndex] = xForm[evt.newIndex];
+        xForm[evt.newIndex] = temp;
+    	}
+    });
   }
 
   _module.useOpinionSection = function() {
@@ -318,7 +328,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     _module.useReportSection();
-    
+
     sortable = Sortable.create(document.getElementById("x-form-report"), {
       onEnd: function (evt) {
     		var itemEl = evt.item;
@@ -327,26 +337,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
         xForm[evt.newIndex] = temp;
     	}
     });
-  }
-
-  _module.setReportTitle = function(title) {
-    xScheme.title = title;
-  }
-
-  _module.setReportCategory = function(category) {
-    xScheme.category = category;
-  }
-
-  _module.getReportCategory = function(category) {
-    return xScheme.category;
-  }
-
-  _module.setReportTitle = function(title) {
-    xScheme.title = title;
-  }
-
-  _module.getReportTitle = function() {
-    return xScheme.title;
   }
 
   _module.getReportInJSON = function() {
