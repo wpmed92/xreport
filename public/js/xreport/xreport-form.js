@@ -410,7 +410,7 @@ var XReportForm = (function(jQ) {
   XRating.prototype = Object.create(XFormElem.prototype);
 
   XRating.prototype.render = function() {
-    var view = jQ("<table class='table table-striped'></table>");
+    var view = jQ("<table class='table table-bordered'></table>");
     var model = this;
     this.bind(view);
 

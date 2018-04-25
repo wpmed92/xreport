@@ -14,7 +14,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var rowEditorComponent = (function() {
     function getView() {
       return $('\
-        <div class="dropdown">\
+        <div class="dropdown x-row-editor-component">\
           <button class="btn btn-sm btn-outline-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
             <i class="fas fa-ellipsis-v"></i>\
           </button>\
@@ -269,6 +269,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     $(".x-form-edit-btn").toggleClass("collapse");
     $(".x-diagnostic").toggleClass("collapse");
     $(".x-editor-wrapper").toggleClass("collapse");
+    $(".x-row-editor-component").toggleClass("collapse");
     $("#div-editor-panel").toggleClass("collapse");
   }
 
