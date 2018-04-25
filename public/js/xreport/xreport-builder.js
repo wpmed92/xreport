@@ -14,7 +14,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var rowEditorComponent = (function() {
     function getView() {
       return $('\
-        <div class="dropdown x-row-editor-component ' + (editState ? "collapse" : "") + '">\
+        <div class="dropdown x-row-editor-component ' + (!editState ? "collapse" : "") + '">\
           <button class="btn btn-sm btn-outline-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
             <i class="fas fa-ellipsis-v"></i>\
           </button>\
@@ -93,8 +93,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn " + (editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn " + (!editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn " + (!editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
 
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
@@ -282,6 +282,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     $(".x-editor-wrapper").toggleClass("collapse");
     $(".x-row-editor-component").toggleClass("collapse");
     $("#div-editor-panel").toggleClass("collapse");
+    sortable.option("disabled", !editState);
   }
 
   _module.useClinicsSection = function() {
@@ -299,6 +300,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     if (sortable == null) {
       sortable = Sortable.create(xFormView[0], {
+        disabled: !editState,
         onEnd: function (evt) {
           var temp = xForm[evt.oldIndex];
           xForm.splice(evt.oldIndex, 1);
