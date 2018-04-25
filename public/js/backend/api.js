@@ -40,6 +40,7 @@ var api = (function(fb) {
       name: report.name,
       createdAt: SERVERTIME,
       creator: report.creator,
+      category: report.category,
       contentUrl: ""
     }).then(function(initialDoc) {
         return storageRef.child("reports/" + initialDoc.id).put(report.file)
@@ -57,7 +58,8 @@ var api = (function(fb) {
     return db.collection("reports").doc(id).set({
       name: report.name,
       createdAt: SERVERTIME,
-      creator: report.creator
+      creator: report.creator,
+      category: report.category
     }, { merge: true })
     .then(function(initialDoc) {
         return storageRef.child("reports/" + id).put(report.file);
@@ -70,6 +72,14 @@ var api = (function(fb) {
 
   api.getReports = function() {
     return db.collection("reports").get();
+  }
+
+  api.getCategories = function() {
+    return db.collection("categories").get();
+  }
+
+  api.getCategory = function(id) {
+    return db.collection("categories").doc(id).get();
   }
 
   return api;

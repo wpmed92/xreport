@@ -46,7 +46,12 @@ var XReportForm = (function(jQ) {
       var val = jQ(this).val();
       model.val = val;
       var view = jQ("*[data-x-id='" + model.id + "']");
-      view.text(val);
+
+      if (model.type === "header") {
+        view.find(":header").text(val);
+      } else {
+        view.text(val);
+      }
     });
 
     editor.append(inp);
@@ -62,7 +67,7 @@ var XReportForm = (function(jQ) {
   XHeader.prototype = Object.create(XLabel.prototype);
 
   XHeader.prototype.render = function() {
-    var view = jQ("<h5>" + this.val + "</h5>");
+    var view = jQ("<div><h5>" + this.val + "</h5><hr></div>");
     this.bind(view);
     return view;
   }
@@ -76,7 +81,7 @@ var XReportForm = (function(jQ) {
   XInfo.prototype = Object.create(XLabel.prototype);
 
   XInfo.prototype.render = function() {
-    var view = jQ("<div class='alert alert-" + this.type + " role='alert'>" + this.val + "</div>");
+    var view = jQ("<div class='alert alert-" + this.type + "' role='alert'>" + this.val + "</div>");
     this.bind(view);
     return view;
   }
@@ -107,19 +112,28 @@ var XReportForm = (function(jQ) {
   }
 
   //Numberbox
-  function XInNum(min, max, unit) {
+  function XInNum() {
     XFormElem.call(this, "innum");
-    this.min = min;
-    this.max = max;
-    this.unit = unit;
+    this.min = 0;
+    this.max = Infinity;
+    this.unit = "";
   }
 
   XInNum.prototype = Object.create(XFormElem.prototype);
 
   XInNum.prototype.render = function() {
     var model = this;
-    var view = jQ("<input type='number' class='form-control'>");
+    var view = jQ("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' >");
     this.bind(view);
+
+    if (model.unit) {
+      view.wrap("<div class='input-group mb-3'></div>");
+      view.parent().append("<div class='input-group-append'>\
+                              <span class='input-group-text'>" + model.unit + "</span>\
+                            </div>");
+      view = view.parent();
+    }
+
     return view;
   }
 
@@ -218,7 +232,7 @@ var XReportForm = (function(jQ) {
   function XSel(style) {
     XFormElem.call(this, "sel");
     this.style = style || "default";
-    this.options = [];
+    this.options = ["Opció 1", "Opció 2"];
   }
 
   XSel.prototype = Object.create(XFormElem.prototype);
@@ -296,7 +310,7 @@ var XReportForm = (function(jQ) {
   function XMulSel(style) {
     XFormElem.call(this, "mulsel");
     this.style = style || "default";
-    this.options = [];
+    this.options = ["Opció 1", "Opció 2"];
   }
 
   XMulSel.prototype = Object.create(XFormElem.prototype);
@@ -385,6 +399,135 @@ var XReportForm = (function(jQ) {
     return xDate;
   }
 
+  //Rating table
+  function XRating() {
+    XFormElem.call(this, "rating");
+    this.parameters = ["Paraméter 1", "Paraméter 2"];
+    this.ratings = ["Érték 1", "Érték 2", "Érték 3"];
+    this.title = "Cím";
+  }
+
+  XRating.prototype = Object.create(XFormElem.prototype);
+
+  XRating.prototype.render = function() {
+    var view = jQ("<table class='table table-bordered'></table>");
+    var model = this;
+    this.bind(view);
+
+    //Build header
+    var header = jQ("<thead></thead>");
+    var ratingsRow = jQ("<tr></tr>");
+    ratingsRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
+
+    model.ratings.forEach(function(rating) {
+      ratingsRow.append(jQ("<th scope='col' class='text-center'>" + rating + "</th>"));
+    });
+
+    header.append(ratingsRow);
+    view.append(header);
+
+    //Build body
+    var body = jQ("<tbody></tbody>");
+    var newRow = "";
+    var i = 0;
+
+    model.parameters.forEach(function(parameter) {
+      newRow = jQ("<tr></tr>");
+      newRow.append(jQ("<th scope='row'>" + parameter + "</th>"));
+      i++;
+
+      model.ratings.forEach(function() {
+        newRow.append(jQ("<td class='text-center'>\
+                            <input type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
+                          </td>"));
+      });
+      body.append(newRow);
+    });
+
+    view.append(body);
+    return view;
+  }
+
+  XRating.prototype.buildEditor = function() {
+    var model = this;
+    var editor = jQ("<div class='form-group'></div>");
+    var textAreaParameters = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var textAreaRatings = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
+    var updateOptionsBtn = jQ("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+
+    updateOptionsBtn.click(function() {
+      var parameters = textAreaParameters.val().split(';');
+      var ratings = textAreaRatings.val().split(';');
+      var view = jQ("*[data-x-id='" + model.id + "']");
+      var newView = "";
+      view.html("");
+      model.parameters = [];
+      model.ratings = [];
+
+      //Parameters
+      parameters.forEach(function(parameter) {
+        if (!parameter || parameter === "") {
+          return;
+        }
+
+        model.parameters.push(parameter);
+      });
+
+      //Ratings
+      ratings.forEach(function(rating) {
+        if (!rating || rating === "") {
+          return;
+        }
+
+        model.ratings.push(rating);
+      });
+
+      newView = model.render();
+      newView.addClass(view.hasClass("d-none") ? "d-none" : "");
+      view.replaceWith(newView);
+    });
+
+    var titleEditor = jQ("<div class='form-group'><label>Táblázat címe</label></div>");
+    var inp = jQ("<input type='text' class='form-control'>");
+    inp.val(model.val);
+
+    inp.on("change", function() {
+      var val = jQ(this).val();
+      var view = jQ("*[data-x-id='" + model.id + "']");
+      var newView = "";
+      model.title = val;
+      newView = model.render();
+      newView.addClass(view.hasClass("d-none") ? "d-none" : "");
+      view.replaceWith(newView);
+    });
+
+    //Fill in model data to editor
+    var parametersString = "";
+    var ratingsString = "";
+
+    model.parameters.forEach(function(parameter) {
+      parametersString += parameter + ";";
+    });
+
+    model.ratings.forEach(function(rating) {
+       ratingsString += rating + ";";
+    });
+
+    inp.val(model.title);
+
+    textAreaParameters.val(parametersString);
+    textAreaRatings.val(ratingsString);
+    titleEditor.append(inp);
+    editor.append(titleEditor);
+    editor.append("<label>Értékek</label>");
+    editor.append(textAreaRatings);
+    editor.append("<label>Paraméterek</label>");
+    editor.append(textAreaParameters);
+    editor.append(updateOptionsBtn);
+
+    return editor;
+  }
+
   //Form group
   //orientation can be "horizontal" or "vertical"
   function XFormGroup(orientation, label) {
@@ -416,7 +559,8 @@ var XReportForm = (function(jQ) {
     //view.append(diagnostic);
 
     if (this.child.type === "inbool") {
-      view.append(this.child.render().append(this.label.render(this.child.id)));
+      var checkLabel = this.child.render();
+      view.append(checkLabel.append(this.label.render(this.child.id)));
     } else {
       view.append(this.label.render());
       view.append(this.child.render());
@@ -438,20 +582,16 @@ var XReportForm = (function(jQ) {
     this.children.push(child);
   }
 
-  XFormRow.prototype.render = function(editorWrapper) {
-    var view = jQ("<div class='form row'></div>");
+  XFormRow.prototype.render = function() {
+    var view = jQ("<div class='form-row'></div>");
     var model = this;
     this.bind(view);
-    var equalColWidth = Math.floor(12 / this.children.length);
-    var needsBalancing = this.children.length % 12;
 
-    if (equalColWidth >= 1) {
-      this.children.forEach(function(child) {
-        var col = jQ("<div class='col-" + equalColWidth + "'></div>");
-        col.append(editorWrapper(child, model));
-        view.append(col);
-      });
-    }
+    this.children.forEach(function(child) {
+      var col = jQ("<div class='col'></div>");
+      col.append(child.render());
+      view.append(col);
+    });
 
     return view;
   }
@@ -479,6 +619,7 @@ var XReportForm = (function(jQ) {
     Group: XFormGroup,
     Datepicker: XDate,
     Row: XFormRow,
-    TextArea: XTextArea
+    TextArea: XTextArea,
+    Rating: XRating
   }
 })($);

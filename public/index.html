@@ -20,11 +20,18 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <!-- Left -->
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a id="a-builder" class="nav-link" href="#">Séma készítő <span class="sr-only">(current)</span></a>
-        </li>
+        <!-- Sablonok -->
         <li class="nav-item">
-          <a id="a-schemes" class="nav-link" href="#">Sémák</a>
+          <a id="a-schemes" class="nav-link" href="#">Sablonok</a>
+        </li>
+
+        <!-- Kategóriák -->
+        <li id="navbarCategoryDropdown" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Összes kategória
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          </div>
         </li>
       </ul>
 
@@ -48,135 +55,55 @@
     </div>
   </div>
 
-  <div id="div-builder" class="container-fluid mt-4">
-    <div class="row">
-
-      <!-- Control panel -->
-      <div id="div-editor-panel" class="col-4">
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <a id="a-templates" class="nav-link active" href="#templates"><i class="fab fa-wpforms"></i> Minták</a>
-          </li>
-          <li class="nav-item">
-            <a id="a-editor" class="nav-link" href="#editor"><i class="fas fa-pencil-alt"></i> Szerkesztő</a>
-          </li>
-          <li class="nav-item">
-            <a id="a-rules" class="nav-link" href="#rules"><i class="fas fa-code"></i> Szabályok</a>
-          </li>
-        </ul>
-
-        <br>
-
-        <!-- Tab content -->
-        <div class="tab-content">
-          <div id="templates" class="tab-pane active">
-            <div class="list-group">
-              <a href="#" id="btn-add-textbox" class="list-group-item list-group-item-action"><i class="fas fa-font"></i> Szöveges mező</a>
-              <a href="#" id="btn-add-numberbox" class="list-group-item list-group-item-action"><i class="fas fa-hashtag"></i> Szám mező</a>
-              <a href="#" id="btn-add-checkbox" class="list-group-item list-group-item-action"><i class="far fa-check-square"></i> Eldöntendő mező</a>
-              <a href="#" id="btn-add-select" class="list-group-item list-group-item-action"><i class="fas fa-bars"></i> Egyszeres választás</a>
-              <a href="#" id="btn-add-select-multiple" class="list-group-item list-group-item-action"><i class="fas fa-list"></i> Többszörös választás</a>
-              <a href="#" id="btn-add-textarea" class="list-group-item list-group-item-action"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
-              <a href="#" id="btn-add-date" class="list-group-item list-group-item-action"><i class="fas fa-calendar-alt"></i> Dátum</a>
-              <a href="#" id="btn-add-header" class="list-group-item list-group-item-action"><i class="fas fa-heading"></i> Szekció cím</a>
-              <a href="#" id="btn-add-info" class="list-group-item list-group-item-action"><i class="fas fa-info"></i> Magyarázó szöveg</a>
-            </div>
-
-            <br>
-
-            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-              <label id="btn-newline" class="btn btn-secondary active">
-                <input type="radio" name="options" id="option1" autocomplete="off" checked> Új sorba
-              </label>
-              <label id="btn-inline" class="btn btn-secondary">
-                <input type="radio" name="options" id="option2" autocomplete="off"> Egy sorba
-              </label>
-            </div>
-          </div>
-
-          <!-- Editing a specific field -->
-          <div id="editor" class="tab-pane fade">
-            <!-- Dynamic editor content -->
-          </div>
-
-          <!-- Writing rules for the form -->
-          <div id="rules" class="tab-pane fade">
-            <textarea id="script-area" class="form-control" rows="10"></textarea>
-            <button id="btn-run-script" type="button" class="btn btn-success">Alkalmaz</button>
+  <div id="div-builder" class="container-fluid mt-4 d-none">
+    <!-- Controls -->
+    <div class="row mb-1">
+        <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button id="btn-save-scheme" type="button" class="btn btn-success">Mentés</button>
+            <button id="btn-drop-scheme" type="button" class="btn btn-danger">Kilépés</button>
+            <button id="btn-toggle-edit" type="button" class="btn btn-primary">Szerkesztés</button>
           </div>
         </div>
-      </div>
+    </div>
 
-
-        <!-- Form -->
-        <div class="col">
-          <div class="card">
+    <!-- Form -->
+    <div class="row">
+        <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
+          <div class="card card-slightly-shadowed">
             <div class="card-header">
               <div class="d-flex justify-content-between">
                 <div class="w-25">
-                  <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a séma nevét">
-                </div>
-
-                <div>
-                  <button id="btn-save-scheme" type="button" class="btn btn-success"><i class="fas fa-check"></i></button>
-                  <!--<button id="btn-drop-scheme" type="button" class="btn btn-danger"><i class="fas fa-times"></i></button>-->
-                  <button id="btn-toggle-edit" type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
+                  <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
                 </div>
               </div>
             </div>
 
-            <div id="accordion">
-              <!-- Klinikum-->
-              <div class="card">
-                <div class="card-header" id="clinicsHeading">
-                  <h5 class="mb-0">
-                    <button id="btn-clinics-section" class="btn btn-link" data-toggle="collapse" data-target="#sectionClinics" aria-expanded="true" aria-controls="sectionClinics">
-                      <i class="fas fa-briefcase-medical"></i> Klinikum
-                    </button>
-                  </h5>
-                </div>
+            <div id="x-form-report" class="card-body">
+              <!-- content of lelet -->
 
-                <div id="sectionClinics" class="collapse show" aria-labelledby="clinicsHeading" data-parent="#accordion">
-                  <div id="x-form-clinics" class="card-body">
-                    <!-- content of clinics -->
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
 
-              <!-- Lelet -->
-              <div class="card">
-                <div class="card-header" id=reportHeading>
-                  <h5 class="mb-0">
-                    <button id="btn-report-section" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sectionReport" aria-expanded="false" aria-controls="sectionReport">
-                      <i class="fas fa-file-medical-alt"></i> Lelet
-                    </button>
-                  </h5>
-                </div>
-                <div id="sectionReport" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                  <div id="x-form-report" class="card-body">
-                    <!-- content of lelet -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Vélemény -->
-              <div class="card">
-                <div class="card-header" id="opinionHeading">
-                  <h5 class="mb-0">
-                    <button id="btn-opinion-section" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sectionOpinion" aria-expanded="false" aria-controls="sectionOpinion">
-                      <i class="fas fa-user-md"></i> Vélemény
-                    </button>
-                  </h5>
-                </div>
-                <div id="sectionOpinion" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-                  <div id="x-form-opinion" class="card-body">
-                    <!-- content of opinion -->
-                  </div>
-                </div>
+          <div id="btn-add-new-elem" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-plus"></i>
+              </button>
+              <div id="tool-menu" class="dropdown-menu">
+                <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>
+                <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>
+                <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>
+                <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>
+                <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>
+                <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
+                <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>
+                <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>
+                <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>
+                <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Értékelőskála</a>
               </div>
             </div>
-        </div>
+          </div>
       </div>
     </div>
   </div>
@@ -184,7 +111,6 @@
   <!-- Message box -->
   <div class="modal fade" id="div-msg-box" role="dialog">
     <div class="modal-dialog">
-
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -203,11 +129,44 @@
     </div>
   </div>
 
-  <footer class="footer">
+  <div class="modal fade" id="modal-new-scheme" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Új sablon</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <!-- Scheme title -->
+            <div class="form-group">
+              <label for="recipient-name" class="col-form-label">Cím</label>
+              <input type="text" class="form-control" id="modal-scheme-name">
+            </div>
+
+            <!-- Scheme category -->
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">Kategória</label>
+              <select class="form-control" id="modal-scheme-category"></select>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-new-scheme" type="button" class="btn btn-primary">Létrehoz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--<footer class="footer">
     <div class="container">
       <span class="text-muted">© 2018 Copyright: dr. Harmouche Ahmed Mouhamad</span>
     </div>
-  </footer>
+  </footer>-->
 
   <!-- JQUERY -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -229,12 +188,16 @@
 
   <!-- MOMENT -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/locale/hu.js"></script>
 
   <!-- BOOTSTRAP LOADING MODAL PLUGIN -->
   <script src="js/lib/bootstrap-waitingfor.min.js"></script>
 
+  <!-- SORTABLE -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+
   <!-- APP -->
-  <script src="js/api.js"></script>
+  <script src="js/backend/api.js"></script>
   <script src="js/xreport/xreport-form.js"></script>
   <script src="js/xreport/xreport-builder.js"></script>
   <script src="js/main.js"></script>
