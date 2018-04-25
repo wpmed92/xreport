@@ -46,7 +46,12 @@ var XReportForm = (function(jQ) {
       var val = jQ(this).val();
       model.val = val;
       var view = jQ("*[data-x-id='" + model.id + "']");
-      view.text(val);
+
+      if (model.type === "header") {
+        view.find(":header").text(val);
+      } else {
+        view.text(val);
+      }
     });
 
     editor.append(inp);
@@ -62,8 +67,7 @@ var XReportForm = (function(jQ) {
   XHeader.prototype = Object.create(XLabel.prototype);
 
   XHeader.prototype.render = function() {
-    var view = jQ("<h5>" + this.val + "</h5>");
-    view.append("<hr>");
+    var view = jQ("<div><h5>" + this.val + "</h5><hr></div>");
     this.bind(view);
     return view;
   }
