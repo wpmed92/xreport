@@ -14,7 +14,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var rowEditorComponent = (function() {
     function getView() {
       return $('\
-        <div class="dropdown x-row-editor-component">\
+        <div class="dropdown x-row-editor-component ' + (editState ? "collapse" : "") + '">\
           <button class="btn btn-sm btn-outline-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
             <i class="fas fa-ellipsis-v"></i>\
           </button>\
@@ -172,6 +172,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.Header, formElem);
     } else if (type === "info") {
       return Object.assign(new XReportForm.Info, formElem);
+    } else if (type === "danger") {
+      return Object.assign(new XReportForm.Info, formElem);
     } else if (type === "rating") {
       return Object.assign(new XReportForm.Rating, formElem);
     } else if (type === "row") {
@@ -195,13 +197,17 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   //#region ROW MANUPULATION
-  function renderRow(row, replace) {
+  function renderRow(row, replace, prevElem) {
     var newRow = row.render();
 
     if (replace) {
       $("*[data-x-id='" + row.id + "']").replaceWith(newRow);
     } else {
-      xFormView.append(newRow);
+      if (prevElem) {
+        newRow.insertAfter(prevElem);
+      } else {
+        xFormView.append(newRow);
+      }
     }
 
     row.children.forEach(function(child) {
@@ -217,7 +223,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function duplicateRow(row) {
-    var curRowIndex = xForm.indexOf(row);
+    var insertAt = xForm.indexOf(row) + 1;
     var newRow = new XReportForm.Row();
 
     for (var i = 0; i < row.children.length; i++) {
@@ -230,8 +236,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       }
     }
 
-    xForm.splice(curRowIndex, 0, newRow);
-    renderRow(newRow, /*replace*/false);
+    xForm.splice(insertAt, 0, newRow);
+    renderRow(newRow, /*replace*/false, /*prevElem*/$("*[data-x-id='" + row.id + "']"));
   }
 
   function deleteRow(row, view) {
@@ -262,6 +268,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
       report: [],
       opinion: []
     };
+
+    if (sortable) {
+      sortable.destroy();
+      sortable = null;
+    }
   }
 
   _module.toggleEditState = function() {
@@ -286,14 +297,15 @@ var XReportBuilder = (function(jQ, XReportForm) {
       xFormView.html("");
     }
 
-    sortable = Sortable.create(document.getElementById("x-form-report"), {
-      onEnd: function (evt) {
-    		var itemEl = evt.item;
-        var temp = xForm[evt.oldIndex];
-        xForm[evt.oldIndex] = xForm[evt.newIndex];
-        xForm[evt.newIndex] = temp;
-    	}
-    });
+    if (sortable == null) {
+      sortable = Sortable.create(xFormView[0], {
+        onEnd: function (evt) {
+          var temp = xForm[evt.oldIndex];
+          xForm.splice(evt.oldIndex, 1);
+          xForm.splice(evt.newIndex, 0, temp);
+      	}
+      });
+    }
   }
 
   _module.useOpinionSection = function() {
@@ -311,15 +323,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
       diagnosticPrint();
     });
 
-    //Build report part
-    _module.useReportSection();
-    xFormView.html("");
-    json.report.forEach(function(reportElem) {
-      var relem = createFormElemFromJSON(reportElem);
-      addRowToForm(relem);
-      diagnosticPrint();
-    });
-
     //Build opinion part
     _module.useOpinionSection();
     xFormView.html("");
@@ -328,15 +331,13 @@ var XReportBuilder = (function(jQ, XReportForm) {
       addRowToForm(oelem);
     });
 
+    //Build report part
     _module.useReportSection();
-
-    sortable = Sortable.create(document.getElementById("x-form-report"), {
-      onEnd: function (evt) {
-    		var itemEl = evt.item;
-        var temp = xForm[evt.oldIndex];
-        xForm[evt.oldIndex] = xForm[evt.newIndex];
-        xForm[evt.newIndex] = temp;
-    	}
+    xFormView.html("");
+    json.report.forEach(function(reportElem) {
+      var relem = createFormElemFromJSON(reportElem);
+      addRowToForm(relem);
+      diagnosticPrint();
     });
   }
 
