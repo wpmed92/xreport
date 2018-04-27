@@ -588,7 +588,7 @@ var XReportForm = (function(jQ) {
     this.bind(view);
 
     this.children.forEach(function(child) {
-      var col = jQ("<div class='col'></div>");
+      var col = jQ("<div class='col x-form-wrapper'></div>");
       col.append(child.render());
       view.append(col);
     });

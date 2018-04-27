@@ -86,15 +86,13 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   //#region EDITOR CONTROLS
-  function editorWrapper(xElem, row) {
+  function editorWrapper(view, xElem, row) {
     var formElemWrapper = $("<div class='x-form-wrapper'></div>");
-    var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
-    formElemWrapperContent.append(xElem.render());
 
     //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn " + (!editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn " + (!editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
 
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
@@ -117,13 +115,13 @@ var XReportBuilder = (function(jQ, XReportForm) {
         renderRow(row, /*rerender*/ true);
       }
 
-      diagnosticPrint();
+
     });
 
-    formElemWrapper.append(formElemWrapperContent);
-    formElemWrapper.append(buttonGroup);
+    //formElemWrapper.append(formElemWrapperContent);
+    //formElemWrapper.append(buttonGroup);
 
-    return formElemWrapper;
+    return buttonGroup;
   }
 
   function buildEditor(xElem) {
@@ -192,7 +190,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     row.addChild(xElem);
     xForm.push(row);
     renderRow(row, /*rerender*/ false);
-    diagnosticPrint();
+
   }
   //#endregion
 
@@ -219,7 +217,19 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   function addRowToForm(row) {
     xForm.push(row);
-    renderRow(row, /*replace*/ false);
+    xFormView.append(row.render());
+
+    row.children.forEach(function(child) {
+      $("*[data-x-id='" + child.id + "']").parent().hover(
+        function() {
+          $( this ).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
+        }, function() {
+            $( this ).find(".x-form-edit-group").remove();
+        }
+      );
+    });
+
+    //renderRow(row, /*replace*/ false);
   }
 
   function duplicateRow(row) {
@@ -322,7 +332,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
       addRowToForm(celem);
-      diagnosticPrint();
+
     });
 
     //Build opinion part
@@ -339,7 +349,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
       addRowToForm(relem);
-      diagnosticPrint();
+
     });
   }
 
