@@ -574,7 +574,6 @@ var XReportForm = (function(jQ) {
   function XFormRow() {
     XFormElem.call(this, "row");
     this.children = [];
-    this.order = 0;
   }
 
   XFormRow.prototype = Object.create(XFormElem.prototype);
@@ -584,8 +583,8 @@ var XReportForm = (function(jQ) {
   }
 
   XFormRow.prototype.render = function() {
+    var view = jQ("<div class='form-row'></div>");
     var model = this;
-    var view = jQ("<div class='form-row' data-id='" + model.id + "'></div>");
     this.bind(view);
 
     this.children.forEach(function(child) {
