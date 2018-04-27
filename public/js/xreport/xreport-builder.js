@@ -117,7 +117,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
         renderRow(row, /*rerender*/ true);
       }
 
-      diagnosticPrint();
+
     });
 
     formElemWrapper.append(formElemWrapperContent);
@@ -192,7 +192,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     row.addChild(xElem);
     xForm.push(row);
     renderRow(row, /*rerender*/ false);
-    diagnosticPrint();
+
   }
   //#endregion
 
@@ -218,6 +218,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function addRowToForm(row) {
+    row.order = xForm.length;
     xForm.push(row);
     renderRow(row, /*replace*/ false);
   }
@@ -236,7 +237,14 @@ var XReportBuilder = (function(jQ, XReportForm) {
       }
     }
 
-    xForm.splice(insertAt, 0, newRow);
+    newRow.order = insertAt;
+
+    for (var i = insertAt; i < xForm.length; i++) {
+      xForm[i].order++;
+    }
+
+    xForm.push(newRow);
+    xForm = xForm.sort(function(a,b) { return a.order - b.order; });
     renderRow(newRow, /*replace*/false, /*prevElem*/$("*[data-x-id='" + row.id + "']"));
   }
 
@@ -302,9 +310,14 @@ var XReportBuilder = (function(jQ, XReportForm) {
       sortable = Sortable.create(xFormView[0], {
         disabled: !editState,
         onEnd: function (evt) {
-          var temp = xForm[evt.oldIndex];
-          xForm.splice(evt.oldIndex, 1);
-          xForm.splice(evt.newIndex, 0, temp);
+          var order = sortable.toArray();
+
+          for (var i = 0; i < order.length; i++) {
+            xForm.find(x => x.id === order[i]).order = i;
+            console.log("reorder saved.");
+          }
+
+          xForm = xForm.sort(function(a,b) { return a.order - b.order; });
       	}
       });
     }
@@ -316,13 +329,13 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   _module.buildReportFromJSON = function(json) {
+
     //Build clinincs part
     _module.useClinicsSection();
     xFormView.html("");
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
       addRowToForm(celem);
-      diagnosticPrint();
     });
 
     //Build opinion part
@@ -335,11 +348,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     //Build report part
     _module.useReportSection();
+    json.report = json.report.sort(function(a,b) { return a.order - b.order; });
     xFormView.html("");
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
       addRowToForm(relem);
-      diagnosticPrint();
     });
   }
 
