@@ -240,9 +240,22 @@ var XReportForm = (function(jQ) {
   XSel.prototype.render = function() {
     var view = "";
     var model = this;
+    model.style = "radio";
 
     if (this.style === "radio") {
       view = jQ("<div></div>");
+      var i = 0;
+
+      model.options.forEach(function(option) {
+        i++;
+        view.append(jQ('<div class="form-check">\
+                      <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1" checked>\
+                      <label class="form-check-label" for="' + model.id + "-" + i + '">'
+                        + option +
+                      '</label>\
+                    </div>')
+                  );
+      });
     } else {
       view = jQ("<select class='form-control'></select>");
 

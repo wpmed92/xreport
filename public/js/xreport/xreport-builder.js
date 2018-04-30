@@ -189,7 +189,17 @@ var XReportBuilder = (function(jQ, XReportForm) {
     var row = new XReportForm.Row();
     row.addChild(xElem);
     xForm.push(row);
-    renderRow(row, /*rerender*/ false);
+    xFormView.append(row.render());
+    row.children.forEach(function(child) {
+      $("*[data-x-id='" + child.id + "']").parent().hover(
+        function() {
+          $( this ).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
+        }, function() {
+            $( this ).find(".x-form-edit-group").remove();
+        }
+      );
+    });
+    //renderRow(row, /*rerender*/ false);
 
   }
   //#endregion
@@ -402,7 +412,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   _module.addSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Egyszeres választás");
-    group.addChild(new XReportForm.Sel());
+    group.addChild(new XReportForm.Sel("radio"));
 
     if (row) {
       row.addChild(group);
