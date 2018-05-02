@@ -178,8 +178,9 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  function addToForm(elem) {
+  function addToForm(elem, after, insertAt) {
     var row = null;
+    var rowView = null;
 
     if (elem.type === "row") {
       row = elem;
@@ -188,8 +189,15 @@ var XReportBuilder = (function(jQ, XReportForm) {
       row.addChild(elem);
     }
 
-    xForm.push(row);
-    xFormView.append(row.render());
+    rowView = row.render();
+
+    if (after) {
+      xForm.splice(insertAt, 0, row);
+      rowView.insertAfter(after);
+    } else {
+      xForm.push(row);
+      xFormView.append(rowView);
+    }
 
     row.children.forEach(function(child) {
       $("*[data-x-id='" + child.id + "']").parent().closest("div").hover(
@@ -201,23 +209,16 @@ var XReportBuilder = (function(jQ, XReportForm) {
       );
     });
 
-    $("*[data-x-id='" + row.id + "']").hover(function() {
-      if ($(this).find(".x-row-editor").length !== 0) {
-        return;
-      }
-
-      $(this).append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditorComponent.createFor(row)));
-    }, function() {
-      $(this).find(".x-row-editor").remove();
-    });
+    rowView.append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditorComponent.createFor(row)));
   }
   //#endregion
 
   //#region ROW MANUPULATION
   function appendToRow(row, elem) {
     row.addChild(elem);
-    $("*[data-x-id='" + row.id + "']").append($("<div class='col x-form-wrapper'></div>").append(elem.render()));
-    $("*[data-x-id='" + elem.id + "']").parent().closest("div").hover(
+    var col = $("<div class='col x-form-wrapper'></div>").append(elem.render());
+    col.insertBefore($("*[data-x-id='" + row.id + "']").find(".x-row-editor"));
+    col.hover(
       function() {
         $(this).append(editorWrapper($("*[data-x-id='" + elem.id + "']"), elem, row));
       }, function() {
@@ -240,8 +241,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       }
     }
 
-    xForm.splice(insertAt, 0, newRow);
-    newRow.render().insertAfter($("*[data-x-id='" + row.id + "']"));
+    addToForm(newRow, $("*[data-x-id='" + row.id + "']"), insertAt);
   }
 
   function deleteRow(row, view) {
