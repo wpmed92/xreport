@@ -178,33 +178,16 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  function addToForm(xElem) {
-    var row = new XReportForm.Row();
-    row.addChild(xElem);
-    xForm.push(row);
-    xFormView.append(row.render());
-    $("*[data-x-id='" + xElem.id + "']").parent().closest("div").hover(
-      function() {
-        $(this).append(editorWrapper($("*[data-x-id='" + xElem.id + "']"), xElem, row));
-      }, function() {
-          $(this).find(".x-form-edit-group").remove();
-      }
-    );
-  }
-  //#endregion
+  function addToForm(elem) {
+    var row = null;
 
-  //#region ROW MANUPULATION
-  function renderRow(row, prevElem) {
-    var newRow = row.render();
-
-    if (prevElem) {
-      newRow.insertAfter(prevElem);
+    if (elem.type === "row") {
+      row = elem;
     } else {
-      xFormView.append(newRow);
+      row = new XReportForm.Row();
+      row.addChild(elem);
     }
-  }
 
-  function addRowToForm(row) {
     xForm.push(row);
     xFormView.append(row.render());
 
@@ -219,6 +202,18 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     $("*[data-x-id='" + row.id + "']").append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
+  }
+  //#endregion
+
+  //#region ROW MANUPULATION
+  function renderRow(row, prevElem) {
+    var newRow = row.render();
+
+    if (prevElem) {
+      newRow.insertAfter(prevElem);
+    } else {
+      xFormView.append(newRow);
+    }
   }
 
   function duplicateRow(row) {
@@ -316,7 +311,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.html("");
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
-      addRowToForm(celem);
+      addToForm(celem);
 
     });
 
@@ -325,7 +320,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.html("");
     json.opinion.forEach(function(opinionElem) {
       var oelem = createFormElemFromJSON(opinionElem);
-      addRowToForm(oelem);
+      addToForm(oelem);
     });
 
     //Build report part
@@ -333,7 +328,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.html("");
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
-      addRowToForm(relem);
+      addToForm(relem);
 
     });
   }
@@ -444,7 +439,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   module.addInfo = function() {
     addToForm(new XReportForm.Info("Magyarázó szöveg", "info"));
   }
-  
+
   module.addRating = function() {
     addToForm(new XReportForm.Rating());
   }
