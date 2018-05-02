@@ -201,19 +201,29 @@ var XReportBuilder = (function(jQ, XReportForm) {
       );
     });
 
-    $("*[data-x-id='" + row.id + "']").append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
+    $("*[data-x-id='" + row.id + "']").hover(function() {
+      if ($(this).find(".x-row-editor").length !== 0) {
+        return;
+      }
+
+      $(this).append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditorComponent.createFor(row)));
+    }, function() {
+      $(this).find(".x-row-editor").remove();
+    });
   }
   //#endregion
 
   //#region ROW MANUPULATION
-  function renderRow(row, prevElem) {
-    var newRow = row.render();
-
-    if (prevElem) {
-      newRow.insertAfter(prevElem);
-    } else {
-      xFormView.append(newRow);
-    }
+  function appendToRow(row, elem) {
+    row.addChild(elem);
+    $("*[data-x-id='" + row.id + "']").append($("<div class='col x-form-wrapper'></div>").append(elem.render()));
+    $("*[data-x-id='" + elem.id + "']").parent().closest("div").hover(
+      function() {
+        $(this).append(editorWrapper($("*[data-x-id='" + elem.id + "']"), elem, row));
+      }, function() {
+          $(this).find(".x-form-edit-group").remove();
+      }
+    );
   }
 
   function duplicateRow(row) {
@@ -231,7 +241,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
 
     xForm.splice(insertAt, 0, newRow);
-    renderRow(newRow, /*prevElem*/$("*[data-x-id='" + row.id + "']"));
+    newRow.render().insertAfter($("*[data-x-id='" + row.id + "']"));
   }
 
   function deleteRow(row, view) {
@@ -346,8 +356,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.Text());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
@@ -359,8 +368,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.Num());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
@@ -372,8 +380,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.Bool());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
@@ -385,8 +392,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.Sel("radio"));
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
@@ -398,8 +404,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.MulSel("checkbox"));
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
@@ -411,8 +416,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.TextArea(4));
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
@@ -424,8 +428,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     group.addChild(new XReportForm.Datepicker());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row);
+      appendToRow(row, group);
       return;
     }
 
