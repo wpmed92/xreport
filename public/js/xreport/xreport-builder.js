@@ -1,6 +1,6 @@
 var XReportBuilder = (function(jQ, XReportForm) {
   //#region PRIVATE VARIABLES
-  var _module = {};
+  var module = {};
   var xFormView = null;
   var xScheme = {
     clinics: [],
@@ -43,25 +43,25 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
         switch (i) {
           case 0:
-            _module.addTextGroup(row);
+            module.addTextGroup(row);
             break;
           case 1:
-            _module.addNumberGroup(row);
+            module.addNumberGroup(row);
             break;
           case 2:
-            _module.addBoolGroup(row);
+            module.addBoolGroup(row);
             break;
           case 3:
-            _module.addSelGroup(row);
+            module.addSelGroup(row);
             break;
           case 4:
-            _module.addMulSelGroup(row);
+            module.addMulSelGroup(row);
             break;
           case 5:
-            _module.addTextAreaGroup(row);
+            module.addTextAreaGroup(row);
             break;
           case 6:
-            _module.addDateGroup(row);
+            module.addDateGroup(row);
             break;
 
           //Actions
@@ -87,8 +87,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   //#region EDITOR CONTROLS
   function editorWrapper(view, xElem, row) {
-    var formElemWrapper = $("<div class='x-form-wrapper'></div>");
-
     //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
     var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
@@ -104,7 +102,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     //Remove elem
     removeButton.click(function() {
-      formElemWrapper.remove();
       row.children.splice(row.children.indexOf(xElem), 1);
 
       if (row.children.length == 0) {
@@ -112,14 +109,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
         xForm.splice(curRowIndex, 1);
         $("*[data-x-id='" + row.id + "']").remove();
       } else {
-        renderRow(row, /*rerender*/ true);
+        //elem -> btn-group -> col
+        $(this).parent().parent().remove();
       }
-
-
     });
-
-    //formElemWrapper.append(formElemWrapperContent);
-    //formElemWrapper.append(buttonGroup);
 
     return buttonGroup;
   }
@@ -190,39 +183,25 @@ var XReportBuilder = (function(jQ, XReportForm) {
     row.addChild(xElem);
     xForm.push(row);
     xFormView.append(row.render());
-    row.children.forEach(function(child) {
-      $("*[data-x-id='" + child.id + "']").parent().hover(
-        function() {
-          $( this ).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
-        }, function() {
-            $( this ).find(".x-form-edit-group").remove();
-        }
-      );
-    });
-    //renderRow(row, /*rerender*/ false);
-
+    $("*[data-x-id='" + xElem.id + "']").parent().closest("div").hover(
+      function() {
+        $(this).append(editorWrapper($("*[data-x-id='" + xElem.id + "']"), xElem, row));
+      }, function() {
+          $(this).find(".x-form-edit-group").remove();
+      }
+    );
   }
   //#endregion
 
   //#region ROW MANUPULATION
-  function renderRow(row, replace, prevElem) {
+  function renderRow(row, prevElem) {
     var newRow = row.render();
 
-    if (replace) {
-      $("*[data-x-id='" + row.id + "']").replaceWith(newRow);
+    if (prevElem) {
+      newRow.insertAfter(prevElem);
     } else {
-      if (prevElem) {
-        newRow.insertAfter(prevElem);
-      } else {
-        xFormView.append(newRow);
-      }
+      xFormView.append(newRow);
     }
-
-    row.children.forEach(function(child) {
-      $("*[data-x-id='" + child.id + "']").replaceWith(editorWrapper(child, row));
-    });
-
-    newRow.append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
   }
 
   function addRowToForm(row) {
@@ -230,16 +209,16 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.append(row.render());
 
     row.children.forEach(function(child) {
-      $("*[data-x-id='" + child.id + "']").parent().hover(
+      $("*[data-x-id='" + child.id + "']").parent().closest("div").hover(
         function() {
-          $( this ).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
+          $(this).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
         }, function() {
-            $( this ).find(".x-form-edit-group").remove();
+            $(this).find(".x-form-edit-group").remove();
         }
       );
     });
 
-    //renderRow(row, /*replace*/ false);
+    $("*[data-x-id='" + row.id + "']").append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
   }
 
   function duplicateRow(row) {
@@ -257,7 +236,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
 
     xForm.splice(insertAt, 0, newRow);
-    renderRow(newRow, /*replace*/false, /*prevElem*/$("*[data-x-id='" + row.id + "']"));
+    renderRow(newRow, /*prevElem*/$("*[data-x-id='" + row.id + "']"));
   }
 
   function deleteRow(row, view) {
@@ -275,14 +254,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return value;
     }
   }
-
-  function diagnosticPrint() {
-    console.log(JSON.stringify(xForm, replacer));
-  }
   //#endregion
 
   //#region API
-  _module.initBuilder = function() {
+  module.initBuilder = function() {
     xScheme = {
       clinics: [],
       report: [],
@@ -295,7 +270,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  _module.toggleEditState = function() {
+  module.toggleEditState = function() {
     editState = !editState;
     $(".x-form-edit-btn").toggleClass("collapse");
     $(".x-diagnostic").toggleClass("collapse");
@@ -305,12 +280,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
     sortable.option("disabled", !editState);
   }
 
-  _module.useClinicsSection = function() {
+  module.useClinicsSection = function() {
     xForm = xScheme.clinics;
     xFormView = jQ("#x-form-clinics");
   }
 
-  _module.useReportSection = function(clear) {
+  module.useReportSection = function(clear) {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
 
@@ -330,14 +305,14 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  _module.useOpinionSection = function() {
+  module.useOpinionSection = function() {
     xForm = xScheme.opinion;
     xFormView = jQ("#x-form-opinion");
   }
 
-  _module.buildReportFromJSON = function(json) {
+  module.buildReportFromJSON = function(json) {
     //Build clinincs part
-    _module.useClinicsSection();
+    module.useClinicsSection();
     xFormView.html("");
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
@@ -346,7 +321,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     //Build opinion part
-    _module.useOpinionSection();
+    module.useOpinionSection();
     xFormView.html("");
     json.opinion.forEach(function(opinionElem) {
       var oelem = createFormElemFromJSON(opinionElem);
@@ -354,7 +329,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     //Build report part
-    _module.useReportSection();
+    module.useReportSection();
     xFormView.html("");
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
@@ -363,117 +338,117 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
   }
 
-  _module.getReportInJSON = function() {
-    return JSON.stringify(xScheme);
+  module.getReportInJSON = function() {
+    return JSON.stringify(xScheme, replacer);
   }
 
-  _module.getReportInJSONFile = function() {
-    return new Blob([_module.getReportInJSON()], {type: "application/json"});
+  module.getReportInJSONFile = function() {
+    return new Blob([module.getReportInJSON()], {type: "application/json"});
   }
 
-  _module.addTextGroup = function(row) {
+  module.addTextGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szöveges mező");
     group.addChild(new XReportForm.Text());
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addNumberGroup = function(row) {
+  module.addNumberGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szám mező");
     group.addChild(new XReportForm.Num());
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addBoolGroup = function(row) {
+  module.addBoolGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Eldöntendő mező");
     group.addChild(new XReportForm.Bool());
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addSelGroup = function(row) {
+  module.addSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Egyszeres választás");
     group.addChild(new XReportForm.Sel("radio"));
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addMulSelGroup = function(row) {
+  module.addMulSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Többszörös választás");
     group.addChild(new XReportForm.MulSel("checkbox"));
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addTextAreaGroup = function(row) {
+  module.addTextAreaGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szabad szöveg");
     group.addChild(new XReportForm.TextArea(4));
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addDateGroup = function(row) {
+  module.addDateGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Dátum");
     group.addChild(new XReportForm.Datepicker());
 
     if (row) {
       row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      renderRow(row);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addHeader = function() {
+  module.addHeader = function() {
     addToForm(new XReportForm.Header("Szekció cím"));
   }
 
-  _module.addInfo = function() {
+  module.addInfo = function() {
     addToForm(new XReportForm.Info("Magyarázó szöveg", "info"));
   }
-
-  _module.addRating = function() {
+  
+  module.addRating = function() {
     addToForm(new XReportForm.Rating());
   }
   //#endregion
 
-  return _module;
+  return module;
 })($, XReportForm);

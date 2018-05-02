@@ -8,8 +8,7 @@ var XReportForm = (function(jQ) {
   }
 
   XFormElem.prototype.genUniqueId = function() {
-    XFormElem.numInstances = (XFormElem.numInstances || 0) + 1;
-    return "x-elem-" + XFormElem.numInstances;
+    return "x-elem-" + Math.random().toString(36).substr(2, 9);
   }
 
   XFormElem.prototype.bind = function(view) {
@@ -564,12 +563,8 @@ var XReportForm = (function(jQ) {
   }
 
   XFormGroup.prototype.render = function() {
-    var viewWrapper = jQ("<div></div>");
     var view = jQ("<div class='form-group'></div>");
-    var diagnostic = jQ("<div><span class='text-info x-diagnostic'>group: " + this.id + "; label: " + this.label.id + "; input: " + this.child.id + "</span></div>");
-    //viewWrapper.append(diagnostic);
     this.bind(view);
-    //view.append(diagnostic);
 
     if (this.child.type === "inbool") {
       var checkLabel = this.child.render();
@@ -579,8 +574,7 @@ var XReportForm = (function(jQ) {
       view.append(this.child.render());
     }
 
-    viewWrapper.append(view);
-    return viewWrapper;
+    return view;
   }
 
   //Form row (for custom elems)
