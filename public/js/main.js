@@ -279,6 +279,7 @@ $(function() {
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
     XReportBuilder.toggleEditState();
+    console.log(XReportBuilder.genText());
   });
 
   $("#btn-run-script").click(function() {

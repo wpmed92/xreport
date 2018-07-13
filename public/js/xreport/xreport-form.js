@@ -71,6 +71,10 @@ var XReportForm = (function(jQ) {
     return view;
   }
 
+  XHeader.prototype.genText = function() {
+    return ("\n" + this.val + "\n------------------\n");
+  }
+
   //Label -> Info
   function XInfo(text, type) {
     XLabel.call(this, text);
@@ -134,6 +138,10 @@ var XReportForm = (function(jQ) {
     }
 
     return view;
+  }
+
+  XInNum.prototype.genText = function() {
+    return jQ("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
   }
 
   XInNum.prototype.buildEditor = function() {
@@ -224,7 +232,13 @@ var XReportForm = (function(jQ) {
   XTextArea.prototype = Object.create(XFormElem.prototype);
 
   XTextArea.prototype.render = function() {
-    return jQ("<textarea class='form-control' rows='" + this.rows + "'></textarea>");
+    var view = jQ("<textarea class='form-control' rows='" + this.rows + "'></textarea>");
+    this.bind(view);
+    return view;
+  }
+
+  XTextArea.prototype.genText = function() {
+    return jQ("*[data-x-id='" + this.id + "']").val();
   }
 
   //Select
@@ -268,6 +282,10 @@ var XReportForm = (function(jQ) {
 
     this.bind(view);
     return view;
+  }
+
+  XSel.prototype.genText = function() {
+    return jQ("*[data-x-id='" + this.id + "']").val();
   }
 
   XSel.prototype.buildEditor = function() {
@@ -348,6 +366,18 @@ var XReportForm = (function(jQ) {
     return view;
   }
 
+  XMulSel.prototype.genText = function() {
+    var out = "";
+    var view = jQ("*[data-x-id='" + this.id + "']");
+
+    view.find("input:checked").each(function() {
+      var label = $(this).next();
+      out += label.text() + ", ";
+    });
+
+    return out;
+  }
+
   XMulSel.prototype.buildEditor = function() {
     var model = this;
     var editor = jQ("<div class='form-group'></div>");
@@ -408,7 +438,15 @@ var XReportForm = (function(jQ) {
                       </div>\
                       <input type="text" class="form-control" data-provide="datepicker" type="text" />\
                     </div>');
+
+    this.bind(xDate);
     return xDate;
+  }
+
+  XDate.prototype.genText = function() {
+    var view = jQ("*[data-x-id='" + this.id + "']");
+
+    return view.find("input").first().val();
   }
 
   //Rating table
@@ -577,6 +615,14 @@ var XReportForm = (function(jQ) {
     return view;
   }
 
+  XFormGroup.prototype.genText = function() {
+    if (isFunction(this.child.genText)) {
+      return this.label.val + ": " + this.child.genText() + "\n";
+    }
+
+    return "";
+  }
+
   //Form row (for custom elems)
   function XFormRow() {
     XFormElem.call(this, "row");
@@ -612,6 +658,22 @@ var XReportForm = (function(jQ) {
     });
 
     return editor;
+  }
+
+  isFunction = function(obj) {
+    return !!(obj && obj.constructor && obj.call && obj.apply);
+  }
+
+  XFormRow.prototype.genText = function() {
+    var out = "";
+
+    this.children.forEach(function(child) {
+      if (isFunction(child.genText) && child.genText() !== "") {
+        out += child.genText();
+      }
+    });
+
+    return out;
   }
 
   return {

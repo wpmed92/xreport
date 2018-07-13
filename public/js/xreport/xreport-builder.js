@@ -347,6 +347,16 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return JSON.stringify(xScheme, replacer);
   }
 
+  module.genText = function() {
+    var out = "";
+
+    xScheme.report.forEach(function(elem) {
+      out += elem.genText();
+    });
+
+    return out;
+  }
+
   module.getReportInJSONFile = function() {
     return new Blob([module.getReportInJSON()], {type: "application/json"});
   }
