@@ -206,7 +206,14 @@ var XReportForm = (function(jQ) {
   XInText.prototype = Object.create(XFormElem.prototype);
 
   XInText.prototype.render = function() {
-    return jQ("<input type='text' class='form-control'>");
+    var view = jQ("<input type='text' class='form-control'>")
+    this.bind(view);
+
+    return view;
+  }
+
+  XInText.prototype.genText = function() {
+    return jQ("*[data-x-id='" + this.id + "']").val();
   }
 
   //Checkbox
@@ -285,7 +292,10 @@ var XReportForm = (function(jQ) {
   }
 
   XSel.prototype.genText = function() {
-    return jQ("*[data-x-id='" + this.id + "']").val();
+    var view = jQ("*[data-x-id='" + this.id + "']");
+    var selectedLabel = view.find("input:checked").first().next();
+
+    return selectedLabel.text();
   }
 
   XSel.prototype.buildEditor = function() {
@@ -483,7 +493,7 @@ var XReportForm = (function(jQ) {
 
     model.parameters.forEach(function(parameter) {
       newRow = jQ("<tr></tr>");
-      newRow.append(jQ("<th scope='row'>" + parameter + "</th>"));
+      newRow.append(jQ("<td>" + parameter + "</td>"));
       i++;
 
       model.ratings.forEach(function() {
@@ -578,6 +588,23 @@ var XReportForm = (function(jQ) {
     return editor;
   }
 
+  //TODO: generate text for rating module
+  XRating.prototype.genText = function() {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']").find("tbody");
+    var parameterIndex = 0;
+    var out = "";
+
+    view.find("tr").each(function() {
+      var row = $(this);
+      var ratingIndex = row.find("input:checked").first().parent().index() - 1;
+      out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
+      parameterIndex++;
+    });
+
+    return out;
+  }
+
   //Form group
   //orientation can be "horizontal" or "vertical"
   function XFormGroup(orientation, label) {
@@ -616,7 +643,14 @@ var XReportForm = (function(jQ) {
   }
 
   XFormGroup.prototype.genText = function() {
-    if (isFunction(this.child.genText)) {
+    if (this.child.type === "inbool") {
+      var view = jQ("*[data-x-id='" + this.id + "']");
+      var checked = view.find("input:checked").first();
+
+      if (checked) {
+        return checked.next().text() + "\n";
+      }
+    } else if (isFunction(this.child.genText) && !!this.child.genText()) {
       return this.label.val + ": " + this.child.genText() + "\n";
     }
 
