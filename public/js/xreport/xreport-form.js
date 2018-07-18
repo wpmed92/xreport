@@ -29,7 +29,8 @@ var XReportForm = (function(jQ) {
 
   XLabel.prototype.render = function(forId) {
     var _for = (forId) ? ("for='" + forId + "'") : "";
-    var view = jQ("<label " + _for + ">" + this.val + "</label>");
+    var formattedVal = (forId) ? this.val : ("<b>" + this.val + "</b>");
+    var view = jQ("<label " + _for + ">" + formattedVal + "</label>");
     this.bind(view);
     return view;
   }
@@ -269,7 +270,7 @@ var XReportForm = (function(jQ) {
       model.options.forEach(function(option) {
         i++;
         view.append(jQ('<div class="form-check">\
-                      <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1" checked>\
+                      <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1">\
                       <label class="form-check-label" for="' + model.id + "-" + i + '">'
                         + option +
                       '</label>\
@@ -675,7 +676,7 @@ var XReportForm = (function(jQ) {
     this.bind(view);
 
     this.children.forEach(function(child) {
-      var col = jQ("<div class='col x-form-wrapper'></div>");
+      var col = jQ("<div class='col my-auto x-form-wrapper'></div>");
       col.append(child.render());
       view.append(col);
     });

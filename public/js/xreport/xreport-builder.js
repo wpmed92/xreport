@@ -11,6 +11,9 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var editState = false;
   var sortable = null;
 
+  //TEST: conditional form
+  var conditionPool = [];
+
   var rowEditorComponent = (function() {
     function getView() {
       return $('\
@@ -261,6 +264,166 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
   //#endregion
 
+  //#region CONDITIONAL EDITOR
+  //Shows available elements in current form
+  function elementSelectorComponent() {
+    var report = xScheme.report;
+    var component = $("<select id='select-element' class='form-control'></select>");
+
+    report.forEach(function(row) {
+      row.children.forEach(function(child) {
+        if (child.type === "group") {
+          var label = child.label.val;
+
+          component.append(jQ('<option>', {
+            value: child.child.id,
+            text: label,
+            data: { type: child.child.type }
+          }));
+        }
+      });
+    });
+
+    component.change(function() {
+      var optionSelected = $("option:selected", this);
+      var type = optionSelected.data("type");
+      var comparatorList = typeToComparator[type];
+      var comparatorSelector = $("#select-comparator");
+      comparatorSelector.html("");
+
+      comparatorList.forEach(function(comparator) {
+        comparatorSelector.append(jQ('<option>', {
+          value: comparator.val,
+          text: comparator.text
+        }));
+      });
+    });
+
+    return component;
+  }
+
+  var typeToComparator = {
+    "innum": [
+      {
+        val: "eq",
+        text: "Egyenlő"
+      },
+      {
+        val: "neq",
+        text: "Nem egyenlő"
+      },
+      {
+        val: "lt",
+        text: "Kisebb"
+      },
+      {
+        val: "gt",
+        text: "Nagyobb"
+      },
+      {
+        val: "gteq",
+        text: "Nagyobb egyenlő"
+      },
+      {
+        val: "lteq",
+        text: "Kisebb egyenlő"
+      }
+    ],
+    "intext": [
+      {
+        val: "eq",
+        text: "Egyenlő"
+      },
+      {
+        val: "neq",
+        text: "Nem egyenlő"
+      },
+      {
+        val: "cont",
+        text: "Tartalmazza"
+      },
+      {
+        val: "ncont",
+        text: "Nem tartalmazza"
+      }
+    ],
+    "inbool": [
+      {
+        val: "t",
+        text: "Igaz"
+      },
+      {
+        val: "f",
+        text: "hamis"
+      }
+    ]
+  }
+
+  function comparatorSelectorComponent() {
+    return $("<select id='select-comparator' class='form-control'></select>");
+  }
+
+  function valueSelectorComponent() {
+    return $("<input id='input-condition-value' class='form-control'>");
+  }
+
+  function addConditionComponent() {
+    var component = $("<button type='button' class='btn btn-primary'>Hozzáad</button>");
+
+    component.click(function() {
+      var when = {
+        left: $("#select-element").val(),
+        right: $("#input-condition-value").val(),
+        comp: $("#select-comparator").val(),
+        true: {
+          doWhat: "hide",
+          onWhat: "x-elem-47"
+        },
+        false: {
+          doWhat: "show",
+          onWhat: "x-elem-47"
+        }
+      };
+
+      conditionPool.push(when);
+    });
+
+    return component;
+  }
+
+  function evalCondition(condition) {
+    var leftVal = $("*[data-x-id='" + condition.left + "']").val();
+    var rightVal = condition.right;
+
+    switch (condition.comp) {
+      case "eq":
+        return leftVal == rightVal;
+      case "neq":
+        return leftVal != rightVal;
+      case "lt":
+        return leftVal < rightVal;
+      case "gt":
+        return leftVal > rightVal;
+      case "lteq":
+        return leftVal <= rightVal;
+      case "gteq":
+        return leftVal >= rightVal;
+    }
+  }
+
+  function doAction(action) {
+    switch (action.doWhat) {
+      case "hide":
+        jQ("*[data-x-id='" + action.onWhat + "']").hide();
+        break;
+
+      case "show":
+        jQ("*[data-x-id='" + action.onWhat + "']").show();
+        break;
+    }
+  }
+  //#endregion
+
   //#region API
   module.initBuilder = function() {
     xScheme = {
@@ -336,11 +499,30 @@ var XReportBuilder = (function(jQ, XReportForm) {
     //Build report part
     module.useReportSection();
     xFormView.html("");
+
+    //TEST: condition evaluation
+    var form = $("<form></form>");
+    form.on("change", function() {
+      conditionPool.forEach(function(condition) {
+        if (evalCondition(condition)) {
+          doAction(condition.true);
+        } else {
+          doAction(condition.false);
+        }
+      });
+    });
+
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
       addToForm(relem);
-
     });
+
+    xFormView.wrap(form);
+
+    xFormView.append(elementSelectorComponent());
+    xFormView.append(comparatorSelectorComponent());
+    xFormView.append(valueSelectorComponent());
+    xFormView.append(addConditionComponent());
   }
 
   module.getReportInJSON = function() {
