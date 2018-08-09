@@ -266,9 +266,9 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   //#region CONDITIONAL EDITOR
   //Shows available elements in current form
-  function elementSelectorComponent() {
+  function elementSelectorComponent(withoutEvent) {
     var report = xScheme.report;
-    var component = $("<select id='select-element' class='form-control'></select>");
+    var component = $("<select class='select-element form-control'></select>");
 
     report.forEach(function(row) {
       row.children.forEach(function(child) {
@@ -283,6 +283,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
         }
       });
     });
+
+    if (withoutEvent) {
+      return component;
+    }
 
     component.change(function() {
       var optionSelected = $("option:selected", this);
@@ -367,26 +371,50 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return $("<input id='input-condition-value' class='form-control'>");
   }
 
+  function actionSelectorComponent() {
+    var component = $("<select id='select-action' class='form-control'></select>");
+
+    [{ val: "show", text: "Mutat" }, { val: "hide", text: "Elrejt" }].forEach(function(action) {
+      component.append(jQ('<option>', {
+        value: action.val,
+        text: action.text
+      }));
+    });
+
+    return component;
+  }
+
+  function generateAction(when) {
+    var trueAction = $("#select-action").val();
+    var falseAction = (trueAction === "show") ? "hide" : "show";
+    var target = $(".select-element").eq(1).val();
+
+    when.true = {
+      doWhat: trueAction,
+      onWhat: target
+    };
+
+    when.false = {
+      doWhat: falseAction,
+      onWhat: target
+    };
+  }
+
   function addConditionComponent() {
     var component = $("<button type='button' class='btn btn-primary'>Hozzáad</button>");
 
     component.click(function() {
       var when = {
-        left: $("#select-element").val(),
+        left: $(".select-element").eq(0).val(),
         right: $("#input-condition-value").val(),
-        comp: $("#select-comparator").val(),
-        true: {
-          doWhat: "hide",
-          onWhat: "x-elem-47"
-        },
-        false: {
-          doWhat: "show",
-          onWhat: "x-elem-47"
-        }
+        comp: $("#select-comparator").val()
       };
+
+      generateAction(when);
 
       conditionPool.push(when);
     });
+
 
     return component;
   }
@@ -414,11 +442,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
   function doAction(action) {
     switch (action.doWhat) {
       case "hide":
-        jQ("*[data-x-id='" + action.onWhat + "']").hide();
+        jQ("*[data-x-id='" + action.onWhat + "']").parent().hide();
         break;
 
       case "show":
-        jQ("*[data-x-id='" + action.onWhat + "']").show();
+        jQ("*[data-x-id='" + action.onWhat + "']").parent().show();
         break;
     }
   }
@@ -522,6 +550,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xFormView.append(elementSelectorComponent());
     xFormView.append(comparatorSelectorComponent());
     xFormView.append(valueSelectorComponent());
+
+    //Actions
+    xFormView.append(actionSelectorComponent());
+    xFormView.append(elementSelectorComponent(/*withoutEvent*/ true));
     xFormView.append(addConditionComponent());
   }
 
