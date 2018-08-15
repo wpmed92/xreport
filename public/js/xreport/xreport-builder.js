@@ -265,34 +265,65 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   //#region CONDITIONAL EDITOR
-  function whenComponentRow(parent) {
-    var row = $("<div class='row'></div");
-    var ANDConnectorComponent = $("<button type='button' class='btn btn-sm btn-primary'>+</button");
-
-    ANDConnectorComponent.click(function() {
-      parent.append(whenComponentRow(parent));
-    });
-
-    row.append($("<div class='col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
-    row.append($("<div class='col'></div>").append(comparatorSelectorComponent()));
-    row.append($("<div class='col'></div>").append(valueSelectorComponent()));
-    row.append($("<div class='col'></div>").append(ANDConnectorComponent));
-
-    return row;
-  }
-
   function whenComponent() {
     var component = $("<div></div>");
     var header = $("<h5>Feltétel</h5><hr>");
 
     component.append(header);
+    component.append(ANDGroupComponent());
+    component.append(ORConnectorComponent(component));
+
+    return component;
+  }
+
+  function whenComponentRow(parent) {
+    var row = $("<div class='form-row'></div");
+
+    row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
+    row.append($("<div class='form-group col'></div>").append(comparatorSelectorComponent()));
+    row.append($("<div class='form-group col'></div>").append(valueSelectorComponent()));
+    row.append($("<div class='form-group col'></div>").append(ANDConnectorComponent(parent)));
+
+    return row;
+  }
+
+  function ANDConnectorComponent(parent) {
+    var component =  $("<button type='button' class='btn btn-sm btn-primary and-connector'><i class='fas fa-plus'></i></button");
+
+    component.click(function() {
+      parent.append(whenComponentRow(parent));
+      var btn = $(this);
+      btn.replaceWith("<p><span class='badge badge-primary'>ÉS</span></p>");
+    });
+
+    return component;
+  }
+
+  function ORConnectorComponent(parent) {
+    var component = $("<button type='button' class='btn btn-sm btn-primary or-connector'><i class='fas fa-plus'></i></button");
+
+    component.click(function() {
+      parent.append(ANDGroupComponent());
+      var btn = $(this);
+      btn.replaceWith("<p><span class='badge badge-primary'>VAGY</span></p>");
+      parent.append(ORConnectorComponent(parent));
+    });
+
+    return component;
+  }
+
+  function ANDGroupComponent() {
+    var component = $("<div class='and-group'></div>");
+
     component.append(whenComponentRow(component));
 
     return component;
   }
 
   function doComponent() {
+    var component = $("<div></div>");
 
+    component.append(actionSelectorComponent());
   }
 
   function elementSelectorComponent(parent, withoutEvent) {
