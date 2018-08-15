@@ -296,6 +296,11 @@ $(function() {
     $(this).addClass('active');
   });
 
+  $("#btn-show-conditions").click(function() {
+    $("#x-form-report").toggleClass("collapse");
+    $("#x-form-conditions").toggleClass("collapse");
+  });
+
   //Navbar
   $("#btn-new-scheme").click(function() {
     myReport.name = $("#modal-scheme-name").val();

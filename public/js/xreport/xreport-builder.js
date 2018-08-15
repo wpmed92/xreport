@@ -265,8 +265,37 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   //#region CONDITIONAL EDITOR
-  //Shows available elements in current form
-  function elementSelectorComponent(withoutEvent) {
+  function whenComponentRow(parent) {
+    var row = $("<div class='row'></div");
+    var ANDConnectorComponent = $("<button type='button' class='btn btn-sm btn-primary'>+</button");
+
+    ANDConnectorComponent.click(function() {
+      parent.append(whenComponentRow(parent));
+    });
+
+    row.append($("<div class='col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
+    row.append($("<div class='col'></div>").append(comparatorSelectorComponent()));
+    row.append($("<div class='col'></div>").append(valueSelectorComponent()));
+    row.append($("<div class='col'></div>").append(ANDConnectorComponent));
+
+    return row;
+  }
+
+  function whenComponent() {
+    var component = $("<div></div>");
+    var header = $("<h5>Feltétel</h5><hr>");
+
+    component.append(header);
+    component.append(whenComponentRow(component));
+
+    return component;
+  }
+
+  function doComponent() {
+
+  }
+
+  function elementSelectorComponent(parent, withoutEvent) {
     var report = xScheme.report;
     var component = $("<select class='select-element form-control'></select>");
 
@@ -292,7 +321,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       var optionSelected = $("option:selected", this);
       var type = optionSelected.data("type");
       var comparatorList = typeToComparator[type];
-      var comparatorSelector = $("#select-comparator");
+      var comparatorSelector = parent.find(".select-comparator").first();
       comparatorSelector.html("");
 
       comparatorList.forEach(function(comparator) {
@@ -364,11 +393,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function comparatorSelectorComponent() {
-    return $("<select id='select-comparator' class='form-control'></select>");
+    return $("<select class='form-control select-comparator'></select>");
   }
 
   function valueSelectorComponent() {
-    return $("<input id='input-condition-value' class='form-control'>");
+    return $("<input  class='form-control condition-value'>");
   }
 
   function actionSelectorComponent() {
@@ -547,14 +576,16 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     xFormView.wrap(form);
 
-    xFormView.append(elementSelectorComponent());
-    xFormView.append(comparatorSelectorComponent());
-    xFormView.append(valueSelectorComponent());
+    var conditionView = $("#x-form-conditions");
+    conditionView.append(whenComponent());
+    /*conditionView.append(elementSelectorComponent());
+    conditionView.append(comparatorSelectorComponent());
+    conditionView.append(valueSelectorComponent());*/
 
     //Actions
-    xFormView.append(actionSelectorComponent());
-    xFormView.append(elementSelectorComponent(/*withoutEvent*/ true));
-    xFormView.append(addConditionComponent());
+    conditionView.append(actionSelectorComponent());
+    conditionView.append(elementSelectorComponent(/*withoutEvent*/ true));
+    conditionView.append(addConditionComponent());
   }
 
   module.getReportInJSON = function() {

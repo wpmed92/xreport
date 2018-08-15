@@ -72,16 +72,24 @@
         <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
           <div class="card card-slightly-shadowed">
             <div class="card-header">
-              <div class="d-flex justify-content-between">
-                <div class="w-25">
-                  <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
+              <div class="row">
+                <div class="col-5">
+                    <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
+                </div>
+
+                <div class="col-7">
+                  <button id="btn-show-conditions" type="button" class="btn btn-primary float-right"><i class="fas fa-code-branch"></i></button>
                 </div>
               </div>
             </div>
 
-            <div id="x-form-report" class="card-body">
-              <!-- content of lelet -->
+            <div class="card-body">
+            <!-- content of lelet -->
+             <div id="x-form-report">
+             </div>
 
+             <div id="x-form-conditions" class="collapse">
+             </div>
             </div>
           </div>
 
