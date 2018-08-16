@@ -265,6 +265,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   //#region CONDITIONAL EDITOR
+  //WHEN
   function whenComponent() {
     var component = $("<div></div>");
     var header = $("<h5>Feltétel</h5><hr>");
@@ -320,10 +321,14 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return component;
   }
 
+  //DO
   function doComponent() {
-    var component = $("<div></div>");
+    var component = $("<div class='form-row'></div>");
 
-    component.append(actionSelectorComponent());
+    component.append($("<div class='form-group col'></div>").append(actionSelectorComponent()));
+    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(/*withoutEvent*/ true)));
+
+    return component;
   }
 
   function elementSelectorComponent(parent, withoutEvent) {
@@ -614,8 +619,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     conditionView.append(valueSelectorComponent());*/
 
     //Actions
-    conditionView.append(actionSelectorComponent());
-    conditionView.append(elementSelectorComponent(/*withoutEvent*/ true));
+    conditionView.append(doComponent());
     conditionView.append(addConditionComponent());
   }
 
