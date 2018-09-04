@@ -282,7 +282,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
     row.append($("<div class='form-group col'></div>").append(comparatorSelectorComponent()));
-    row.append($("<div class='form-group col'></div>").append(valueSelectorComponent()));
+    row.append($("<div class='form-group col'></div>").append(valueSelectorComponent(row)));
     row.append($("<div class='form-group col'></div>").append(ANDConnectorComponent(parent)));
 
     return row;
@@ -306,7 +306,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     component.click(function() {
       parent.append(ANDGroupComponent());
       var btn = $(this);
-      btn.replaceWith("<p><span class='badge badge-primary'>VAGY</span></p>");
+      btn.replaceWith("<p><span class='badge badge-secondary'>VAGY</span></p>");
       parent.append(ORConnectorComponent(parent));
     });
 
@@ -326,7 +326,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     var component = $("<div class='form-row'></div>");
 
     component.append($("<div class='form-group col'></div>").append(actionSelectorComponent()));
-    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(/*withoutEvent*/ true)));
+    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true)));
 
     return component;
   }
@@ -343,7 +343,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
           component.append(jQ('<option>', {
             value: child.child.id,
             text: label,
-            data: { type: child.child.type }
+            data: { type: child.child.type, raw: child.child }
           }));
         }
       });
@@ -358,7 +358,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
       var type = optionSelected.data("type");
       var comparatorList = typeToComparator[type];
       var comparatorSelector = parent.find(".select-comparator").first();
+      var valueSelector = parent.find(".condition-value").first();
       comparatorSelector.html("");
+
+      valueSelector.replaceWith(valueSelectorComponent(parent));
 
       comparatorList.forEach(function(comparator) {
         comparatorSelector.append(jQ('<option>', {
@@ -373,6 +376,32 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   var typeToComparator = {
     "innum": [
+      {
+        val: "eq",
+        text: "Egyenlő"
+      },
+      {
+        val: "neq",
+        text: "Nem egyenlő"
+      },
+      {
+        val: "lt",
+        text: "Kisebb"
+      },
+      {
+        val: "gt",
+        text: "Nagyobb"
+      },
+      {
+        val: "gteq",
+        text: "Nagyobb egyenlő"
+      },
+      {
+        val: "lteq",
+        text: "Kisebb egyenlő"
+      }
+    ],
+    "sel": [
       {
         val: "eq",
         text: "Egyenlő"
@@ -432,8 +461,22 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return $("<select class='form-control select-comparator'></select>");
   }
 
-  function valueSelectorComponent() {
-    return $("<input  class='form-control condition-value'>");
+  function valueSelectorComponent(row) {
+    var component = $("<input class='form-control condition-value'>");
+    var selectedElement = row.find(".select-element :selected").data("raw");
+
+    if (selectedElement.type === "sel") {
+      component = $("<select class='form-control condition-value'></select>");
+
+      selectedElement.options.forEach(function(option) {
+        component.append(jQ('<option>', {
+          value: option,
+          text : option
+        }));
+      });
+    }
+
+    return component;
   }
 
   function actionSelectorComponent() {
@@ -452,7 +495,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   function generateAction(when) {
     var trueAction = $("#select-action").val();
     var falseAction = (trueAction === "show") ? "hide" : "show";
-    var target = $(".select-element").eq(1).val();
+    var target = $(".select-element").last().val();
 
     when.true = {
       doWhat: trueAction,
@@ -469,24 +512,68 @@ var XReportBuilder = (function(jQ, XReportForm) {
     var component = $("<button type='button' class='btn btn-primary'>Hozzáad</button>");
 
     component.click(function() {
-      var when = {
-        left: $(".select-element").eq(0).val(),
-        right: $("#input-condition-value").val(),
-        comp: $("#select-comparator").val()
-      };
-
-      generateAction(when);
-
-      conditionPool.push(when);
+      conditionPool.push(buildConditions());
     });
-
 
     return component;
   }
 
+  function buildConditions() {
+    var orConnector = [];
+    var condition = {};
+
+    $(".and-group").each(function() {
+      var andConnector = [];
+
+      $(this).find(".form-row").each(function() {
+        var row = $(this);
+        var and = {};
+        and.left = row.find(".select-element").eq(0).val();
+        and.right = row.find(".condition-value").eq(0).val();
+        and.comp = row.find(".select-comparator").eq(0).val();
+        andConnector.push(and);
+      });
+
+      orConnector.push(andConnector);
+    });
+
+    condition.orConnector = orConnector;
+    generateAction(condition);
+
+    return condition;
+  }
+
+  function processVal(val) {
+    var numericVal = parseInt(val);
+
+    if (isNaN(numericVal)) {
+      return val;
+    } else {
+      return numericVal;
+    }
+  }
+
+  function getValueFromXElem(id) {
+    var val;
+
+    xForm.forEach(function(row) {
+      row.children.forEach(function(child) {
+        if (child.type === "group") {
+          var inId = child.child.id;
+
+          if (inId == id) {
+            val = child.child.getValue();
+          }
+        }
+      });
+    });
+
+    return val;
+  }
+
   function evalCondition(condition) {
-    var leftVal = $("*[data-x-id='" + condition.left + "']").val();
-    var rightVal = condition.right;
+    var leftVal = processVal(getValueFromXElem(condition.left));
+    var rightVal = processVal(condition.right);
 
     switch (condition.comp) {
       case "eq":
@@ -507,11 +594,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
   function doAction(action) {
     switch (action.doWhat) {
       case "hide":
-        jQ("*[data-x-id='" + action.onWhat + "']").parent().hide();
+        jQ("*[data-x-id='" + action.onWhat + "']").closest(".col").hide();
         break;
 
       case "show":
-        jQ("*[data-x-id='" + action.onWhat + "']").parent().show();
+        jQ("*[data-x-id='" + action.onWhat + "']").closest(".col").show();
         break;
     }
   }
@@ -596,8 +683,25 @@ var XReportBuilder = (function(jQ, XReportForm) {
     //TEST: condition evaluation
     var form = $("<form></form>");
     form.on("change", function() {
+      var conditionEvaluator = false;
+
       conditionPool.forEach(function(condition) {
-        if (evalCondition(condition)) {
+        var orOutput = [];
+        
+        condition.orConnector.forEach(function(andGroup) {
+          var andOutput = true;
+
+          andGroup.forEach(function(andCondition) {
+            if (!evalCondition(andCondition)) {
+              andOutput = false;
+              return;
+            }
+          });
+
+          orOutput.push(andOutput);
+        });
+
+        if (orOutput.includes(true)) {
           doAction(condition.true);
         } else {
           doAction(condition.false);
