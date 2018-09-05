@@ -236,6 +236,9 @@ $(function() {
     var id = $(this).attr("id");
 
     switch (id) {
+      case "btn-add-text":
+        XReportBuilder.addPlainText();
+        break;
       case "btn-add-textbox":
         XReportBuilder.addTextGroup();
         break;
@@ -265,6 +268,9 @@ $(function() {
         break;
       case "btn-add-rating":
         XReportBuilder.addRating();
+        break;
+      case "btn-add-image":
+        XReportBuilder.addImage();
         break;
     }
   });

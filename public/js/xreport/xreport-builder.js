@@ -23,6 +23,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
           </button>\
           <div class="dropdown-menu">\
             <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Egyszerű szöveg</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
             <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
@@ -49,31 +50,34 @@ var XReportBuilder = (function(jQ, XReportForm) {
             module.addTextGroup(row);
             break;
           case 1:
-            module.addNumberGroup(row);
+            module.addPlainText(row);
             break;
           case 2:
-            module.addBoolGroup(row);
+            module.addNumberGroup(row);
             break;
           case 3:
-            module.addSelGroup(row);
+            module.addBoolGroup(row);
             break;
           case 4:
-            module.addMulSelGroup(row);
+            module.addSelGroup(row);
             break;
           case 5:
-            module.addTextAreaGroup(row);
+            module.addMulSelGroup(row);
             break;
           case 6:
+            module.addTextAreaGroup(row);
+            break;
+          case 7:
             module.addDateGroup(row);
             break;
 
           //Actions
           //delete
-          case 8:
+          case 9:
             deleteRow(row);
             break;
           //duplicate
-          case 9:
+          case 10:
             duplicateRow(row);
             break;
         }
@@ -148,6 +152,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       group.label = Object.assign(new XReportForm.Label, formElem.label);
       group.child = createFormElemFromJSON(formElem.child);
       return group;
+    } else if (type === "text") {
+      return Object.assign(new XReportForm.PlainText, formElem);
     } else if (type === "intext") {
       return Object.assign(new XReportForm.Text, formElem);
     } else if (type === "innum") {
@@ -170,6 +176,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.Info, formElem);
     } else if (type === "rating") {
       return Object.assign(new XReportForm.Rating, formElem);
+    } else if (type === "image") {
+      return Object.assign(new XReportForm.Image, formElem);
     } else if (type === "row") {
       var row = Object.assign(new XReportForm.Row, formElem);
 
@@ -687,7 +695,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
       conditionPool.forEach(function(condition) {
         var orOutput = [];
-        
+
         condition.orConnector.forEach(function(andGroup) {
           var andOutput = true;
 
@@ -805,6 +813,17 @@ var XReportBuilder = (function(jQ, XReportForm) {
     addToForm(group);
   }
 
+  module.addPlainText = function(row) {
+    var plainText = new XReportForm.PlainText("Egyszerű szöveg");
+
+    if (row) {
+      appendToRow(row, plainText);
+      return;
+    }
+
+    addToForm(plainText);
+  }
+
   module.addTextAreaGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szabad szöveg");
     group.addChild(new XReportForm.TextArea(4));
@@ -839,6 +858,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   module.addRating = function() {
     addToForm(new XReportForm.Rating());
+  }
+
+
+  module.addImage = function() {
+    addToForm(new XReportForm.Image());
   }
   //#endregion
 
