@@ -14,6 +14,9 @@ $(function() {
   moment.locale("hu");
   getCategories();
   loadSchemesPage();
+
+  //NOTE: only for demo
+  readOnlyMode();
   //#endregion
 
   //#region COMPONENTS
@@ -98,6 +101,15 @@ $(function() {
     if (json) {
       XReportBuilder.buildReportFromJSON(json);
     }
+  }
+
+  function readOnlyMode() {
+    $("#btn-save-scheme").addClass("d-none");
+    $("#btn-drop-scheme").addClass("d-none");
+    $("#btn-toggle-edit").addClass("d-none");
+    $("#btn-show-conditions").addClass("d-none");
+    $("#btn-add-new-elem").hide();
+    XReportBuilder.readOnlyMode();
   }
   //#endregion
 

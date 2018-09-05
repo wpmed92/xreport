@@ -11,6 +11,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var editState = false;
   var sortable = null;
   var conditionEditorMode = false;
+  var readOnlyMode = false;
 
   //TEST: conditional form
   var conditionPool = [];
@@ -209,6 +210,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
     } else {
       xForm.push(row);
       xFormView.append(rowView);
+    }
+
+    if (readOnlyMode) {
+      return;
     }
 
     row.children.forEach(function(child) {
@@ -919,9 +924,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
     addToForm(new XReportForm.Rating());
   }
 
-
   module.addImage = function() {
     addToForm(new XReportForm.Image());
+  }
+
+  module.readOnlyMode = function() {
+    readOnlyMode = true;
   }
   //#endregion
 
