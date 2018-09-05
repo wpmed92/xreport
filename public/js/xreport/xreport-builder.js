@@ -10,6 +10,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var xForm = [];
   var editState = false;
   var sortable = null;
+  var conditionEditorMode = false;
 
   //TEST: conditional form
   var conditionPool = [];
@@ -23,7 +24,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
           </button>\
           <div class="dropdown-menu">\
             <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Egyszerű szöveg</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
             <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
@@ -331,15 +332,32 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   //DO
   function doComponent() {
+    var parent = $("<div></div>");
+    var component = $("<div class='do-group'></div>");
+    var addDoComponent = $("<button type='button' class='btn btn-sm btn-primary do-adder'><i class='fas fa-plus'></i></button");
+
+    component.append(doComponentRow());
+
+    addDoComponent.click(function() {
+      component.append(doComponentRow());
+    });
+
+    parent.append(component);
+    parent.append(addDoComponent);
+
+    return parent;
+  }
+
+  function doComponentRow() {
     var component = $("<div class='form-row'></div>");
 
     component.append($("<div class='form-group col'></div>").append(actionSelectorComponent()));
-    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true)));
+    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true, /*isActionSelector*/ true)));
 
     return component;
   }
 
-  function elementSelectorComponent(parent, withoutEvent) {
+  function elementSelectorComponent(parent, withoutEvent, isActionSelector) {
     var report = xScheme.report;
     var component = $("<select class='select-element form-control'></select>");
 
@@ -352,6 +370,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
             value: child.child.id,
             text: label,
             data: { type: child.child.type, raw: child.child }
+          }));
+        } else if (isActionSelector) {
+          component.append(jQ('<option>', {
+            value: child.id,
+            text: child.val,
+            data: { type: child.type, raw: child }
           }));
         }
       });
@@ -488,7 +512,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function actionSelectorComponent() {
-    var component = $("<select id='select-action' class='form-control'></select>");
+    var component = $("<select class='form-control select-action'></select>");
 
     [{ val: "show", text: "Mutat" }, { val: "hide", text: "Elrejt" }].forEach(function(action) {
       component.append(jQ('<option>', {
@@ -498,22 +522,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
     });
 
     return component;
-  }
-
-  function generateAction(when) {
-    var trueAction = $("#select-action").val();
-    var falseAction = (trueAction === "show") ? "hide" : "show";
-    var target = $(".select-element").last().val();
-
-    when.true = {
-      doWhat: trueAction,
-      onWhat: target
-    };
-
-    when.false = {
-      doWhat: falseAction,
-      onWhat: target
-    };
   }
 
   function addConditionComponent() {
@@ -527,9 +535,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
   }
 
   function buildConditions() {
-    var orConnector = [];
     var condition = {};
+    condition.orConnector = [];
+    condition.actions = [];
 
+    //Extract conditions
     $(".and-group").each(function() {
       var andConnector = [];
 
@@ -542,11 +552,31 @@ var XReportBuilder = (function(jQ, XReportForm) {
         andConnector.push(and);
       });
 
-      orConnector.push(andConnector);
+      condition.orConnector.push(andConnector);
     });
 
-    condition.orConnector = orConnector;
-    generateAction(condition);
+    //Extract actions
+    $(".do-group").each(function() {
+      $(this).find(".form-row").each(function() {
+        var row = $(this);
+        var action = {};
+        var trueAction = row.find(".select-action").val();
+        var falseAction = (trueAction === "show") ? "hide" : "show";
+        var target = row.find(".select-element").val();
+
+        action.true = {
+          doWhat: trueAction,
+          onWhat: target
+        };
+
+        action.false = {
+          doWhat: falseAction,
+          onWhat: target
+        };
+
+        condition.actions.push(action);
+      });
+    });
 
     return condition;
   }
@@ -645,6 +675,41 @@ var XReportBuilder = (function(jQ, XReportForm) {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
 
+    //TODO: refactor me
+    var form = $("<form></form>");
+    form.on("change", function() {
+      var conditionEvaluator = false;
+
+      conditionPool.forEach(function(condition) {
+        var orOutput = [];
+
+        condition.orConnector.forEach(function(andGroup) {
+          var andOutput = true;
+
+          andGroup.forEach(function(andCondition) {
+            if (!evalCondition(andCondition)) {
+              andOutput = false;
+              return;
+            }
+          });
+
+          orOutput.push(andOutput);
+        });
+
+        if (orOutput.includes(true)) {
+          condition.actions.forEach(function(action) {
+            doAction(action.true);
+          });
+        } else {
+          condition.actions.forEach(function(action) {
+            doAction(action.false);
+          });
+        }
+      });
+    });
+
+    xFormView.wrap(form);
+
     if (clear) {
       xFormView.html("");
     }
@@ -688,55 +753,49 @@ var XReportBuilder = (function(jQ, XReportForm) {
     module.useReportSection();
     xFormView.html("");
 
-    //TEST: condition evaluation
-    var form = $("<form></form>");
-    form.on("change", function() {
-      var conditionEvaluator = false;
-
-      conditionPool.forEach(function(condition) {
-        var orOutput = [];
-
-        condition.orConnector.forEach(function(andGroup) {
-          var andOutput = true;
-
-          andGroup.forEach(function(andCondition) {
-            if (!evalCondition(andCondition)) {
-              andOutput = false;
-              return;
-            }
-          });
-
-          orOutput.push(andOutput);
-        });
-
-        if (orOutput.includes(true)) {
-          doAction(condition.true);
-        } else {
-          doAction(condition.false);
-        }
-      });
-    });
-
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
       addToForm(relem);
     });
 
-    xFormView.wrap(form);
+    conditionPool = json.conditions || [];
 
+    //Initial trigger;
+    xFormView.trigger("change");
+
+    buildConditionView();
+  }
+
+  module.toggleConditionEditor = function() {
+    conditionEditorMode = !conditionEditorMode;
+
+    if (conditionEditorMode) {
+      buildConditionView();
+    } else {
+      //saveConditions();
+    }
+  }
+
+  function buildConditionView() {
     var conditionView = $("#x-form-conditions");
+    conditionView.html("");
+
+    //When
     conditionView.append(whenComponent());
-    /*conditionView.append(elementSelectorComponent());
-    conditionView.append(comparatorSelectorComponent());
-    conditionView.append(valueSelectorComponent());*/
 
     //Actions
     conditionView.append(doComponent());
     conditionView.append(addConditionComponent());
   }
 
+  function saveConditions() {
+    conditionPool.push(buildConditions());
+  }
+
   module.getReportInJSON = function() {
-    return JSON.stringify(xScheme, replacer);
+    xScheme.conditions = conditionPool
+
+    return JSON.stringify(xScheme);
   }
 
   module.genText = function() {

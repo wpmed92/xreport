@@ -303,6 +303,7 @@ $(function() {
   });
 
   $("#btn-show-conditions").click(function() {
+    XReportBuilder.toggleConditionEditor();
     $("#x-form-report").toggleClass("collapse");
     $("#x-form-conditions").toggleClass("collapse");
   });
