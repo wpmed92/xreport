@@ -14,9 +14,10 @@ $(function() {
   moment.locale("hu");
   getCategories();
   loadSchemesPage();
+  $("#div-card-holder").append(addNewElemToFormEditor());
 
   //NOTE: only for demo
-  readOnlyMode();
+  //readOnlyMode();
   //#endregion
 
   //#region COMPONENTS
@@ -41,6 +42,44 @@ $(function() {
                   </div>\
                 </div>\
               <div>');
+  }
+
+  function addNewElemToConditionEditor() {
+    return $('<div id="btn-add-new-condition" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">\
+                <div class="dropdown">\
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+                    <i class="fas fa-plus"></i>\
+                  </button>\
+                  <div id="tool-menu" class="dropdown-menu">\
+                    <a href="#" id="btn-add-condition" class="dropdown-item"><i class="fas fa-code-branch"></i> Feltétel</a>\
+                    <a href="#" id="btn-add-calculation" class="dropdown-item"><i class="fas fa-calculator"></i> Számítás</a>\
+                  </div>\
+                </div>\
+              </div>');
+  }
+
+  function addNewElemToFormEditor() {
+    return $('<div id="btn-add-new-elem" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">\
+                <div class="dropdown">\
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+                    <i class="fas fa-plus"></i>\
+                  </button>\
+                  <div id="tool-menu" class="dropdown-menu">\
+                    <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
+                    <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
+                    <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+                    <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
+                    <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
+                    <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
+                    <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
+                    <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
+                    <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>\
+                    <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>\
+                    <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Értékelőskála</a>\
+                    <a href="#" id="btn-add-image" class="dropdown-item"><i class="far fa-image"></i> Kép</a>\
+                  </div>\
+                </div>\
+              </div>');
   }
   //#endregion
 
@@ -109,6 +148,7 @@ $(function() {
     $("#btn-toggle-edit").addClass("d-none");
     $("#btn-show-conditions").addClass("d-none");
     $("#btn-add-new-elem").hide();
+    $("#btn-show-text-output").removeClass("d-none");
     XReportBuilder.readOnlyMode();
   }
   //#endregion
@@ -315,9 +355,25 @@ $(function() {
   });
 
   $("#btn-show-conditions").click(function() {
-    XReportBuilder.toggleConditionEditor();
+    var isInConditionEditorMode = XReportBuilder.toggleConditionEditor();
+
+    if (isInConditionEditorMode) {
+      $("#btn-add-new-elem").remove();
+      $("#div-card-holder").append(addNewElemToConditionEditor());
+    } else {
+      $("#btn-add-new-condition").remove();
+      $("#div-card-holder").append(addNewElemToFormEditor());
+    }
+
     $("#x-form-report").toggleClass("collapse");
     $("#x-form-conditions").toggleClass("collapse");
+  });
+
+  $("#btn-show-text-output").click(function() {
+    var out = "<pre>" + XReportBuilder.genText() + "</pre>";
+    $("#x-form-report").toggleClass("collapse");
+    $("#x-form-output").toggleClass("collapse");
+    $("#x-form-output").html(out);
   });
 
   //Navbar

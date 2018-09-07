@@ -8,7 +8,7 @@ var XReportForm = (function(jQ) {
   }
 
   XFormElem.prototype.genUniqueId = function() {
-    return "x-elem-" + Math.random().toString(36).substr(2, 9);
+    return "xElem" + Math.random().toString(36).substr(2, 9);
   }
 
   XFormElem.prototype.bind = function(view) {
@@ -128,7 +128,7 @@ var XReportForm = (function(jQ) {
   }
 
   XHeader.prototype.genText = function() {
-    return ("\n" + this.val + "\n------------------\n");
+    return ("\n" + this.val + "\n------------------------------------\n");
   }
 
   //Label -> Info
@@ -201,6 +201,12 @@ var XReportForm = (function(jQ) {
   }
 
   XInNum.prototype.genText = function() {
+    var val = jQ("*[data-x-id='" + this.id + "']").val();
+
+    if (!val) {
+      return null;
+    }
+
     return jQ("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
   }
 
@@ -777,7 +783,7 @@ var XReportForm = (function(jQ) {
         return checked.next().text() + "\n";
       }
     } else if (isFunction(this.child.genText) && !!this.child.genText()) {
-      return this.label.val + ": " + this.child.genText() + "\n";
+      return "-" + this.label.val + ": " + this.child.genText() + "\n";
     }
 
     return "";

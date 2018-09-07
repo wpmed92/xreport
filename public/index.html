@@ -69,7 +69,7 @@
 
     <!-- Form -->
     <div class="row">
-        <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
+        <div id="div-card-holder" class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
           <div class="card card-slightly-shadowed">
             <div class="card-header">
               <div class="row">
@@ -78,7 +78,8 @@
                 </div>
 
                 <div class="col-7">
-                  <button id="btn-show-conditions" type="button" class="btn btn-primary float-right"><i class="fas fa-code-branch"></i></button>
+                  <button id="btn-show-conditions" type="button" class="btn btn-primary float-right"><i class="fas fa-cog"></i></button>
+                  <button id="btn-show-text-output" type="button" class="btn btn-primary float-right d-none"><i class="far fa-file-alt"></i></button>
                 </div>
               </div>
             </div>
@@ -90,30 +91,11 @@
 
              <div id="x-form-conditions" class="collapse">
              </div>
+
+             <div id="x-form-output" class="collapse">
+             </div>
             </div>
           </div>
-
-          <!--<div id="btn-add-new-elem" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-plus"></i>
-              </button>
-              <div id="tool-menu" class="dropdown-menu">
-                <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>
-                <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>
-                <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>
-                <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>
-                <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>
-                <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>
-                <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
-                <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>
-                <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>
-                <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>
-                <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Értékelőskála</a>
-                <a href="#" id="btn-add-image" class="dropdown-item"><i class="far fa-image"></i> Kép</a>
-              </div>
-            </div>
-          </div>-->
       </div>
     </div>
   </div>
@@ -205,6 +187,9 @@
 
   <!-- SORTABLE -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+
+  <!-- JS Expression Parser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.min.js"></script>
 
   <!-- APP -->
   <script src="js/backend/api.js"></script>

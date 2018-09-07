@@ -1,4 +1,4 @@
-var XReportBuilder = (function(jQ, XReportForm) {
+var XReportBuilder = (function(jQ, XReportForm, parser) {
   //#region PRIVATE VARIABLES
   var module = {};
   var xFormView = null;
@@ -282,7 +282,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //WHEN
   function whenComponent() {
     var component = $("<div></div>");
-    var header = $("<h5>Feltétel</h5><hr>");
+    var header = $("<h5><i class='fas fa-code-branch'></i> Feltétel</h5><hr>");
 
     component.append(header);
     component.append(ANDGroupComponent());
@@ -337,7 +337,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
   //DO
   function doComponent() {
-    var parent = $("<div></div>");
+    var parent = $("<br><div><h5><i class='fas fa-play'></i> Műveletek</h5><hr></div");
     var component = $("<div class='do-group'></div>");
     var addDoComponent = $("<button type='button' class='btn btn-sm btn-primary do-adder'><i class='fas fa-plus'></i></button");
 
@@ -539,8 +539,37 @@ var XReportBuilder = (function(jQ, XReportForm) {
     return component;
   }
 
+  function calculationComponent() {
+    var component = $("<div class='calculation-group'></div>");
+    component.append(calculationComponentRow());
+
+    return component;
+  }
+
+  function calculationComponentRow() {
+    var row = $("<div class='form-row'></div>");
+    row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ true, /*isActionSelector*/ true)));
+    row.append($("<div class='form-group col'></div>").append("<input type='text' class='form-control calculation' placeholder='type in your calculation, eg.: 1 + x * 2'>"));
+
+    return row;
+  }
+
+  function buildCalculations() {
+    var calculations = [];
+
+    $(".calculation-group").each(function() {
+      var row = $(this);
+      var target = row.find(".select-element").eq(0).val();
+      var calculationInput = row.find(".calculation").eq(0);
+      var calculation = { type: "calc", expression: calculationInput.val(), target: target };
+      calculations.push(calculation);
+    });
+
+    return calculations;
+  }
+
   function buildConditions() {
-    var condition = {};
+    var condition = { type: "conditional" };
     condition.orConnector = [];
     condition.actions = [];
 
@@ -634,6 +663,19 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
+  function evalExpression(calc) {
+    var expression = parser.parse(calc.expression);
+    var variables = expression.variables()
+    var boundVariables = [];
+    var target = jQ("*[data-x-id='" + calc.target + "']");
+
+    variables.forEach(function(variable) {
+      boundVariables.push({ variable: jQ("*[data-x-id='" + variable + "']").val() });
+    });
+
+    target.text(Parser.evaluate(exp, boundVariables));
+  }
+
   function doAction(action) {
     switch (action.doWhat) {
       case "hide":
@@ -686,6 +728,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
       var conditionEvaluator = false;
 
       conditionPool.forEach(function(condition) {
+        //TEST: in case of calculation
+        if (condition.type === "calc") {
+          evalExpression(condition);
+          return;
+        }
+
         var orOutput = [];
 
         condition.orConnector.forEach(function(andGroup) {
@@ -777,8 +825,10 @@ var XReportBuilder = (function(jQ, XReportForm) {
     if (conditionEditorMode) {
       buildConditionView();
     } else {
-      //saveConditions();
+      saveConditions();
     }
+
+    return conditionEditorMode;
   }
 
   function buildConditionView() {
@@ -790,11 +840,14 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     //Actions
     conditionView.append(doComponent());
-    conditionView.append(addConditionComponent());
+
+    //calculation
+    conditionView.append(calculationComponent());
   }
 
   function saveConditions() {
-    conditionPool.push(buildConditions());
+    //conditionPool.push(buildConditions());
+    conditionPool = conditionPool.concat(buildCalculations());
   }
 
   module.getReportInJSON = function() {
@@ -934,4 +987,4 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   return module;
-})($, XReportForm);
+})($, XReportForm, new Parser());
