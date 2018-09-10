@@ -50,7 +50,7 @@ $(function() {
                   <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
                     <i class="fas fa-plus"></i>\
                   </button>\
-                  <div id="tool-menu" class="dropdown-menu">\
+                  <div id="condition-tool-menu" class="dropdown-menu">\
                     <a href="#" id="btn-add-condition" class="dropdown-item"><i class="fas fa-code-branch"></i> Feltétel</a>\
                     <a href="#" id="btn-add-calculation" class="dropdown-item"><i class="fas fa-calculator"></i> Számítás</a>\
                   </div>\
@@ -374,6 +374,21 @@ $(function() {
     $("#x-form-report").toggleClass("collapse");
     $("#x-form-output").toggleClass("collapse");
     $("#x-form-output").html(out);
+  });
+
+  $("body").on("click", "#condition-tool-menu .dropdown-item", function(e) {
+    e.preventDefault();
+    var id = $(this).attr("id");
+
+    switch (id) {
+      case "btn-add-condition":
+        XReportBuilder.addNewCondition();
+        break;
+
+      case "btn-add-calculation":
+        XReportBuilder.addNewCalculation();
+        break;
+    }
   });
 
   //Navbar

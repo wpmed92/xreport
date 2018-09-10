@@ -279,6 +279,16 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   //#endregion
 
   //#region CONDITIONAL EDITOR
+  //Main condition component
+  function conditionComponent() {
+    var component = $("<div class='when-group'></div>");
+
+    component.append(whenComponent());
+    component.append(doComponent());
+
+    return component;
+  }
+
   //WHEN
   function whenComponent() {
     var component = $("<div></div>");
@@ -337,7 +347,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
   //DO
   function doComponent() {
-    var parent = $("<br><div><h5><i class='fas fa-play'></i> Műveletek</h5><hr></div");
+    var parent = $("<div><h5><i class='fas fa-play'></i> Műveletek</h5><hr></div>");
     var component = $("<div class='do-group'></div>");
     var addDoComponent = $("<button type='button' class='btn btn-sm btn-primary do-adder'><i class='fas fa-plus'></i></button");
 
@@ -533,7 +543,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var component = $("<button type='button' class='btn btn-primary'>Hozzáad</button>");
 
     component.click(function() {
-      conditionPool.push(buildConditions());
+      conditionPool.push(buildCondition());
     });
 
     return component;
@@ -568,13 +578,13 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     return calculations;
   }
 
-  function buildConditions() {
+  function buildCondition(whenGroup) {
     var condition = { type: "conditional" };
     condition.orConnector = [];
     condition.actions = [];
 
     //Extract conditions
-    $(".and-group").each(function() {
+    whenGroup.find(".and-group").each(function() {
       var andConnector = [];
 
       $(this).find(".form-row").each(function() {
@@ -590,7 +600,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     });
 
     //Extract actions
-    $(".do-group").each(function() {
+    whenGroup.find(".do-group").each(function() {
       $(this).find(".form-row").each(function() {
         var row = $(this);
         var action = {};
@@ -835,23 +845,37 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     return conditionEditorMode;
   }
 
-  function buildConditionView() {
+  module.addNewCondition = function() {
     var conditionView = $("#x-form-conditions");
-    conditionView.html("");
 
     //When
-    conditionView.append(whenComponent());
+    conditionView.append(conditionComponent());
 
     //Actions
-    conditionView.append(doComponent());
+    //conditionView.append(doComponent());
+  }
+
+  module.addNewCalculation = function() {
+    var conditionView = $("#x-form-conditions");
 
     //calculation
     conditionView.append(calculationComponent());
   }
 
+  function buildConditionView() {
+    //TODO: build condition view from conditions or leave it empty
+  }
+
   function saveConditions() {
+    conditionPool = [];
+
+    $(".when-group").each(function() {
+      var whenGroup = $(this);
+      conditionPool.push(buildCondition(whenGroup));
+    });
+
     //conditionPool.push(buildConditions());
-    conditionPool = conditionPool.concat(buildCalculations());
+    //conditionPool = conditionPool.concat(buildCalculations());
   }
 
   module.getReportInJSON = function() {
