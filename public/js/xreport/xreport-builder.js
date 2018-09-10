@@ -295,6 +295,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var header = $("<h5><i class='fas fa-code-branch'></i> Feltétel</h5><hr>");
 
     component.append(header);
+    component.append('<p><span class="badge badge-info">HA</span></p>');
     component.append(ANDGroupComponent());
     component.append(ORConnectorComponent(component));
 
@@ -347,7 +348,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
   //DO
   function doComponent() {
-    var parent = $("<div><h5><i class='fas fa-play'></i> Műveletek</h5><hr></div>");
+    var parent = $("<div></div>");
     var component = $("<div class='do-group'></div>");
     var addDoComponent = $("<button type='button' class='btn btn-sm btn-primary do-adder'><i class='fas fa-plus'></i></button");
 
@@ -357,6 +358,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
       component.append(doComponentRow());
     });
 
+    parent.append('<p><span class="badge badge-secondary">AKKOR</span></p>');
     parent.append(component);
     parent.append(addDoComponent);
 
@@ -551,6 +553,9 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
   function calculationComponent() {
     var component = $("<div class='calculation-group'></div>");
+    var header = $("<h5><i class='fas fa-calculator'></i> Számítás</h5><hr>");
+
+    component.append(header);
     component.append(calculationComponentRow());
 
     return component;
