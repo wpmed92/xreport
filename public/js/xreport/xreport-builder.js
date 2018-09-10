@@ -664,16 +664,20 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   }
 
   function evalExpression(calc) {
-    var expression = parser.parse(calc.expression);
-    var variables = expression.variables()
-    var boundVariables = [];
-    var target = jQ("*[data-x-id='" + calc.target + "']");
-
-    variables.forEach(function(variable) {
-      boundVariables.push({ variable: jQ("*[data-x-id='" + variable + "']").val() });
+    var node = math.parse(calc.expression);
+    var unboundVariables = node.filter(function (node) {
+      return node.isSymbolNode;
     });
 
-    target.text(Parser.evaluate(exp, boundVariables));
+    var scope = {};
+    var target = jQ("*[data-x-id='" + calc.target + "']");
+
+    unboundVariables.forEach(function(variable) {
+      scope[variable.name] = jQ("*[data-x-id='" + variable + "']").val();
+    });
+
+    var code = node.compile();
+    target.text(code.eval(scope));
   }
 
   function doAction(action) {
@@ -987,4 +991,4 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   //#endregion
 
   return module;
-})($, XReportForm, new Parser());
+})($, XReportForm, math.parser());
