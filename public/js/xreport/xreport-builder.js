@@ -381,6 +381,18 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     report.forEach(function(row) {
       row.children.forEach(function(child) {
         if (child.type === "group") {
+          if (child.child.type === "mulsel") {
+            var mulSel = child.child;
+
+            mulSel.options.forEach(function(option) {
+              component.append(jQ('<option>', {
+                value: option,
+                text: option,
+                data: { type: mulSel.type, raw: mulSel }
+              }));
+            });
+          }
+
           var label = child.label.val;
 
           component.append(jQ('<option>', {
@@ -388,7 +400,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
             text: label,
             data: { type: child.child.type, raw: child.child }
           }));
-        } else if (isActionSelector) {
+        } else {
           component.append(jQ('<option>', {
             value: child.id,
             text: child.val,
@@ -531,7 +543,10 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   function actionSelectorComponent() {
     var component = $("<select class='form-control select-action'></select>");
 
-    [{ val: "show", text: "Mutat" }, { val: "hide", text: "Elrejt" }].forEach(function(action) {
+    [{ val: "show", text: "Mutat" },
+    { val: "hide", text: "Elrejt" },
+    { val: "select", text: "Kijelöl" },
+    { val: "unselect", text: "Kijelölés visszavonása" }].forEach(function(action) {
       component.append(jQ('<option>', {
         value: action.val,
         text: action.text
@@ -610,8 +625,15 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         var row = $(this);
         var action = {};
         var trueAction = row.find(".select-action").val();
-        var falseAction = (trueAction === "show") ? "hide" : "show";
-        var target = row.find(".select-element").val();
+        var falseAction = falsifyAction(trueAction);
+        var target = row.find(".select-element");
+        var optionSelected = target.find("option:selected");
+
+        if (optionSelected.data("type") === "mulsel") {
+          target = { option: target.val(), elem: optionSelected.data("raw") };
+        } else {
+          target = target.val();
+        }
 
         action.true = {
           doWhat: trueAction,
@@ -628,6 +650,22 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     });
 
     return condition;
+  }
+
+  function falsifyAction(trueAction) {
+    var falseAction = "";
+
+    if (trueAction === "show") {
+      falseAction = "hide";
+    } else if (trueAction === "hide") {
+      falseAction = "show";
+    } else if (trueAction === "select") {
+      falseAction = "unselect";
+    } else if (trueAction === "unselect") {
+      falseAction = "select";
+    }
+
+    return falseAction;
   }
 
   function processVal(val) {
@@ -703,6 +741,18 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
       case "show":
         jQ("*[data-x-id='" + action.onWhat + "']").closest(".col").show();
+        break;
+
+      case "select":
+        var elem = action.onWhat.elem;
+        var option = action.onWhat.option;
+        elem.checkOption(true, option);
+        break;
+
+      case "unselect":
+        var elem = action.onWhat.elem;
+        var option = action.onWhat.option;
+        elem.checkOption(false, option);
         break;
     }
   }

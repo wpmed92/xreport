@@ -469,6 +469,13 @@ var XReportForm = (function(jQ) {
     return view;
   }
 
+  XMulSel.prototype.checkOption = function(check, option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).prop("checked", check);
+  }
+
   XMulSel.prototype.genText = function() {
     var out = "";
     var view = jQ("*[data-x-id='" + this.id + "']");
