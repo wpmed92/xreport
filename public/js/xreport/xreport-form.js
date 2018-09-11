@@ -50,7 +50,11 @@ var XReportForm = (function(jQ) {
       if (model.type === "header") {
         view.find(":header").text(val);
       } else {
-        view.text(val);
+        if (view.find("b").length > 0) {
+          view.find("b").eq(0).text(val);
+        } else {
+          view.text(val);
+        }
       }
     });
 
@@ -294,9 +298,9 @@ var XReportForm = (function(jQ) {
 
   XInBool.prototype = Object.create(XFormElem.prototype);
 
-  XInBool.prototype.render = function() {
+  XInBool.prototype.render = function(checked) {
     var view = jQ("<div class='form-check'>\
-                <input id='" + this.id + "' class='form-check-input' type='" + this.style + "'>\
+                <input id='" + this.id + "' class='form-check-input' type='" + this.style + "'" + (checked ? "checked" : "") + ">\
               </div>");
     this.bind(view);
     return view;
@@ -340,18 +344,16 @@ var XReportForm = (function(jQ) {
 
     if (this.style === "radio") {
       view = jQ("<div></div>");
-      var i = 0;
 
-      model.options.forEach(function(option) {
-        i++;
+      for (var i = 0; i < model.options.length; i++) {
         view.append(jQ('<div class="form-check">\
-                      <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1">\
-                      <label class="form-check-label" for="' + model.id + "-" + i + '">'
-                        + option +
-                      '</label>\
-                    </div>')
-                  );
-      });
+                          <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1">\
+                          <label class="form-check-label" for="' + model.id + "-" + i + '">'
+                            + model.options[i] +
+                          '</label>\
+                        </div>')
+                      );
+      }
     } else {
       view = jQ("<select class='form-control'></select>");
 
@@ -402,7 +404,7 @@ var XReportForm = (function(jQ) {
 
         model.options.push(option);
 
-        if (model.style === "radio") {
+        /*if (model.style === "radio") {
             var inbool = new XInBool("radio");
             var inboolView = inbool.render();
             inboolView.find("input").first().attr("name", model.id);
@@ -413,8 +415,10 @@ var XReportForm = (function(jQ) {
             value: option,
             text : option
           }));
-        }
+        }*/
       });
+
+      view.replaceWith(model.render());
     });
 
     var optionsStringified = "";
@@ -447,7 +451,13 @@ var XReportForm = (function(jQ) {
 
       model.options.forEach(function(option) {
         var inbool = new XInBool();
-        var inboolView = inbool.render();
+        var isOptionChecked = option.startsWith("*");
+
+        if (isOptionChecked) {
+          option = option.slice(1, option.length);
+        }
+
+        var inboolView = inbool.render(isOptionChecked);
         var check = inboolView.append(new XLabel(option).render(inbool.id));
         view.append(check);
       });
@@ -492,18 +502,20 @@ var XReportForm = (function(jQ) {
 
         model.options.push(option);
 
-        if (model.style === "checkbox") {
+        /*if (model.style === "checkbox") {
             var inbool = new XInBool();
-            var inboolView = inbool.render();
-            var check = inboolView.append(new XLabel(option).render());
+            var inboolView = inbool.render(true);
+            var check = inboolView.append(new XLabel(option).render(inbool.id));
             view.append(check);
         } else {
           view.append(jQ('<option>', {
             value: option,
             text : option
           }));
-        }
+        }*/
       });
+
+      view.replaceWith(model.render());
     });
 
     var optionsStringified = "";
@@ -546,7 +558,7 @@ var XReportForm = (function(jQ) {
   function XRating() {
     XFormElem.call(this, "rating");
     this.parameters = ["Paraméter 1", "Paraméter 2"];
-    this.ratings = ["Érték 1", "Érték 2", "Érték 3"];
+    this.ratings = ["❌", "✔", "Érték 3"];
     this.title = "Cím";
   }
 
@@ -563,7 +575,17 @@ var XReportForm = (function(jQ) {
     ratingsRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
 
     model.ratings.forEach(function(rating) {
-      ratingsRow.append(jQ("<th scope='col' class='text-center'>" + rating + "</th>"));
+      var headerCell = jQ("<th scope='col' class='text-center'><a href='javascript:void(0)'>" + rating + "</a></th>");
+
+      headerCell.click(function() {
+        var elemIndex = $(this).index() - 1;
+
+        for (var i = 0; i < model.parameters.length; i++) {
+          $("#" + model.id + i + elemIndex).prop("checked", true);
+        }
+      });
+
+      ratingsRow.append(headerCell);
     });
 
     header.append(ratingsRow);
@@ -572,20 +594,19 @@ var XReportForm = (function(jQ) {
     //Build body
     var body = jQ("<tbody></tbody>");
     var newRow = "";
-    var i = 0;
 
-    model.parameters.forEach(function(parameter) {
+    for (var i = 0; i < model.parameters.length; i++) {
       newRow = jQ("<tr></tr>");
-      newRow.append(jQ("<td>" + parameter + "</td>"));
-      i++;
+      newRow.append(jQ("<td>" + model.parameters[i] + "</td>"));
 
-      model.ratings.forEach(function() {
+      for (var j = 0; j < model.ratings.length; j++) {
         newRow.append(jQ("<td class='text-center'>\
-                            <input type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
+                            <input id='" + (model.id + i + j) + "'type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
                           </td>"));
-      });
+      }
+
       body.append(newRow);
-    });
+    }
 
     view.append(body);
     return view;
