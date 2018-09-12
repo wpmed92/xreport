@@ -132,7 +132,7 @@ var XReportForm = (function(jQ) {
   }
 
   XHeader.prototype.genText = function() {
-    return ("\n" + this.val + "\n------------------------------------\n");
+    return ("\n" + this.val + "\n------------------------------------");
   }
 
   //Label -> Info
@@ -485,6 +485,8 @@ var XReportForm = (function(jQ) {
       out += label.text() + ", ";
     });
 
+    out = out.slice(0, out.length - 2);
+
     return out;
   }
 
@@ -708,9 +710,25 @@ var XReportForm = (function(jQ) {
     view.find("tr").each(function() {
       var row = $(this);
       var ratingIndex = row.find("input:checked").first().parent().index() - 1;
-      out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
+
+      if (ratingIndex >= 0) {
+        if (model.ratings[ratingIndex] === "Van") {
+          out += "->" + model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
+        } else {
+          out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
+        }
+      }
+
       parameterIndex++;
     });
+
+    if (out !== "") {
+      if (model.title !== "") {
+        out = "\n|" + model.title + "|\n" + out;
+      } else {
+        out = "\n" + out;
+      }
+    }
 
     return out;
   }
@@ -807,11 +825,11 @@ var XReportForm = (function(jQ) {
       var view = jQ("*[data-x-id='" + this.id + "']");
       var checked = view.find("input:checked").first();
 
-      if (checked) {
-        return checked.next().text() + "\n";
+      if (checked.length > 0) {
+        return checked.next().text();
       }
     } else if (isFunction(this.child.genText) && !!this.child.genText()) {
-      return "-" + this.label.val + ": " + this.child.genText() + "\n";
+      return this.label.val + ": " + this.child.genText();
     }
 
     return "";
@@ -864,8 +882,17 @@ var XReportForm = (function(jQ) {
     this.children.forEach(function(child) {
       if (isFunction(child.genText) && child.genText() !== "") {
         out += child.genText();
+
+        if (child.type !== "header") {
+          out += ", ";
+        }
       }
     });
+
+    if (out !== "") {
+      out = out.slice(0, out.length - 2);
+      out += "\n";
+    }
 
     return out;
   }

@@ -1,6 +1,8 @@
 //Structured reporting scheme builder for XReport
 $(function() {
   "use strict";
+  var readOnlyMode = false;
+  enterReadOnlyMode();
 
   //#region INIT
   var myReport = {
@@ -14,12 +16,10 @@ $(function() {
   moment.locale("hu");
   getCategories();
   loadSchemesPage();
-  $("#div-card-holder").append(addNewElemToFormEditor());
 
   //NOTE: only for demo
-  //readOnlyMode();
   //#endregion
-
+  //$("#div-card-holder").append(addNewElemToFormEditor());
   //#region COMPONENTS
   function schemeButton() {
     return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
@@ -142,7 +142,8 @@ $(function() {
     }
   }
 
-  function readOnlyMode() {
+  function enterReadOnlyMode() {
+    readOnlyMode = true;
     $("#btn-save-scheme").addClass("d-none");
     $("#btn-drop-scheme").addClass("d-none");
     $("#btn-toggle-edit").addClass("d-none");
@@ -175,7 +176,11 @@ $(function() {
 
   function getReports() {
     $("#li-schemes").html("");
-    $("#li-schemes").append(schemeButton());
+
+    if (!readOnlyMode) {
+      $("#li-schemes").append(schemeButton());
+    }
+
     startLoading();
 
     api.getReports().then(function(reports) {
@@ -373,6 +378,7 @@ $(function() {
     var out = "<pre>" + XReportBuilder.genText() + "</pre>";
     $("#x-form-report").toggleClass("collapse");
     $("#x-form-output").toggleClass("collapse");
+    $("#btn-copy-to-clipboard").toggleClass("collapse");
     $("#x-form-output").html(out);
   });
 
@@ -402,4 +408,4 @@ $(function() {
     loadSchemesPage();
   });
   //#endregion
-});
+}(new ClipboardJS('#btn-copy-to-clipboard')));
