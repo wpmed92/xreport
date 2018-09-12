@@ -629,7 +629,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         var target = row.find(".select-element");
         var optionSelected = target.find("option:selected");
 
-        if (optionSelected.data("type") === "mulsel") {
+        if (optionSelected.data("type") === "mulsel" && trueAction !== "show" && trueAction !== "hide") {
           target = { option: target.val(), elem: optionSelected.data("raw") };
         } else {
           target = target.val();
@@ -744,13 +744,13 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         break;
 
       case "select":
-        var elem = action.onWhat.elem;
+        var elem = Object.assign(new XReportForm.MulSel, action.onWhat.elem);
         var option = action.onWhat.option;
         elem.checkOption(true, option);
         break;
 
       case "unselect":
-        var elem = action.onWhat.elem;
+        var elem = Object.assign(new XReportForm.MulSel, action.onWhat.elem);
         var option = action.onWhat.option;
         elem.checkOption(false, option);
         break;
@@ -854,6 +854,13 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   }
 
   module.buildReportFromJSON = function(json) {
+    xScheme = {
+      clinics: [],
+      report: [],
+      opinion: []
+    };
+    xForm = [];
+
     //Build clinincs part
     module.useClinicsSection();
     xFormView.html("");
@@ -919,6 +926,10 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
   function buildConditionView() {
     //TODO: build condition view from conditions or leave it empty
+  }
+
+  module.reload = function() {
+    module.buildReportFromJSON(xScheme);
   }
 
   function saveConditions() {

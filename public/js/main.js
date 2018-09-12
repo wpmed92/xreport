@@ -374,6 +374,10 @@ $(function() {
     $("#x-form-conditions").toggleClass("collapse");
   });
 
+  $("#btn-new-reporting").click(function() {
+    XReportBuilder.reload();
+  });
+
   $("#btn-show-text-output").click(function() {
     var out = "<pre>" + XReportBuilder.genText() + "</pre>";
     $("#x-form-report").toggleClass("collapse");
