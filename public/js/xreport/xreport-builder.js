@@ -302,37 +302,88 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     return component;
   }
 
-  function whenComponentRow(parent) {
+  function whenComponentRow(parent, canRemove) {
     var row = $("<div class='form-row'></div");
 
     row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
     row.append($("<div class='form-group col'></div>").append(comparatorSelectorComponent()));
     row.append($("<div class='form-group col'></div>").append(valueSelectorComponent(row)));
-    row.append($("<div class='form-group col'></div>").append(ANDConnectorComponent(parent)));
+    row.append($("<div class='form-group col'></div>").append(ANDConnectorComponent(parent, canRemove)));
 
     return row;
   }
 
-  function ANDConnectorComponent(parent) {
+  function ANDConnectorComponent(parent, canRemove) {
     var component =  $("<button type='button' class='btn btn-sm btn-primary and-connector'><i class='fas fa-plus'></i></button");
+    var buttonGroup = $("<div class='btn-group' role='group'></div>");
 
     component.click(function() {
-      parent.append(whenComponentRow(parent));
+      parent.append(whenComponentRow(parent, true));
       var btn = $(this);
-      btn.replaceWith("<p><span class='badge badge-primary'>ÉS</span></p>");
+
+      if (btn.parent().hasClass("btn-group")) {
+        btn.parent().replaceWith("<p class='and-badge'><span class='badge badge-primary'>ÉS</span></p>");
+      } else {
+        btn.replaceWith("<p class='and-badge'><span class='badge badge-primary'>ÉS</span></p>");
+      }
     });
 
-    return component;
+    if (canRemove) {
+      var removeRowComponent = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
+
+      removeRowComponent.click(function() {
+        var row = parent.find(".form-row").last();
+        var prevRow = row.prev();
+        var andBadge = prevRow.find(".and-badge").last();
+
+        row.remove();
+        andBadge.replaceWith(ANDConnectorComponent(parent, parent.find(".form-row").length > 1));
+      });
+
+      buttonGroup.append(component);
+      buttonGroup.append(removeRowComponent);
+
+      return buttonGroup;
+    } else {
+      return component;
+    }
   }
 
   function ORConnectorComponent(parent) {
     var component = $("<button type='button' class='btn btn-sm btn-primary or-connector'><i class='fas fa-plus'></i></button");
+    var buttonGroup = $("<div class='btn-group' role='group'></div>");
 
     component.click(function() {
       parent.append(ANDGroupComponent());
       var btn = $(this);
-      btn.replaceWith("<p><span class='badge badge-secondary'>VAGY</span></p>");
-      parent.append(ORConnectorComponent(parent));
+
+      if (btn.parent().hasClass("btn-group")) {
+        btn.parent().replaceWith("<p class='or-badge'><span class='badge badge-secondary'>VAGY</span></p>");
+      } else {
+        btn.replaceWith("<p class='or-badge'><span class='badge badge-secondary'>VAGY</span></p>");
+      }
+
+      if (parent.find(".and-group").length > 1) {
+        var removeAndGroupComponent = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
+
+        removeAndGroupComponent.click(function() {
+          var lastAndGroup = parent.find(".and-group").last();
+          var lastOrBadge = parent.find(".or-badge").last();
+          lastAndGroup.remove();
+          lastOrBadge.remove();
+
+          if (parent.find(".and-group").length == 1) {
+            $(this).parent().replaceWith(ORConnectorComponent(parent));
+          }
+        });
+
+        buttonGroup.append(ORConnectorComponent(parent));
+        buttonGroup.append(removeAndGroupComponent);
+
+        parent.append(buttonGroup);
+      } else {
+        parent.append(ORConnectorComponent(parent));
+      }
     });
 
     return component;
@@ -544,9 +595,9 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var component = $("<select class='form-control select-action'></select>");
 
     [{ val: "show", text: "Mutat" },
-    { val: "hide", text: "Elrejt" },
-    { val: "select", text: "Kijelöl" },
-    { val: "unselect", text: "Kijelölés visszavonása" }].forEach(function(action) {
+     { val: "hide", text: "Elrejt" },
+     { val: "select", text: "Kijelöl" },
+     { val: "unselect", text: "Kijelölés visszavonása" }].forEach(function(action) {
       component.append(jQ('<option>', {
         value: action.val,
         text: action.text

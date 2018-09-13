@@ -2,7 +2,7 @@
 $(function() {
   "use strict";
   var readOnlyMode = false;
-  enterReadOnlyMode();
+  //enterReadOnlyMode();
 
   //#region INIT
   var myReport = {
@@ -19,7 +19,7 @@ $(function() {
 
   //NOTE: only for demo
   //#endregion
-  //$("#div-card-holder").append(addNewElemToFormEditor());
+  $("#div-card-holder").append(addNewElemToFormEditor());
   //#region COMPONENTS
   function schemeButton() {
     return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
