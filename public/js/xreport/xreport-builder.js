@@ -296,57 +296,31 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
     component.append(header);
     component.append('<p><span class="badge badge-info">HA</span></p>');
-    component.append(ANDGroupComponent());
+    //component.append(ANDGroupComponent());
     component.append(ORConnectorComponent(component));
 
     return component;
   }
 
-  function whenComponentRow(parent, canRemove) {
+  function whenComponentRow(parent) {
     var row = $("<div class='form-row'></div");
 
     row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
     row.append($("<div class='form-group col'></div>").append(comparatorSelectorComponent()));
     row.append($("<div class='form-group col'></div>").append(valueSelectorComponent(row)));
-    row.append($("<div class='form-group col'></div>").append(ANDConnectorComponent(parent, canRemove)));
+    row.append($("<div class='form-group col-1'></div>").append(removeRowComponent(row)));
 
     return row;
   }
 
-  function ANDConnectorComponent(parent, canRemove) {
-    var component =  $("<button type='button' class='btn btn-sm btn-primary and-connector'><i class='fas fa-plus'></i></button");
-    var buttonGroup = $("<div class='btn-group' role='group'></div>");
+  function removeRowComponent(row) {
+    var component =  $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
 
     component.click(function() {
-      parent.append(whenComponentRow(parent, true));
-      var btn = $(this);
-
-      if (btn.parent().hasClass("btn-group")) {
-        btn.parent().replaceWith("<p class='and-badge'><span class='badge badge-primary'>ÉS</span></p>");
-      } else {
-        btn.replaceWith("<p class='and-badge'><span class='badge badge-primary'>ÉS</span></p>");
-      }
+      row.remove();
     });
 
-    if (canRemove) {
-      var removeRowComponent = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
-
-      removeRowComponent.click(function() {
-        var row = parent.find(".form-row").last();
-        var prevRow = row.prev();
-        var andBadge = prevRow.find(".and-badge").last();
-
-        row.remove();
-        andBadge.replaceWith(ANDConnectorComponent(parent, parent.find(".form-row").length > 1));
-      });
-
-      buttonGroup.append(component);
-      buttonGroup.append(removeRowComponent);
-
-      return buttonGroup;
-    } else {
-      return component;
-    }
+    return component;
   }
 
   function ORConnectorComponent(parent) {
@@ -357,10 +331,12 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
       parent.append(ANDGroupComponent());
       var btn = $(this);
 
-      if (btn.parent().hasClass("btn-group")) {
-        btn.parent().replaceWith("<p class='or-badge'><span class='badge badge-secondary'>VAGY</span></p>");
+      if ($(".and-group").length == 1) {
+        btn.replaceWith("");
+      } else if (btn.parent().hasClass("btn-group")) {
+        btn.parent().replaceWith("<p class='or-badge'>VAGY</p>");
       } else {
-        btn.replaceWith("<p class='or-badge'><span class='badge badge-secondary'>VAGY</span></p>");
+        btn.replaceWith("<p class='or-badge'>VAGY</p>");
       }
 
       if (parent.find(".and-group").length > 1) {
@@ -398,20 +374,13 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   }
 
   //DO
-  function doComponent() {
+  function doComponent(canRemove) {
     var parent = $("<div></div>");
     var component = $("<div class='do-group'></div>");
-    var addDoComponent = $("<button type='button' class='btn btn-sm btn-primary do-adder'><i class='fas fa-plus'></i></button");
 
-    component.append(doComponentRow());
-
-    addDoComponent.click(function() {
-      component.append(doComponentRow());
-    });
-
+    //component.append(doComponentRow());
     parent.append('<p><span class="badge badge-secondary">AKKOR</span></p>');
     parent.append(component);
-    parent.append(addDoComponent);
 
     return parent;
   }
@@ -424,6 +393,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
     return component;
   }
+
 
   function elementSelectorComponent(parent, withoutEvent, isActionSelector) {
     var report = xScheme.report;
