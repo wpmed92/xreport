@@ -1,6 +1,6 @@
-var XReportBuilder = (function(jQ, XReportForm) {
+var XReportBuilder = (function(jQ, XReportForm, parser) {
   //#region PRIVATE VARIABLES
-  var _module = {};
+  var module = {};
   var xFormView = null;
   var xScheme = {
     clinics: [],
@@ -10,6 +10,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
   var xForm = [];
   var editState = false;
   var sortable = null;
+  var conditionEditorMode = false;
+  var readOnlyMode = false;
+
+  //TEST: conditional form
+  var conditionPool = [];
 
   var rowEditorComponent = (function() {
     function getView() {
@@ -20,6 +25,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
           </button>\
           <div class="dropdown-menu">\
             <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
             <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
@@ -43,34 +49,37 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
         switch (i) {
           case 0:
-            _module.addTextGroup(row);
+            module.addTextGroup(row);
             break;
           case 1:
-            _module.addNumberGroup(row);
+            module.addPlainText(row);
             break;
           case 2:
-            _module.addBoolGroup(row);
+            module.addNumberGroup(row);
             break;
           case 3:
-            _module.addSelGroup(row);
+            module.addBoolGroup(row);
             break;
           case 4:
-            _module.addMulSelGroup(row);
+            module.addSelGroup(row);
             break;
           case 5:
-            _module.addTextAreaGroup(row);
+            module.addMulSelGroup(row);
             break;
           case 6:
-            _module.addDateGroup(row);
+            module.addTextAreaGroup(row);
+            break;
+          case 7:
+            module.addDateGroup(row);
             break;
 
           //Actions
           //delete
-          case 8:
+          case 9:
             deleteRow(row);
             break;
           //duplicate
-          case 9:
+          case 10:
             duplicateRow(row);
             break;
         }
@@ -86,15 +95,11 @@ var XReportBuilder = (function(jQ, XReportForm) {
   //#endregion
 
   //#region EDITOR CONTROLS
-  function editorWrapper(xElem, row) {
-    var formElemWrapper = $("<div class='x-form-wrapper'></div>");
-    var formElemWrapperContent = $("<div class='x-form-wrapper-content'></div>");
-    formElemWrapperContent.append(xElem.render());
-
+  function editorWrapper(view, xElem, row) {
     //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
-    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn " + (!editState ? "collapse" : "") + "'><i class='fas fa-pencil-alt'></i></button>");
-    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn " + (!editState ? "collapse" : "") + "'><i class='fas fa-minus-circle'></i></button>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
 
     buttonGroup.append(editButton);
     buttonGroup.append(removeButton);
@@ -106,7 +111,6 @@ var XReportBuilder = (function(jQ, XReportForm) {
 
     //Remove elem
     removeButton.click(function() {
-      formElemWrapper.remove();
       row.children.splice(row.children.indexOf(xElem), 1);
 
       if (row.children.length == 0) {
@@ -114,16 +118,12 @@ var XReportBuilder = (function(jQ, XReportForm) {
         xForm.splice(curRowIndex, 1);
         $("*[data-x-id='" + row.id + "']").remove();
       } else {
-        renderRow(row, /*rerender*/ true);
+        //elem -> btn-group -> col
+        $(this).parent().parent().remove();
       }
-
-      diagnosticPrint();
     });
 
-    formElemWrapper.append(formElemWrapperContent);
-    formElemWrapper.append(buttonGroup);
-
-    return formElemWrapper;
+    return buttonGroup;
   }
 
   function buildEditor(xElem) {
@@ -154,6 +154,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       group.label = Object.assign(new XReportForm.Label, formElem.label);
       group.child = createFormElemFromJSON(formElem.child);
       return group;
+    } else if (type === "text") {
+      return Object.assign(new XReportForm.PlainText, formElem);
     } else if (type === "intext") {
       return Object.assign(new XReportForm.Text, formElem);
     } else if (type === "innum") {
@@ -176,6 +178,8 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return Object.assign(new XReportForm.Info, formElem);
     } else if (type === "rating") {
       return Object.assign(new XReportForm.Rating, formElem);
+    } else if (type === "image") {
+      return Object.assign(new XReportForm.Image, formElem);
     } else if (type === "row") {
       var row = Object.assign(new XReportForm.Row, formElem);
 
@@ -187,39 +191,57 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  function addToForm(xElem) {
-    var row = new XReportForm.Row();
-    row.addChild(xElem);
-    xForm.push(row);
-    renderRow(row, /*rerender*/ false);
-    diagnosticPrint();
+  function addToForm(elem, after, insertAt) {
+    var row = null;
+    var rowView = null;
+
+    if (elem.type === "row") {
+      row = elem;
+    } else {
+      row = new XReportForm.Row();
+      row.addChild(elem);
+    }
+
+    rowView = row.render();
+
+    if (after) {
+      xForm.splice(insertAt, 0, row);
+      rowView.insertAfter(after);
+    } else {
+      xForm.push(row);
+      xFormView.append(rowView);
+    }
+
+    if (readOnlyMode) {
+      return;
+    }
+
+    row.children.forEach(function(child) {
+      $("*[data-x-id='" + child.id + "']").parent().closest("div").hover(
+        function() {
+          $(this).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
+        }, function() {
+            $(this).find(".x-form-edit-group").remove();
+        }
+      );
+    });
+
+    rowView.append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditorComponent.createFor(row)));
   }
   //#endregion
 
   //#region ROW MANUPULATION
-  function renderRow(row, replace, prevElem) {
-    var newRow = row.render();
-
-    if (replace) {
-      $("*[data-x-id='" + row.id + "']").replaceWith(newRow);
-    } else {
-      if (prevElem) {
-        newRow.insertAfter(prevElem);
-      } else {
-        xFormView.append(newRow);
+  function appendToRow(row, elem) {
+    row.addChild(elem);
+    var col = $("<div class='col x-form-wrapper'></div>").append(elem.render());
+    col.insertBefore($("*[data-x-id='" + row.id + "']").find(".x-row-editor"));
+    col.hover(
+      function() {
+        $(this).append(editorWrapper($("*[data-x-id='" + elem.id + "']"), elem, row));
+      }, function() {
+          $(this).find(".x-form-edit-group").remove();
       }
-    }
-
-    row.children.forEach(function(child) {
-      $("*[data-x-id='" + child.id + "']").replaceWith(editorWrapper(child, row));
-    });
-
-    newRow.append($("<div class='col-auto d-flex align-items-center'></div>").append(rowEditorComponent.createFor(row)));
-  }
-
-  function addRowToForm(row) {
-    xForm.push(row);
-    renderRow(row, /*replace*/ false);
+    );
   }
 
   function duplicateRow(row) {
@@ -236,8 +258,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
       }
     }
 
-    xForm.splice(insertAt, 0, newRow);
-    renderRow(newRow, /*replace*/false, /*prevElem*/$("*[data-x-id='" + row.id + "']"));
+    addToForm(newRow, $("*[data-x-id='" + row.id + "']"), insertAt);
   }
 
   function deleteRow(row, view) {
@@ -255,14 +276,490 @@ var XReportBuilder = (function(jQ, XReportForm) {
       return value;
     }
   }
+  //#endregion
 
-  function diagnosticPrint() {
-    console.log(JSON.stringify(xForm, replacer));
+  //#region CONDITIONAL EDITOR
+  //Main condition component
+  function conditionComponent() {
+    var component = $("<div class='when-group'></div>");
+
+    component.append(whenComponent());
+    component.append(doComponent());
+
+    return component;
+  }
+
+  //WHEN
+  function whenComponent() {
+    var component = $("<div></div>");
+    var header = $("<h5><i class='fas fa-code-branch'></i> Feltétel</h5><hr>");
+
+    component.append(header);
+    component.append('<p><span class="badge badge-info">HA</span></p>');
+    component.append(ANDGroupComponent());
+    component.append(ORConnectorComponent(component));
+
+    return component;
+  }
+
+  function whenComponentRow(parent) {
+    var row = $("<div class='form-row'></div");
+
+    row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
+    row.append($("<div class='form-group col'></div>").append(comparatorSelectorComponent()));
+    row.append($("<div class='form-group col'></div>").append(valueSelectorComponent(row)));
+    row.append($("<div class='form-group col'></div>").append(ANDConnectorComponent(parent)));
+
+    return row;
+  }
+
+  function ANDConnectorComponent(parent) {
+    var component =  $("<button type='button' class='btn btn-sm btn-primary and-connector'><i class='fas fa-plus'></i></button");
+
+    component.click(function() {
+      parent.append(whenComponentRow(parent));
+      var btn = $(this);
+      btn.replaceWith("<p><span class='badge badge-primary'>ÉS</span></p>");
+    });
+
+    return component;
+  }
+
+  function ORConnectorComponent(parent) {
+    var component = $("<button type='button' class='btn btn-sm btn-primary or-connector'><i class='fas fa-plus'></i></button");
+
+    component.click(function() {
+      parent.append(ANDGroupComponent());
+      var btn = $(this);
+      btn.replaceWith("<p><span class='badge badge-secondary'>VAGY</span></p>");
+      parent.append(ORConnectorComponent(parent));
+    });
+
+    return component;
+  }
+
+  function ANDGroupComponent() {
+    var component = $("<div class='and-group'></div>");
+
+    component.append(whenComponentRow(component));
+
+    return component;
+  }
+
+  //DO
+  function doComponent() {
+    var parent = $("<div></div>");
+    var component = $("<div class='do-group'></div>");
+    var addDoComponent = $("<button type='button' class='btn btn-sm btn-primary do-adder'><i class='fas fa-plus'></i></button");
+
+    component.append(doComponentRow());
+
+    addDoComponent.click(function() {
+      component.append(doComponentRow());
+    });
+
+    parent.append('<p><span class="badge badge-secondary">AKKOR</span></p>');
+    parent.append(component);
+    parent.append(addDoComponent);
+
+    return parent;
+  }
+
+  function doComponentRow() {
+    var component = $("<div class='form-row'></div>");
+
+    component.append($("<div class='form-group col'></div>").append(actionSelectorComponent()));
+    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true, /*isActionSelector*/ true)));
+
+    return component;
+  }
+
+  function elementSelectorComponent(parent, withoutEvent, isActionSelector) {
+    var report = xScheme.report;
+    var component = $("<select class='select-element form-control'></select>");
+
+    report.forEach(function(row) {
+      row.children.forEach(function(child) {
+        if (child.type === "group") {
+          if (child.child.type === "mulsel") {
+            var mulSel = child.child;
+
+            mulSel.options.forEach(function(option) {
+              component.append(jQ('<option>', {
+                value: option,
+                text: option,
+                data: { type: mulSel.type, raw: mulSel }
+              }));
+            });
+          }
+
+          var label = child.label.val;
+
+          component.append(jQ('<option>', {
+            value: child.child.id,
+            text: label,
+            data: { type: child.child.type, raw: child.child }
+          }));
+        } else {
+          component.append(jQ('<option>', {
+            value: child.id,
+            text: child.val,
+            data: { type: child.type, raw: child }
+          }));
+        }
+      });
+    });
+
+    if (withoutEvent) {
+      return component;
+    }
+
+    component.change(function() {
+      var optionSelected = $("option:selected", this);
+      var type = optionSelected.data("type");
+      var comparatorList = typeToComparator[type];
+      var comparatorSelector = parent.find(".select-comparator").first();
+      var valueSelector = parent.find(".condition-value").first();
+      comparatorSelector.html("");
+
+      valueSelector.replaceWith(valueSelectorComponent(parent));
+
+      comparatorList.forEach(function(comparator) {
+        comparatorSelector.append(jQ('<option>', {
+          value: comparator.val,
+          text: comparator.text
+        }));
+      });
+    });
+
+    return component;
+  }
+
+  var typeToComparator = {
+    "innum": [
+      {
+        val: "eq",
+        text: "Egyenlő"
+      },
+      {
+        val: "neq",
+        text: "Nem egyenlő"
+      },
+      {
+        val: "lt",
+        text: "Kisebb"
+      },
+      {
+        val: "gt",
+        text: "Nagyobb"
+      },
+      {
+        val: "gteq",
+        text: "Nagyobb egyenlő"
+      },
+      {
+        val: "lteq",
+        text: "Kisebb egyenlő"
+      }
+    ],
+    "sel": [
+      {
+        val: "eq",
+        text: "Egyenlő"
+      },
+      {
+        val: "neq",
+        text: "Nem egyenlő"
+      },
+      {
+        val: "lt",
+        text: "Kisebb"
+      },
+      {
+        val: "gt",
+        text: "Nagyobb"
+      },
+      {
+        val: "gteq",
+        text: "Nagyobb egyenlő"
+      },
+      {
+        val: "lteq",
+        text: "Kisebb egyenlő"
+      }
+    ],
+    "intext": [
+      {
+        val: "eq",
+        text: "Egyenlő"
+      },
+      {
+        val: "neq",
+        text: "Nem egyenlő"
+      },
+      {
+        val: "cont",
+        text: "Tartalmazza"
+      },
+      {
+        val: "ncont",
+        text: "Nem tartalmazza"
+      }
+    ],
+    "inbool": [
+      {
+        val: "t",
+        text: "Igaz"
+      },
+      {
+        val: "f",
+        text: "hamis"
+      }
+    ]
+  }
+
+  function comparatorSelectorComponent() {
+    return $("<select class='form-control select-comparator'></select>");
+  }
+
+  function valueSelectorComponent(row) {
+    var component = $("<input class='form-control condition-value'>");
+    var selectedElement = row.find(".select-element :selected").data("raw");
+
+    if (selectedElement.type === "sel") {
+      component = $("<select class='form-control condition-value'></select>");
+
+      selectedElement.options.forEach(function(option) {
+        component.append(jQ('<option>', {
+          value: option,
+          text : option
+        }));
+      });
+    }
+
+    return component;
+  }
+
+  function actionSelectorComponent() {
+    var component = $("<select class='form-control select-action'></select>");
+
+    [{ val: "show", text: "Mutat" },
+    { val: "hide", text: "Elrejt" },
+    { val: "select", text: "Kijelöl" },
+    { val: "unselect", text: "Kijelölés visszavonása" }].forEach(function(action) {
+      component.append(jQ('<option>', {
+        value: action.val,
+        text: action.text
+      }));
+    });
+
+    return component;
+  }
+
+  function addConditionComponent() {
+    var component = $("<button type='button' class='btn btn-primary'>Hozzáad</button>");
+
+    component.click(function() {
+      conditionPool.push(buildCondition());
+    });
+
+    return component;
+  }
+
+  function calculationComponent() {
+    var component = $("<div class='calculation-group'></div>");
+    var header = $("<h5><i class='fas fa-calculator'></i> Számítás</h5><hr>");
+
+    component.append(header);
+    component.append(calculationComponentRow());
+
+    return component;
+  }
+
+  function calculationComponentRow() {
+    var row = $("<div class='form-row'></div>");
+    row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ true, /*isActionSelector*/ true)));
+    row.append($("<div class='form-group col'></div>").append("<input type='text' class='form-control calculation' placeholder='type in your calculation, eg.: 1 + x * 2'>"));
+
+    return row;
+  }
+
+  function buildCalculations() {
+    var calculations = [];
+
+    $(".calculation-group").each(function() {
+      var row = $(this);
+      var target = row.find(".select-element").eq(0).val();
+      var calculationInput = row.find(".calculation").eq(0);
+      var calculation = { type: "calc", expression: calculationInput.val(), target: target };
+      calculations.push(calculation);
+    });
+
+    return calculations;
+  }
+
+  function buildCondition(whenGroup) {
+    var condition = { type: "conditional" };
+    condition.orConnector = [];
+    condition.actions = [];
+
+    //Extract conditions
+    whenGroup.find(".and-group").each(function() {
+      var andConnector = [];
+
+      $(this).find(".form-row").each(function() {
+        var row = $(this);
+        var and = {};
+        and.left = row.find(".select-element").eq(0).val();
+        and.right = row.find(".condition-value").eq(0).val();
+        and.comp = row.find(".select-comparator").eq(0).val();
+        andConnector.push(and);
+      });
+
+      condition.orConnector.push(andConnector);
+    });
+
+    //Extract actions
+    whenGroup.find(".do-group").each(function() {
+      $(this).find(".form-row").each(function() {
+        var row = $(this);
+        var action = {};
+        var trueAction = row.find(".select-action").val();
+        var falseAction = falsifyAction(trueAction);
+        var target = row.find(".select-element");
+        var optionSelected = target.find("option:selected");
+
+        if (optionSelected.data("type") === "mulsel" && trueAction !== "show" && trueAction !== "hide") {
+          target = { option: target.val(), elem: optionSelected.data("raw") };
+        } else {
+          target = target.val();
+        }
+
+        action.true = {
+          doWhat: trueAction,
+          onWhat: target
+        };
+
+        action.false = {
+          doWhat: falseAction,
+          onWhat: target
+        };
+
+        condition.actions.push(action);
+      });
+    });
+
+    return condition;
+  }
+
+  function falsifyAction(trueAction) {
+    var falseAction = "";
+
+    if (trueAction === "show") {
+      falseAction = "hide";
+    } else if (trueAction === "hide") {
+      falseAction = "show";
+    } else if (trueAction === "select") {
+      falseAction = "unselect";
+    } else if (trueAction === "unselect") {
+      falseAction = "select";
+    }
+
+    return falseAction;
+  }
+
+  function processVal(val) {
+    var numericVal = parseInt(val);
+
+    if (isNaN(numericVal)) {
+      return val;
+    } else {
+      return numericVal;
+    }
+  }
+
+  function getValueFromXElem(id) {
+    var val;
+
+    xForm.forEach(function(row) {
+      row.children.forEach(function(child) {
+        if (child.type === "group") {
+          var inId = child.child.id;
+
+          if (inId == id) {
+            val = child.child.getValue();
+          }
+        }
+      });
+    });
+
+    return val;
+  }
+
+  function evalCondition(condition) {
+    var leftVal = processVal(getValueFromXElem(condition.left));
+    var rightVal = processVal(condition.right);
+
+    switch (condition.comp) {
+      case "eq":
+        return leftVal == rightVal;
+      case "neq":
+        return leftVal != rightVal;
+      case "lt":
+        return leftVal < rightVal;
+      case "gt":
+        return leftVal > rightVal;
+      case "lteq":
+        return leftVal <= rightVal;
+      case "gteq":
+        return leftVal >= rightVal;
+    }
+  }
+
+  function evalExpression(calc) {
+    var node = math.parse(calc.expression);
+    var unboundVariables = node.filter(function (node) {
+      return node.isSymbolNode;
+    });
+
+    var scope = {};
+    var target = jQ("*[data-x-id='" + calc.target + "']");
+
+    unboundVariables.forEach(function(variable) {
+      scope[variable.name] = jQ("*[data-x-id='" + variable + "']").val();
+    });
+
+    var code = node.compile();
+    target.text(code.eval(scope));
+  }
+
+  function doAction(action) {
+    switch (action.doWhat) {
+      case "hide":
+        jQ("*[data-x-id='" + action.onWhat + "']").closest(".col").hide();
+        break;
+
+      case "show":
+        jQ("*[data-x-id='" + action.onWhat + "']").closest(".col").show();
+        break;
+
+      case "select":
+        var elem = Object.assign(new XReportForm.MulSel, action.onWhat.elem);
+        var option = action.onWhat.option;
+        elem.checkOption(true, option);
+        break;
+
+      case "unselect":
+        var elem = Object.assign(new XReportForm.MulSel, action.onWhat.elem);
+        var option = action.onWhat.option;
+        elem.checkOption(false, option);
+        break;
+    }
   }
   //#endregion
 
   //#region API
-  _module.initBuilder = function() {
+  module.initBuilder = function() {
     xScheme = {
       clinics: [],
       report: [],
@@ -275,7 +772,7 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  _module.toggleEditState = function() {
+  module.toggleEditState = function() {
     editState = !editState;
     $(".x-form-edit-btn").toggleClass("collapse");
     $(".x-diagnostic").toggleClass("collapse");
@@ -285,14 +782,55 @@ var XReportBuilder = (function(jQ, XReportForm) {
     sortable.option("disabled", !editState);
   }
 
-  _module.useClinicsSection = function() {
+  module.useClinicsSection = function() {
     xForm = xScheme.clinics;
     xFormView = jQ("#x-form-clinics");
   }
 
-  _module.useReportSection = function(clear) {
+  module.useReportSection = function(clear) {
     xForm = xScheme.report;
     xFormView = jQ("#x-form-report");
+
+    //TODO: refactor me
+    var form = $("<form></form>");
+    form.on("change", function() {
+      var conditionEvaluator = false;
+
+      conditionPool.forEach(function(condition) {
+        //TEST: in case of calculation
+        if (condition.type === "calc") {
+          evalExpression(condition);
+          return;
+        }
+
+        var orOutput = [];
+
+        condition.orConnector.forEach(function(andGroup) {
+          var andOutput = true;
+
+          andGroup.forEach(function(andCondition) {
+            if (!evalCondition(andCondition)) {
+              andOutput = false;
+              return;
+            }
+          });
+
+          orOutput.push(andOutput);
+        });
+
+        if (orOutput.includes(true)) {
+          condition.actions.forEach(function(action) {
+            doAction(action.true);
+          });
+        } else {
+          condition.actions.forEach(function(action) {
+            doAction(action.false);
+          });
+        }
+      });
+    });
+
+    xFormView.wrap(form);
 
     if (clear) {
       xFormView.html("");
@@ -310,150 +848,237 @@ var XReportBuilder = (function(jQ, XReportForm) {
     }
   }
 
-  _module.useOpinionSection = function() {
+  module.useOpinionSection = function() {
     xForm = xScheme.opinion;
     xFormView = jQ("#x-form-opinion");
   }
 
-  _module.buildReportFromJSON = function(json) {
+  module.buildReportFromJSON = function(json) {
+    xScheme = {
+      clinics: [],
+      report: [],
+      opinion: []
+    };
+    xForm = [];
+
     //Build clinincs part
-    _module.useClinicsSection();
+    module.useClinicsSection();
     xFormView.html("");
     json.clinics.forEach(function(clinicsElem) {
       var celem = createFormElemFromJSON(clinicsElem);
-      addRowToForm(celem);
-      diagnosticPrint();
+      addToForm(celem);
+
     });
 
     //Build opinion part
-    _module.useOpinionSection();
+    module.useOpinionSection();
     xFormView.html("");
     json.opinion.forEach(function(opinionElem) {
       var oelem = createFormElemFromJSON(opinionElem);
-      addRowToForm(oelem);
+      addToForm(oelem);
     });
 
     //Build report part
-    _module.useReportSection();
+    module.useReportSection();
     xFormView.html("");
+
     json.report.forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
-      addRowToForm(relem);
-      diagnosticPrint();
+      addToForm(relem);
     });
+
+    conditionPool = json.conditions || [];
+
+    //Initial trigger;
+    xFormView.trigger("change");
+
+    buildConditionView();
   }
 
-  _module.getReportInJSON = function() {
+  module.toggleConditionEditor = function() {
+    conditionEditorMode = !conditionEditorMode;
+
+    if (conditionEditorMode) {
+      buildConditionView();
+    } else {
+      saveConditions();
+    }
+
+    return conditionEditorMode;
+  }
+
+  module.addNewCondition = function() {
+    var conditionView = $("#x-form-conditions");
+
+    //When
+    conditionView.append(conditionComponent());
+
+    //Actions
+    //conditionView.append(doComponent());
+  }
+
+  module.addNewCalculation = function() {
+    var conditionView = $("#x-form-conditions");
+
+    //calculation
+    conditionView.append(calculationComponent());
+  }
+
+  function buildConditionView() {
+    //TODO: build condition view from conditions or leave it empty
+  }
+
+  module.reload = function() {
+    module.buildReportFromJSON(xScheme);
+  }
+
+  function saveConditions() {
+    conditionPool = [];
+
+    $(".when-group").each(function() {
+      var whenGroup = $(this);
+      conditionPool.push(buildCondition(whenGroup));
+    });
+
+    //conditionPool.push(buildConditions());
+    //conditionPool = conditionPool.concat(buildCalculations());
+  }
+
+  module.getReportInJSON = function() {
+    xScheme.conditions = conditionPool
+
     return JSON.stringify(xScheme);
   }
 
-  _module.getReportInJSONFile = function() {
-    return new Blob([_module.getReportInJSON()], {type: "application/json"});
+  module.genText = function() {
+    var out = "";
+
+    xScheme.report.forEach(function(elem) {
+      out += elem.genText();
+    });
+
+    return out;
   }
 
-  _module.addTextGroup = function(row) {
+  module.getReportInJSONFile = function() {
+    return new Blob([module.getReportInJSON()], {type: "application/json"});
+  }
+
+  module.addTextGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szöveges mező");
     group.addChild(new XReportForm.Text());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addNumberGroup = function(row) {
+  module.addNumberGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szám mező");
     group.addChild(new XReportForm.Num());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addBoolGroup = function(row) {
+  module.addBoolGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Eldöntendő mező");
     group.addChild(new XReportForm.Bool());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addSelGroup = function(row) {
+  module.addSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Egyszeres választás");
-    group.addChild(new XReportForm.Sel());
+    group.addChild(new XReportForm.Sel("radio"));
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addMulSelGroup = function(row) {
+  module.addMulSelGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Többszörös választás");
     group.addChild(new XReportForm.MulSel("checkbox"));
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addTextAreaGroup = function(row) {
+  module.addPlainText = function(row) {
+    var plainText = new XReportForm.PlainText("Egyszerű szöveg");
+
+    if (row) {
+      appendToRow(row, plainText);
+      return;
+    }
+
+    addToForm(plainText);
+  }
+
+  module.addTextAreaGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szabad szöveg");
     group.addChild(new XReportForm.TextArea(4));
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addDateGroup = function(row) {
+  module.addDateGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Dátum");
     group.addChild(new XReportForm.Datepicker());
 
     if (row) {
-      row.addChild(group);
-      renderRow(row, /*rerender*/ true);
+      appendToRow(row, group);
       return;
     }
 
     addToForm(group);
   }
 
-  _module.addHeader = function() {
+  module.addHeader = function() {
     addToForm(new XReportForm.Header("Szekció cím"));
   }
 
-  _module.addInfo = function() {
+  module.addInfo = function() {
     addToForm(new XReportForm.Info("Magyarázó szöveg", "info"));
   }
 
-  _module.addRating = function() {
+  module.addRating = function() {
     addToForm(new XReportForm.Rating());
+  }
+
+  module.addImage = function() {
+    addToForm(new XReportForm.Image());
+  }
+
+  module.readOnlyMode = function() {
+    readOnlyMode = true;
   }
   //#endregion
 
-  return _module;
-})($, XReportForm);
+  return module;
+})($, XReportForm, math.parser());

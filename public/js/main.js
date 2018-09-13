@@ -1,6 +1,8 @@
 //Structured reporting scheme builder for XReport
 $(function() {
   "use strict";
+  var readOnlyMode = false;
+  enterReadOnlyMode();
 
   //#region INIT
   var myReport = {
@@ -14,8 +16,10 @@ $(function() {
   moment.locale("hu");
   getCategories();
   loadSchemesPage();
-  //#endregion
 
+  //NOTE: only for demo
+  //#endregion
+  //$("#div-card-holder").append(addNewElemToFormEditor());
   //#region COMPONENTS
   function schemeButton() {
     return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
@@ -38,6 +42,44 @@ $(function() {
                   </div>\
                 </div>\
               <div>');
+  }
+
+  function addNewElemToConditionEditor() {
+    return $('<div id="btn-add-new-condition" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">\
+                <div class="dropdown">\
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+                    <i class="fas fa-plus"></i>\
+                  </button>\
+                  <div id="condition-tool-menu" class="dropdown-menu">\
+                    <a href="#" id="btn-add-condition" class="dropdown-item"><i class="fas fa-code-branch"></i> Feltétel</a>\
+                    <a href="#" id="btn-add-calculation" class="dropdown-item"><i class="fas fa-calculator"></i> Számítás</a>\
+                  </div>\
+                </div>\
+              </div>');
+  }
+
+  function addNewElemToFormEditor() {
+    return $('<div id="btn-add-new-elem" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">\
+                <div class="dropdown">\
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+                    <i class="fas fa-plus"></i>\
+                  </button>\
+                  <div id="tool-menu" class="dropdown-menu">\
+                    <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
+                    <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
+                    <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+                    <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
+                    <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
+                    <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
+                    <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
+                    <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
+                    <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>\
+                    <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>\
+                    <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Értékelőskála</a>\
+                    <a href="#" id="btn-add-image" class="dropdown-item"><i class="far fa-image"></i> Kép</a>\
+                  </div>\
+                </div>\
+              </div>');
   }
   //#endregion
 
@@ -99,6 +141,17 @@ $(function() {
       XReportBuilder.buildReportFromJSON(json);
     }
   }
+
+  function enterReadOnlyMode() {
+    readOnlyMode = true;
+    $("#btn-save-scheme").addClass("d-none");
+    $("#btn-drop-scheme").addClass("d-none");
+    $("#btn-toggle-edit").addClass("d-none");
+    $("#btn-show-conditions").addClass("d-none");
+    $("#btn-add-new-elem").hide();
+    $("#btn-show-text-output").removeClass("d-none");
+    XReportBuilder.readOnlyMode();
+  }
   //#endregion
 
   //#region NETWORKING
@@ -123,7 +176,11 @@ $(function() {
 
   function getReports() {
     $("#li-schemes").html("");
-    $("#li-schemes").append(schemeButton());
+
+    if (!readOnlyMode) {
+      $("#li-schemes").append(schemeButton());
+    }
+
     startLoading();
 
     api.getReports().then(function(reports) {
@@ -236,6 +293,9 @@ $(function() {
     var id = $(this).attr("id");
 
     switch (id) {
+      case "btn-add-text":
+        XReportBuilder.addPlainText();
+        break;
       case "btn-add-textbox":
         XReportBuilder.addTextGroup();
         break;
@@ -266,6 +326,9 @@ $(function() {
       case "btn-add-rating":
         XReportBuilder.addRating();
         break;
+      case "btn-add-image":
+        XReportBuilder.addImage();
+        break;
     }
   });
 
@@ -279,6 +342,7 @@ $(function() {
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
     XReportBuilder.toggleEditState();
+    console.log(XReportBuilder.genText());
   });
 
   $("#btn-run-script").click(function() {
@@ -295,6 +359,48 @@ $(function() {
     $(this).addClass('active');
   });
 
+  $("#btn-show-conditions").click(function() {
+    var isInConditionEditorMode = XReportBuilder.toggleConditionEditor();
+
+    if (isInConditionEditorMode) {
+      $("#btn-add-new-elem").remove();
+      $("#div-card-holder").append(addNewElemToConditionEditor());
+    } else {
+      $("#btn-add-new-condition").remove();
+      $("#div-card-holder").append(addNewElemToFormEditor());
+    }
+
+    $("#x-form-report").toggleClass("collapse");
+    $("#x-form-conditions").toggleClass("collapse");
+  });
+
+  $("#btn-new-reporting").click(function() {
+    XReportBuilder.reload();
+  });
+
+  $("#btn-show-text-output").click(function() {
+    var out = "<pre>" + XReportBuilder.genText() + "</pre>";
+    $("#x-form-report").toggleClass("collapse");
+    $("#x-form-output").toggleClass("collapse");
+    $("#btn-copy-to-clipboard").toggleClass("collapse");
+    $("#x-form-output").html(out);
+  });
+
+  $("body").on("click", "#condition-tool-menu .dropdown-item", function(e) {
+    e.preventDefault();
+    var id = $(this).attr("id");
+
+    switch (id) {
+      case "btn-add-condition":
+        XReportBuilder.addNewCondition();
+        break;
+
+      case "btn-add-calculation":
+        XReportBuilder.addNewCalculation();
+        break;
+    }
+  });
+
   //Navbar
   $("#btn-new-scheme").click(function() {
     myReport.name = $("#modal-scheme-name").val();
@@ -306,4 +412,4 @@ $(function() {
     loadSchemesPage();
   });
   //#endregion
-});
+}(new ClipboardJS('#btn-copy-to-clipboard')));

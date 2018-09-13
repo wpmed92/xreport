@@ -12,7 +12,7 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#"><i class="fas fa-file-medical-alt"></i> XReport <span class="text-muted">builder</span></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -59,6 +59,7 @@
     <!-- Controls -->
     <div class="row mb-1">
         <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
+          <button id="btn-new-reporting" type="button" class="btn btn-success"><i class="fas fa-edit"></i> Új kitöltés</button>
           <div class="btn-group" role="group" aria-label="Basic example">
             <button id="btn-save-scheme" type="button" class="btn btn-success">Mentés</button>
             <button id="btn-drop-scheme" type="button" class="btn btn-danger">Kilépés</button>
@@ -69,39 +70,34 @@
 
     <!-- Form -->
     <div class="row">
-        <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
+        <div id="div-card-holder" class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
           <div class="card card-slightly-shadowed">
             <div class="card-header">
-              <div class="d-flex justify-content-between">
-                <div class="w-25">
-                  <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
+              <div class="row">
+                <div class="col-5">
+                    <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">
+                </div>
+
+                <div class="col-7">
+                  <button id="btn-show-conditions" type="button" class="btn btn-primary float-right"><i class="fas fa-cog"></i></button>
+                  <button id="btn-show-text-output" type="button" class="btn btn-primary float-right d-none"><i class="far fa-file-alt"></i></button>
                 </div>
               </div>
             </div>
 
-            <div id="x-form-report" class="card-body">
-              <!-- content of lelet -->
+            <div class="card-body">
+            <!-- content of lelet -->
+             <div id="x-form-report">
+             </div>
 
-            </div>
-          </div>
+             <div id="x-form-conditions" class="collapse">
+             </div>
 
-          <div id="btn-add-new-elem" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-plus"></i>
-              </button>
-              <div id="tool-menu" class="dropdown-menu">
-                <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>
-                <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>
-                <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>
-                <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>
-                <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>
-                <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>
-                <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>
-                <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>
-                <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>
-                <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Értékelőskála</a>
-              </div>
+             <button id="btn-copy-to-clipboard" type="button" class="btn btn-info collapse" data-clipboard-target="#x-form-output"><i class="fas fa-paste"></i> Vágólapra másol</button>
+             <br>
+             <br>
+             <div id="x-form-output" class="collapse">
+             </div>
             </div>
           </div>
       </div>
@@ -195,6 +191,12 @@
 
   <!-- SORTABLE -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+
+  <!-- JS Expression Parser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.min.js"></script>
+
+  <!-- CLIPBOARD -->
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 
   <!-- APP -->
   <script src="js/backend/api.js"></script>
