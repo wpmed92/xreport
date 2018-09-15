@@ -308,24 +308,52 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ false)));
     row.append($("<div class='form-group col'></div>").append(comparatorSelectorComponent()));
     row.append($("<div class='form-group col'></div>").append(valueSelectorComponent(row)));
-    row.append($("<div class='form-group col-1'></div>").append(removeRowComponent(row)));
+    row.append($("<div class='form-group col-1'></div>").append(ANDConnectorComponent(parent, row)));
 
     return row;
   }
 
-  function removeRowComponent(row) {
-    var component =  $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
+  function ANDConnectorComponent(parent, row) {
+    var addRowComponent = $("<button type='button' class='btn btn-sm btn-primary'><i class='fas fa-plus'></i></button");
+    var removeRowComponent =  $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
+    var buttonGroup = $("<div class='btn-group' role='group'></div>");
 
-    component.click(function() {
-      row.remove();
+    addRowComponent.click(function() {
+      row.find(".btn-group").replaceWith(removeRowComponent)
+      parent.append(whenComponentRow(parent));
     });
 
-    return component;
+    removeRowComponent.click(function() {
+      if (row.find(".btn-group").length > 0) {
+        //In case there are no more rows, delete the whole and-group
+        if (row.siblings().length == 0) {
+          var prevElem = row.parent().prev();
+
+          //Delete or-badge if needed
+          if (prevElem.hasClass("or-badge")) {
+            prevElem.remove();
+          }
+
+          row.parent().remove();
+          return;
+        }
+
+        var prevRow = row.prev();
+        prevRow.replaceWith(whenComponentRow(parent));
+        row.remove();
+      } else {
+        row.remove();
+      }
+    });
+
+    buttonGroup.append(addRowComponent);
+    buttonGroup.append(removeRowComponent);
+
+    return buttonGroup;
   }
 
   function ORConnectorComponent(parent) {
-    var component = $("<button type='button' class='btn btn-sm btn-primary or-connector'><i class='fas fa-plus'></i></button");
-    var buttonGroup = $("<div class='btn-group' role='group'></div>");
+    var component = $("<button type='button' class='btn btn-sm btn-primary mb-2 or-connector'><i class='fas fa-plus'></i></button");
 
     component.click(function() {
       parent.append(ANDGroupComponent());
@@ -339,27 +367,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         btn.replaceWith("<p class='or-badge'>VAGY</p>");
       }
 
-      if (parent.find(".and-group").length > 1) {
-        var removeAndGroupComponent = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
-
-        removeAndGroupComponent.click(function() {
-          var lastAndGroup = parent.find(".and-group").last();
-          var lastOrBadge = parent.find(".or-badge").last();
-          lastAndGroup.remove();
-          lastOrBadge.remove();
-
-          if (parent.find(".and-group").length == 1) {
-            $(this).parent().replaceWith(ORConnectorComponent(parent));
-          }
-        });
-
-        buttonGroup.append(ORConnectorComponent(parent));
-        buttonGroup.append(removeAndGroupComponent);
-
-        parent.append(buttonGroup);
-      } else {
-        parent.append(ORConnectorComponent(parent));
-      }
+      parent.append(ORConnectorComponent(parent));
     });
 
     return component;
@@ -378,9 +386,9 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var parent = $("<div></div>");
     var component = $("<div class='do-group'></div>");
 
-    //component.append(doComponentRow());
     parent.append('<p><span class="badge badge-secondary">AKKOR</span></p>');
     parent.append(component);
+    parent.append(addDoRowComponent(component));
 
     return parent;
   }
@@ -390,10 +398,30 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
     component.append($("<div class='form-group col'></div>").append(actionSelectorComponent()));
     component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true, /*isActionSelector*/ true)));
+    component.append($("<div class='form-group col'></div>").append(removeDoRowComponent(component)));
 
     return component;
   }
 
+  function removeDoRowComponent(row) {
+    var component = $("<button type='button' class='btn btn-sm btn-danger'><i class='fas fa-minus'></i></button");
+
+    component.click(function() {
+      row.remove();
+    });
+
+    return component;
+  }
+
+  function addDoRowComponent(parent) {
+    var component = $("<button type='button' class='btn btn-sm btn-primary'><i class='fas fa-plus'></i></button");
+
+    component.click(function() {
+      parent.append(doComponentRow());
+    });
+
+    return component;
+  }
 
   function elementSelectorComponent(parent, withoutEvent, isActionSelector) {
     var report = xScheme.report;
