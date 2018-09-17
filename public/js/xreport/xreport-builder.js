@@ -660,7 +660,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         var row = $(this);
         var action = {};
         var trueAction = row.find(".select-action").val();
-        var falseAction = falsifyAction(trueAction);
+        var falseAction = invertAction[trueAction];
         var target = row.find(".select-element");
         var optionSelected = target.find("option:selected");
 
@@ -687,24 +687,13 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     return condition;
   }
 
-  function falsifyAction(trueAction) {
-    var falseAction = "";
-
-    if (trueAction === "show") {
-      falseAction = "hide";
-    } else if (trueAction === "hide") {
-      falseAction = "show";
-    } else if (trueAction === "select") {
-      falseAction = "unselect";
-    } else if (trueAction === "unselect") {
-      falseAction = "select";
-    } else if (trueAction === "showOption") {
-      falseAction = "hideOption";
-    } else if (trueAction === "hideOption") {
-      falseAction = "showOption";
-    }
-
-    return falseAction;
+  var invertAction = {
+     "show": "hide",
+     "hide": "show",
+     "select": "unselect",
+     "unselect": "select",
+     "showOption": "hideOption",
+     "hideOption": "showOption",
   }
 
   function processVal(val) {
