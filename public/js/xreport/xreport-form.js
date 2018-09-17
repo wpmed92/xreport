@@ -376,6 +376,27 @@ var XReportForm = (function(jQ) {
     return selectedLabel.text();
   }
 
+  XSel.prototype.checkOption = function(check, option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).prop("checked", check);
+  }
+
+  XSel.prototype.showOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().removeClass("collapse");
+  }
+
+  XSel.prototype.hideOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().addClass("collapse");
+  }
+
   XSel.prototype.genText = function() {
     var view = jQ("*[data-x-id='" + this.id + "']");
     var selectedLabel = view.find("input:checked").first().next();
@@ -474,6 +495,20 @@ var XReportForm = (function(jQ) {
     var view = jQ("*[data-x-id='" + model.id + "']");
     var indexOfOption = model.options.indexOf(option);
     view.find("input").eq(indexOfOption).prop("checked", check);
+  }
+
+  XMulSel.prototype.showOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().removeClass("collapse");
+  }
+
+  XMulSel.prototype.hideOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().addClass("collapse");
   }
 
   XMulSel.prototype.genText = function() {

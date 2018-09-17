@@ -295,7 +295,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var header = $("<h5><i class='fas fa-code-branch'></i> Feltétel</h5><hr>");
 
     component.append(header);
-    component.append('<p><span class="badge badge-info">HA</span></p>');
+    component.append('<p><span class="badge badge-info">IF</span></p>');
     //component.append(ANDGroupComponent());
     component.append(ORConnectorComponent(component));
 
@@ -362,9 +362,9 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
       if ($(".and-group").length == 1) {
         btn.replaceWith("");
       } else if (btn.parent().hasClass("btn-group")) {
-        btn.parent().replaceWith("<p class='or-badge'>VAGY</p>");
+        btn.parent().replaceWith("<p class='or-badge'>OR</p>");
       } else {
-        btn.replaceWith("<p class='or-badge'>VAGY</p>");
+        btn.replaceWith("<p class='or-badge'>OR</p>");
       }
 
       parent.append(ORConnectorComponent(parent));
@@ -386,7 +386,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var parent = $("<div></div>");
     var component = $("<div class='do-group'></div>");
 
-    parent.append('<p><span class="badge badge-secondary">AKKOR</span></p>');
+    parent.append('<p><span class="badge badge-secondary">THEN</span></p>');
     parent.append(component);
     parent.append(addDoRowComponent(component));
 
@@ -430,7 +430,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     report.forEach(function(row) {
       row.children.forEach(function(child) {
         if (child.type === "group") {
-          if (child.child.type === "mulsel") {
+          if (child.child.type === "mulsel" || child.child.type === "sel") {
             var mulSel = child.child;
 
             mulSel.options.forEach(function(option) {
@@ -488,81 +488,65 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     "innum": [
       {
         val: "eq",
-        text: "Egyenlő"
+        text: "Equals"
       },
       {
         val: "neq",
-        text: "Nem egyenlő"
+        text: "Not equals"
       },
       {
         val: "lt",
-        text: "Kisebb"
+        text: "Less than"
       },
       {
         val: "gt",
-        text: "Nagyobb"
+        text: "Greater than"
       },
       {
         val: "gteq",
-        text: "Nagyobb egyenlő"
+        text: "Greater than or equals to"
       },
       {
         val: "lteq",
-        text: "Kisebb egyenlő"
+        text: "Less than or equals to"
       }
     ],
     "sel": [
       {
         val: "eq",
-        text: "Egyenlő"
+        text: "Has selected"
       },
       {
         val: "neq",
-        text: "Nem egyenlő"
-      },
-      {
-        val: "lt",
-        text: "Kisebb"
-      },
-      {
-        val: "gt",
-        text: "Nagyobb"
-      },
-      {
-        val: "gteq",
-        text: "Nagyobb egyenlő"
-      },
-      {
-        val: "lteq",
-        text: "Kisebb egyenlő"
+        text: "Not selected"
       }
     ],
     "intext": [
       {
         val: "eq",
-        text: "Egyenlő"
+        text: "Equals"
       },
       {
         val: "neq",
-        text: "Nem egyenlő"
+        text: "Not equals"
       },
       {
         val: "cont",
-        text: "Tartalmazza"
+        text: "Contains"
       },
       {
         val: "ncont",
-        text: "Nem tartalmazza"
+        text: "Not contains"
       }
     ],
     "inbool": [
       {
         val: "t",
-        text: "Igaz"
+        text: "True"
       },
       {
         val: "f",
-        text: "hamis"
+        text: "False"
       }
     ]
   }
@@ -592,10 +576,12 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   function actionSelectorComponent() {
     var component = $("<select class='form-control select-action'></select>");
 
-    [{ val: "show", text: "Mutat" },
-     { val: "hide", text: "Elrejt" },
-     { val: "select", text: "Kijelöl" },
-     { val: "unselect", text: "Kijelölés visszavonása" }].forEach(function(action) {
+    [{ val: "show", text: "Show" },
+     { val: "hide", text: "Hide" },
+     { val: "select", text: "Select" },
+     { val: "unselect", text: "De-select" },
+     { val: "showOption", text: "Show option" },
+     { val: "hideOption", text: "Hide option" }].forEach(function(action) {
       component.append(jQ('<option>', {
         value: action.val,
         text: action.text
@@ -678,8 +664,8 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         var target = row.find(".select-element");
         var optionSelected = target.find("option:selected");
 
-        if (optionSelected.data("type") === "mulsel" && trueAction !== "show" && trueAction !== "hide") {
-          target = { option: target.val(), elem: optionSelected.data("raw") };
+        if ((optionSelected.data("type") === "mulsel" || optionSelected.data("type") === "sel") && trueAction !== "show" && trueAction !== "hide") {
+          target = { option: target.val(), elem: optionSelected.data("raw").id };
         } else {
           target = target.val();
         }
@@ -712,6 +698,10 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
       falseAction = "unselect";
     } else if (trueAction === "unselect") {
       falseAction = "select";
+    } else if (trueAction === "showOption") {
+      falseAction = "hideOption";
+    } else if (trueAction === "hideOption") {
+      falseAction = "showOption";
     }
 
     return falseAction;
@@ -743,6 +733,24 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     });
 
     return val;
+  }
+
+  function getXElemById(id) {
+    var elem;
+
+    xForm.forEach(function(row) {
+      row.children.forEach(function(child) {
+        if (child.type === "group") {
+          var inId = child.child.id;
+
+          if (inId == id) {
+            elem = child.child;
+          }
+        }
+      });
+    });
+
+    return elem;
   }
 
   function evalCondition(condition) {
@@ -793,15 +801,27 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         break;
 
       case "select":
-        var elem = Object.assign(new XReportForm.MulSel, action.onWhat.elem);
+        var elem = getXElemById(action.onWhat.elem);
         var option = action.onWhat.option;
         elem.checkOption(true, option);
         break;
 
       case "unselect":
-        var elem = Object.assign(new XReportForm.MulSel, action.onWhat.elem);
+        var elem = getXElemById(action.onWhat.elem);
         var option = action.onWhat.option;
         elem.checkOption(false, option);
+        break;
+
+      case "showOption":
+        var elem = getXElemById(action.onWhat.elem);
+        var option = action.onWhat.option;
+        elem.showOption(option);
+        break;
+
+      case "hideOption":
+        var elem = getXElemById(action.onWhat.elem);
+        var option = action.onWhat.option;
+        elem.hideOption(option);
         break;
     }
   }

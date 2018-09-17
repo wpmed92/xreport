@@ -23,7 +23,7 @@ $(function() {
   //#region COMPONENTS
   function schemeButton() {
     return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                <h4 class="text-muted">Új sablon hozzáadása</h4>\
+                <h4 class="text-muted">Add new template</h4>\
                 <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
                   <div class="card-body text-center">\
                     <img src="image/add.png" style="height: 64px; width: 64px"></i>\
