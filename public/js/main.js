@@ -68,6 +68,7 @@ $(function() {
                     <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
                     <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
                     <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+                    <a href="#" id="btn-add-calculated" class="dropdown-item"><i class="fas fa-calculator"></i> Calculated</a>\
                     <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
                     <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
                     <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
@@ -301,6 +302,9 @@ $(function() {
         break;
       case "btn-add-numberbox":
         XReportBuilder.addNumberGroup();
+        break;
+      case "btn-add-calculated":
+        XReportBuilder.addCalcGroup();
         break;
       case "btn-add-checkbox":
         XReportBuilder.addBoolGroup();

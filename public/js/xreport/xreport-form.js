@@ -225,6 +225,7 @@ var XReportForm = (function(jQ) {
     var unitWrapper = jQ("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
     var unitControl = jQ("<input type='text' class='form-control'>");
 
+    unitControl.val(model.unit);
     minControl.val(model.min);
     maxControl.val(model.max);
 
@@ -314,14 +315,18 @@ var XReportForm = (function(jQ) {
     var view = jQ("*[data-x-id='" + model.id + "']");
     var unitWrapper = jQ("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
     var unitControl = jQ("<input type='text' class='form-control'>");
-
-    minControl.val(model.min);
-    maxControl.val(model.max);
+    unitControl.val(model.unit);
 
     unitControl.on("change", function() {
       var val = jQ(this).val();
+      var wasUnitEmpty = model.unit === "";
       model.unit = val;
-      view.replaceWith(model.render());
+
+      if (wasUnitEmpty) {
+        view.replaceWith(model.render());
+      } else {
+        view.parent().replaceWith(model.render());
+      }
     });
 
     unitWrapper.append(unitControl);

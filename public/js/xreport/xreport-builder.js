@@ -28,7 +28,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
             <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Calculated</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-calculator"></i> Calculated</a>\
             <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
