@@ -12,6 +12,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   var sortable = null;
   var conditionEditorMode = false;
   var readOnlyMode = false;
+  var cellEditorMode = false;
 
   //TEST: conditional form
   var conditionPool = [];
@@ -27,6 +28,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
             <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Calculated</a>\
             <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
@@ -58,28 +60,31 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
             module.addNumberGroup(row);
             break;
           case 3:
-            module.addBoolGroup(row);
+            module.addCalcGroup(row);
             break;
           case 4:
-            module.addSelGroup(row);
+            module.addBoolGroup(row);
             break;
           case 5:
-            module.addMulSelGroup(row);
+            module.addSelGroup(row);
             break;
           case 6:
-            module.addTextAreaGroup(row);
+            module.addMulSelGroup(row);
             break;
           case 7:
+            module.addTextAreaGroup(row);
+            break;
+          case 8:
             module.addDateGroup(row);
             break;
 
           //Actions
           //delete
-          case 9:
+          case 10:
             deleteRow(row);
             break;
           //duplicate
-          case 10:
+          case 11:
             duplicateRow(row);
             break;
         }
@@ -127,6 +132,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   }
 
   function buildEditor(xElem) {
+    cellEditorMode = true;
     sortable.option("disabled", true);
     var view = $("*[data-x-id='" + xElem.id + "']");
     var editorWrapper = $("<div class='x-editor-wrapper'></div>");
@@ -137,6 +143,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
       editorWrapper.remove();
       $(".x-form-edit-btn").toggleClass("collapse");
       sortable.option("disabled", false);
+      cellEditorMode = false;
     });
 
     editorWrapper.append(xElem.buildEditor());
@@ -160,6 +167,8 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
       return Object.assign(new XReportForm.Text, formElem);
     } else if (type === "innum") {
       return Object.assign(new XReportForm.Num, formElem);
+    } else if (type === "calcout") {
+      return Object.assign(new XReportForm.CalcOut, formElem);
     } else if (type === "inbool") {
       return Object.assign(new XReportForm.Bool, formElem);
     } else if (type === "tarea") {
@@ -219,6 +228,10 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     row.children.forEach(function(child) {
       $("*[data-x-id='" + child.id + "']").parent().closest("div").hover(
         function() {
+          if (cellEditorMode) {
+            return;
+          }
+
           $(this).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
         }, function() {
             $(this).find(".x-form-edit-group").remove();
@@ -396,8 +409,8 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   function doComponentRow() {
     var component = $("<div class='form-row'></div>");
 
-    component.append($("<div class='form-group col'></div>").append(actionSelectorComponent()));
-    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true, /*isActionSelector*/ true)));
+    component.append($("<div class='form-group col'></div>").append(actionSelectorComponent(component)));
+    component.append($("<div class='form-group col'></div>").append(elementSelectorComponent(component, /*withoutEvent*/ true)));
     component.append($("<div class='form-group col'></div>").append(removeDoRowComponent(component)));
 
     return component;
@@ -423,23 +436,32 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     return component;
   }
 
-  function elementSelectorComponent(parent, withoutEvent, isActionSelector) {
+  function elementSelectorComponent(parent, withoutEvent, targetElements) {
     var report = xScheme.report;
-    var component = $("<select class='select-element form-control'></select>");
+    var component = $("<select class='select-element form-control'><option value='def'>Select an option</option></select>");
 
     report.forEach(function(row) {
       row.children.forEach(function(child) {
+        //Get child of group
         if (child.type === "group") {
-          if (child.child.type === "mulsel" || child.child.type === "sel") {
+          //NOTE: should be cleaned up. This is how we can handle 'sel' and 'mulsel' option selections for now.
+          if (targetElements && targetElements.length > 0 && targetElements.includes(child.child.type) && (child.child.type === "mulsel" || child.child.type === "sel")) {
             var mulSel = child.child;
 
             mulSel.options.forEach(function(option) {
               component.append(jQ('<option>', {
                 value: option,
-                text: option,
+                text: option + " (" + child.label.val + ")",
                 data: { type: mulSel.type, raw: mulSel }
               }));
             });
+
+            return;
+          }
+
+          //Ignore elements not included in targetElements (if exists)
+          if (targetElements && targetElements.length > 0 && !targetElements.includes(child.child.type)) {
+            return;
           }
 
           var label = child.label.val;
@@ -449,6 +471,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
             text: label,
             data: { type: child.child.type, raw: child.child }
           }));
+        //If element is not in a group
         } else {
           component.append(jQ('<option>', {
             value: child.id,
@@ -482,6 +505,14 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     });
 
     return component;
+  }
+
+  function actionToElement(action) {
+    if (action === "showOption" || action === "hideOption" || action === "select" || action === "unselect") {
+      return ["sel", "mulsel"];
+    } else if (action === "show" || action === "hide") {
+      return [];
+    }
   }
 
   var typeToComparator = {
@@ -559,7 +590,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     var component = $("<input class='form-control condition-value'>");
     var selectedElement = row.find(".select-element :selected").data("raw");
 
-    if (selectedElement.type === "sel") {
+    if (selectedElement && selectedElement.type === "sel") {
       component = $("<select class='form-control condition-value'></select>");
 
       selectedElement.options.forEach(function(option) {
@@ -573,8 +604,8 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     return component;
   }
 
-  function actionSelectorComponent() {
-    var component = $("<select class='form-control select-action'></select>");
+  function actionSelectorComponent(parent) {
+    var component = $("<select class='form-control select-action'><option value='def'>Select an option</option></select>");
 
     [{ val: "show", text: "Show" },
      { val: "hide", text: "Hide" },
@@ -586,6 +617,13 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
         value: action.val,
         text: action.text
       }));
+    });
+
+    component.change(function() {
+      var action = $(this).val();
+      var targetElements = actionToElement(action);
+      var selectElement = parent.find(".select-element").first();
+      selectElement.replaceWith(elementSelectorComponent(null, /*withoutEvent*/ true, targetElements));
     });
 
     return component;
@@ -613,7 +651,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
 
   function calculationComponentRow() {
     var row = $("<div class='form-row'></div>");
-    row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ true, /*isActionSelector*/ true)));
+    row.append($("<div class='form-group col'></div>").append(elementSelectorComponent(row, /*withoutEvent*/ true, ["calcout"])));
     row.append($("<div class='form-group col'></div>").append("<input type='text' class='form-control calculation' placeholder='type in your calculation, eg.: 1 + x * 2'>"));
 
     return row;
@@ -776,7 +814,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     });
 
     var code = node.compile();
-    target.text(code.eval(scope));
+    target.val(code.eval(scope));
   }
 
   function doAction(action) {
@@ -999,7 +1037,7 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
     });
 
     //conditionPool.push(buildConditions());
-    //conditionPool = conditionPool.concat(buildCalculations());
+    conditionPool = conditionPool.concat(buildCalculations());
   }
 
   module.getReportInJSON = function() {
@@ -1037,6 +1075,18 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
   module.addNumberGroup = function(row) {
     var group = new XReportForm.Group("vertical", "Szám mező");
     group.addChild(new XReportForm.Num());
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToForm(group);
+  }
+
+  module.addCalcGroup = function(row) {
+    var group = new XReportForm.Group("vertical", "Szám mező");
+    group.addChild(new XReportForm.CalcOut());
 
     if (row) {
       appendToRow(row, group);
