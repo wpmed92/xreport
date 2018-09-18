@@ -20,6 +20,14 @@ import XFormRow from './xreport-form/row.js';
 
 import $ as jQ from 'jquery';
 
+function formCardComponent(title) {
+  jQ('<div class="card">\
+        <div class="card-header">' + title + '</div>\
+        <div class="x-form card-body">\
+        </div>\
+      </div>');
+}
+
 function createFormElemFromJSON(formElem) {
   var type = formElem.type;
 
@@ -83,7 +91,7 @@ function addToForm(elem) {
   xFormView.append(rowView);
 }
 
-export function buildReportFromJSON(json) {
+export function render(xScheme) {
   xScheme = {
     clinics: [],
     report: [],
@@ -95,7 +103,7 @@ export function buildReportFromJSON(json) {
   module.useReportSection();
   xFormView.html("");
 
-  json.report.forEach(function(reportElem) {
+  xSheme["report"].forEach(function(reportElem) {
     var relem = createFormElemFromJSON(reportElem);
     addToForm(relem);
   });
