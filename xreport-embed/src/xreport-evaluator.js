@@ -1,4 +1,4 @@
-import $ as jQ from 'jquery';
+import { $ as jQ } from 'jquery';
 
 form.on("change", function() {
   var conditionEvaluator = false;

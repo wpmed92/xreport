@@ -1,5 +1,5 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
 
 function XInNum() {
   XFormElem.call(this, "innum");
@@ -12,7 +12,7 @@ XInNum.prototype = Object.create(XFormElem.prototype);
 
 XInNum.prototype.render = function() {
   var model = this;
-  var view = jQ("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' >");
+  var view = $("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' >");
   this.bind(view);
 
   if (model.unit) {
@@ -27,48 +27,48 @@ XInNum.prototype.render = function() {
 }
 
 XInNum.prototype.getValue = function() {
-  return jQ("*[data-x-id='" + this.id + "']").val();
+  return $("*[data-x-id='" + this.id + "']").val();
 }
 
 XInNum.prototype.genText = function() {
-  var val = jQ("*[data-x-id='" + this.id + "']").val();
+  var val = $("*[data-x-id='" + this.id + "']").val();
 
   if (!val) {
     return null;
   }
 
-  return jQ("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
+  return $("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
 }
 
 XInNum.prototype.buildEditor = function() {
   var model = this;
-  var editor = jQ("<div></div>");
-  var view = jQ("*[data-x-id='" + model.id + "']");
-  var minWrapper = jQ("<div class='form-group'><label>Minimum érték</label></div>");
-  var minControl = jQ("<input type='number' class='form-control'>");
-  var maxWrapper = jQ("<div class='form-group'><label>Maximum érték</label></div>");
-  var maxControl = jQ("<input type='number' class='form-control'>");
-  var unitWrapper = jQ("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
-  var unitControl = jQ("<input type='text' class='form-control'>");
+  var editor = $("<div></div>");
+  var view = $("*[data-x-id='" + model.id + "']");
+  var minWrapper = $("<div class='form-group'><label>Minimum érték</label></div>");
+  var minControl = $("<input type='number' class='form-control'>");
+  var maxWrapper = $("<div class='form-group'><label>Maximum érték</label></div>");
+  var maxControl = $("<input type='number' class='form-control'>");
+  var unitWrapper = $("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
+  var unitControl = $("<input type='text' class='form-control'>");
 
   unitControl.val(model.unit);
   minControl.val(model.min);
   maxControl.val(model.max);
 
   minControl.on("change", function() {
-    var val = jQ(this).val();
+    var val = $(this).val();
     model.min = val;
     view.attr("min", val);
   });
 
   maxControl.on("change", function() {
-    var val = jQ(this).val();
+    var val = $(this).val();
     model.max = val;
     view.attr("max", val);
   });
 
   unitControl.on("change", function() {
-    var val = jQ(this).val();
+    var val = $(this).val();
     model.unit = val;
 
     if (!val) {
@@ -96,4 +96,4 @@ XInNum.prototype.buildEditor = function() {
   return editor;
 }
 
-export XInNum;
+export { XInNum };

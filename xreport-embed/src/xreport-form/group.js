@@ -1,5 +1,6 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import { XLabel } from './label.js';
+import $ from 'jquery';
 
 function XFormGroup(orientation, label) {
   XFormElem.call(this, "group");
@@ -15,14 +16,14 @@ XFormGroup.prototype.addChild = function(child) {
 
 XFormGroup.prototype.buildEditor = function() {
   var model = this;
-  var editor = jQ("<div></div>");
+  var editor = $("<div></div>");
   editor.append(this.label.buildEditor());
   editor.append(this.child.buildEditor());
   return editor;
 }
 
 XFormGroup.prototype.render = function() {
-  var view = jQ("<div class='form-group'></div>");
+  var view = $("<div class='form-group'></div>");
   this.bind(view);
 
   if (this.child.type === "inbool") {
@@ -38,7 +39,7 @@ XFormGroup.prototype.render = function() {
 
 XFormGroup.prototype.genText = function() {
   if (this.child.type === "inbool") {
-    var view = jQ("*[data-x-id='" + this.id + "']");
+    var view = $("*[data-x-id='" + this.id + "']");
     var checked = view.find("input:checked").first();
 
     if (checked.length > 0) {
@@ -51,4 +52,4 @@ XFormGroup.prototype.genText = function() {
   return "";
 }
 
-export XFormGroup;
+export { XFormGroup };

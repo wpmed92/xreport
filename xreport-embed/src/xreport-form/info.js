@@ -1,5 +1,5 @@
-import XLabel from './label.js';
-import $ as jQ from 'jquery';
+import { XLabel } from './label.js';
+import $ from 'jquery';
 
 function XInfo(text, type) {
   XLabel.call(this, text);
@@ -9,21 +9,21 @@ function XInfo(text, type) {
 XInfo.prototype = Object.create(XLabel.prototype);
 
 XInfo.prototype.render = function() {
-  var view = jQ("<div class='alert alert-" + this.type + "' role='alert'>" + this.val + "</div>");
+  var view = $("<div class='alert alert-" + this.type + "' role='alert'>" + this.val + "</div>");
   this.bind(view);
   return view;
 }
 
 XInfo.prototype.buildEditor = function() {
   var baseEditor = XLabel.prototype.buildEditor.call(this);
-  var view = jQ("<select class='form-control'></select>");
+  var view = $("<select class='form-control'></select>");
   var model = this;
 
-  view.append(jQ('<option>', {
+  view.append($('<option>', {
     value: "info",
     text : "Magyarázó szöveg"
   }));
-  view.append(jQ('<option>', {
+  view.append($('<option>', {
     value: "danger",
     text : "Figyelmeztető szöveg"
   }));
@@ -31,7 +31,7 @@ XInfo.prototype.buildEditor = function() {
   view.on("change", function() {
     var val = $(this).val();
     model.type = val;
-    var currentView = jQ("*[data-x-id='" + model.id + "']");
+    var currentView = $("*[data-x-id='" + model.id + "']");
     currentView.replaceWith(model.render());
   });
 
@@ -39,4 +39,4 @@ XInfo.prototype.buildEditor = function() {
   return baseEditor;
 }
 
-export XInfo;
+export { XInfo };

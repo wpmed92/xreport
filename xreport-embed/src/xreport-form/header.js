@@ -1,5 +1,5 @@
-import XLabel from './label.js';
-import $ as jQ from 'jquery';
+import { XLabel } from './label.js';
+import $ from 'jquery';
 
 function XHeader(text) {
   XLabel.call(this, text);
@@ -9,7 +9,7 @@ function XHeader(text) {
 XHeader.prototype = Object.create(XLabel.prototype);
 
 XHeader.prototype.render = function() {
-  var view = jQ("<div><h5>" + this.val + "</h5><hr></div>");
+  var view = $("<div><h5>" + this.val + "</h5><hr></div>");
   this.bind(view);
   return view;
 }
@@ -18,4 +18,4 @@ XHeader.prototype.genText = function() {
   return ("\n" + this.val + "\n------------------------------------");
 }
 
-export XHeader;
+export { XHeader };

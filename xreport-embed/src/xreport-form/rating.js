@@ -1,5 +1,5 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
 
 function XRating() {
   XFormElem.call(this, "rating");
@@ -11,17 +11,17 @@ function XRating() {
 XRating.prototype = Object.create(XFormElem.prototype);
 
 XRating.prototype.render = function() {
-  var view = jQ("<table class='table table-bordered'></table>");
+  var view = $("<table class='table table-bordered'></table>");
   var model = this;
   this.bind(view);
 
   //Build header
-  var header = jQ("<thead></thead>");
-  var ratingsRow = jQ("<tr></tr>");
-  ratingsRow.append(jQ("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
+  var header = $("<thead></thead>");
+  var ratingsRow = $("<tr></tr>");
+  ratingsRow.append($("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
 
   model.ratings.forEach(function(rating) {
-    var headerCell = jQ("<th scope='col' class='text-center'><a href='javascript:void(0)'>" + rating + "</a></th>");
+    var headerCell = $("<th scope='col' class='text-center'><a href='javascript:void(0)'>" + rating + "</a></th>");
 
     headerCell.click(function() {
       var elemIndex = $(this).index() - 1;
@@ -38,15 +38,15 @@ XRating.prototype.render = function() {
   view.append(header);
 
   //Build body
-  var body = jQ("<tbody></tbody>");
+  var body = $("<tbody></tbody>");
   var newRow = "";
 
   for (var i = 0; i < model.parameters.length; i++) {
-    newRow = jQ("<tr></tr>");
-    newRow.append(jQ("<td>" + model.parameters[i] + "</td>"));
+    newRow = $("<tr></tr>");
+    newRow.append($("<td>" + model.parameters[i] + "</td>"));
 
     for (var j = 0; j < model.ratings.length; j++) {
-      newRow.append(jQ("<td class='text-center'>\
+      newRow.append($("<td class='text-center'>\
                           <input id='" + (model.id + i + j) + "'type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
                         </td>"));
     }
@@ -60,15 +60,15 @@ XRating.prototype.render = function() {
 
 XRating.prototype.buildEditor = function() {
   var model = this;
-  var editor = jQ("<div class='form-group'></div>");
-  var textAreaParameters = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var textAreaRatings = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var updateOptionsBtn = jQ("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+  var editor = $("<div class='form-group'></div>");
+  var textAreaParameters = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
+  var textAreaRatings = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
+  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
 
   updateOptionsBtn.click(function() {
     var parameters = textAreaParameters.val().split(';');
     var ratings = textAreaRatings.val().split(';');
-    var view = jQ("*[data-x-id='" + model.id + "']");
+    var view = $("*[data-x-id='" + model.id + "']");
     var newView = "";
     view.html("");
     model.parameters = [];
@@ -97,13 +97,13 @@ XRating.prototype.buildEditor = function() {
     view.replaceWith(newView);
   });
 
-  var titleEditor = jQ("<div class='form-group'><label>Táblázat címe</label></div>");
-  var inp = jQ("<input type='text' class='form-control'>");
+  var titleEditor = $("<div class='form-group'><label>Táblázat címe</label></div>");
+  var inp = $("<input type='text' class='form-control'>");
   inp.val(model.val);
 
   inp.on("change", function() {
-    var val = jQ(this).val();
-    var view = jQ("*[data-x-id='" + model.id + "']");
+    var val = $(this).val();
+    var view = $("*[data-x-id='" + model.id + "']");
     var newView = "";
     model.title = val;
     newView = model.render();
@@ -140,7 +140,7 @@ XRating.prototype.buildEditor = function() {
 
 XRating.prototype.genText = function() {
   var model = this;
-  var view = jQ("*[data-x-id='" + model.id + "']").find("tbody");
+  var view = $("*[data-x-id='" + model.id + "']").find("tbody");
   var parameterIndex = 0;
   var out = "";
 
@@ -170,4 +170,4 @@ XRating.prototype.genText = function() {
   return out;
 }
 
-export XRating;
+export { XRating };

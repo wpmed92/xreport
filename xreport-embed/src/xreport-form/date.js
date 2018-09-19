@@ -1,5 +1,5 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
 
 function XDate() {
   XFormElem.call(this, "date");
@@ -8,7 +8,7 @@ function XDate() {
 XDate.prototype = Object.create(XFormElem.prototype);
 
 XDate.prototype.render = function() {
-  var xDate = jQ('<div class="input-group">\
+  var xDate = $('<div class="input-group">\
                     <div class="input-group-prepend">\
                       <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>\
                     </div>\
@@ -20,9 +20,9 @@ XDate.prototype.render = function() {
 }
 
 XDate.prototype.genText = function() {
-  var view = jQ("*[data-x-id='" + this.id + "']");
+  var view = $("*[data-x-id='" + this.id + "']");
 
   return view.find("input").first().val();
 }
 
-export XDate;
+export { XDate };

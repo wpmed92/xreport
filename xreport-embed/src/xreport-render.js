@@ -1,31 +1,34 @@
 //static controls
-import XLabel from './xreport-form/label.js';
-import XHeader from './xreport-form/header.js';
-import XPlainText from './xreport-form/plain-text.js';
-import XInfo from './xreport-form/info.js';
-import XImage from './xreport-form/image.js';
-import XTextArea from './xreport-form/text-area.js';
+import { XLabel } from './xreport-form/label.js';
+import { XHeader } from './xreport-form/header.js';
+import { XPlainText } from './xreport-form/plain-text.js';
+import { XInfo } from './xreport-form/info.js';
+import { XImage } from './xreport-form/image.js';
+import { XTextArea } from './xreport-form/text-area.js';
 //input controls
-import XInNum from './xreport-form/in-num.js';
-import XInText from './xreport-form/in-text.js';
-import XInBool from './xreport-form/in-bool.js';
-import XSel from './xreport-form/sel.js';
-import XMulSel from './xreport-form/mulsel.js';
-import XRating from './xreport-form/rating.js';
-import XCalcOut from './xreport-form/calc-out.js';
-import XDate from './xreport-form/date.js';
+import { XInNum } from './xreport-form/in-num.js';
+import { XInText } from './xreport-form/in-text.js';
+import { XInBool } from './xreport-form/in-bool.js';
+import { XSel } from './xreport-form/sel.js';
+import { XMulSel } from './xreport-form/mulsel.js';
+import { XRating } from './xreport-form/rating.js';
+import { XCalcOut }from './xreport-form/calc-out.js';
+import { XDate} from './xreport-form/date.js';
 //parents
-import XFormGroup from './xreport-form/group.js';
-import XFormRow from './xreport-form/row.js';
+import { XFormGroup } from './xreport-form/group.js';
+import { XFormRow } from './xreport-form/row.js';
 
-import $ as jQ from 'jquery';
+import $ from 'jquery';
 
-function formCardComponent(title) {
-  jQ('<div class="card">\
-        <div class="card-header">' + title + '</div>\
-        <div class="x-form card-body">\
-        </div>\
-      </div>');
+let xForm = [];
+let view = formCardComponent();
+
+function formCardComponent() {
+  return $('<div class="card">\
+              <div class="card-header">Teszt</div>\
+              <div class="x-form card-body">\
+              </div>\
+            </div>');
 }
 
 function createFormElemFromJSON(formElem) {
@@ -76,8 +79,7 @@ function createFormElemFromJSON(formElem) {
 }
 
 function addToForm(elem) {
-  var row = null;
-  var rowView = null;
+  var row;
 
   if (elem.type === "row") {
     row = elem;
@@ -86,29 +88,17 @@ function addToForm(elem) {
     row.addChild(elem);
   }
 
-  rowView = row.render();
   xForm.push(row);
-  xFormView.append(rowView);
+  view.find(".x-form").append(row.render());
 }
 
-export function render(xScheme) {
-  xScheme = {
-    clinics: [],
-    report: [],
-    opinion: []
-  };
-  xForm = [];
+export function render(url, targetId) {
+  $.get(url, function(template) {
+    template["report"].forEach(function(reportElem) {
+      var relem = createFormElemFromJSON(reportElem);
+      addToForm(relem);
+    });
 
-  //Build report part
-  module.useReportSection();
-  xFormView.html("");
-
-  xSheme["report"].forEach(function(reportElem) {
-    var relem = createFormElemFromJSON(reportElem);
-    addToForm(relem);
+    $("#" + targetId).html(view);
   });
-}
-
-export function setTargetElem(id) {
-
 }

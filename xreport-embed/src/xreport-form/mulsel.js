@@ -1,5 +1,7 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import { XInBool } from './in-bool.js';
+import { XLabel } from './label.js';
+import $ from 'jquery';
 
 function XMulSel(style) {
   XFormElem.call(this, "mulsel");
@@ -14,7 +16,7 @@ XMulSel.prototype.render = function() {
   var model = this;
 
   if (this.style === "checkbox") {
-    view = jQ("<div></div>");
+    view = $("<div></div>");
 
     model.options.forEach(function(option) {
       var inbool = new XInBool();
@@ -29,7 +31,7 @@ XMulSel.prototype.render = function() {
       view.append(check);
     });
   } else {
-    view = jQ("<select class='form-control' multiple></select>");
+    view = $("<select class='form-control' multiple></select>");
   }
 
   this.bind(view);
@@ -38,28 +40,28 @@ XMulSel.prototype.render = function() {
 
 XMulSel.prototype.checkOption = function(check, option) {
   var model = this;
-  var view = jQ("*[data-x-id='" + model.id + "']");
+  var view = $("*[data-x-id='" + model.id + "']");
   var indexOfOption = model.options.indexOf(option);
   view.find("input").eq(indexOfOption).prop("checked", check);
 }
 
 XMulSel.prototype.showOption = function(option) {
   var model = this;
-  var view = jQ("*[data-x-id='" + model.id + "']");
+  var view = $("*[data-x-id='" + model.id + "']");
   var indexOfOption = model.options.indexOf(option);
   view.find("input").eq(indexOfOption).parent().removeClass("collapse");
 }
 
 XMulSel.prototype.hideOption = function(option) {
   var model = this;
-  var view = jQ("*[data-x-id='" + model.id + "']");
+  var view = $("*[data-x-id='" + model.id + "']");
   var indexOfOption = model.options.indexOf(option);
   view.find("input").eq(indexOfOption).parent().addClass("collapse");
 }
 
 XMulSel.prototype.genText = function() {
   var out = "";
-  var view = jQ("*[data-x-id='" + this.id + "']");
+  var view = $("*[data-x-id='" + this.id + "']");
 
   view.find("input:checked").each(function() {
     var label = $(this).next();
@@ -73,11 +75,11 @@ XMulSel.prototype.genText = function() {
 
 XMulSel.prototype.buildEditor = function() {
   var model = this;
-  var editor = jQ("<div class='form-group'></div>");
+  var editor = $("<div class='form-group'></div>");
   editor.append("<label>Opciók</label>");
-  var textArea = jQ("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var updateOptionsBtn = jQ("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
-  var view = jQ("*[data-x-id='" + model.id + "']");
+  var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
+  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+  var view = $("*[data-x-id='" + model.id + "']");
 
   updateOptionsBtn.click(function() {
     var text = textArea.val();
@@ -109,4 +111,4 @@ XMulSel.prototype.buildEditor = function() {
   return editor;
 }
 
-export XMulSel;
+export { XMulSel };

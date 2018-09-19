@@ -1,5 +1,5 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
 import _ from 'lodash';
 
 function XFormRow() {
@@ -14,12 +14,12 @@ XFormRow.prototype.addChild = function(child) {
 }
 
 XFormRow.prototype.render = function() {
-  var view = jQ("<div class='form-row'></div>");
+  var view = $("<div class='form-row'></div>");
   var model = this;
   this.bind(view);
 
   this.children.forEach(function(child) {
-    var col = jQ("<div class='col my-auto x-form-wrapper'></div>");
+    var col = $("<div class='col my-auto x-form-wrapper'></div>");
     col.append(child.render());
     view.append(col);
   });
@@ -29,7 +29,7 @@ XFormRow.prototype.render = function() {
 
 XFormRow.prototype.buildEditor = function() {
   var model = this;
-  var editor = jQ("<div></div>");
+  var editor = $("<div></div>");
 
   model.children.forEach(function(child) {
     editor.append(child.buildEditor());
@@ -59,4 +59,4 @@ XFormRow.prototype.genText = function() {
   return out;
 }
 
-return XFormRow;
+export { XFormRow };

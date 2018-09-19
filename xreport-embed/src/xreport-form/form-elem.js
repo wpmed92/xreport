@@ -1,5 +1,3 @@
-import $ as jQ from 'jquery';
-
 function XFormElem(type) {
   var that = this;
   that.type = type;
@@ -18,4 +16,4 @@ XFormElem.prototype.buildEditor = function() {
 
 }
 
-export XFormElem;
+export { XFormElem };

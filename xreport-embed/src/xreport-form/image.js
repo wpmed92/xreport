@@ -1,5 +1,5 @@
-import XFormElem from './form-elem.js';
-import $ as jQ from 'jquery';
+import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
 
 function XImage() {
   XFormElem.call(this, "image");
@@ -10,7 +10,7 @@ function XImage() {
 XImage.prototype = Object.create(XFormElem.prototype);
 
 XImage.prototype.render = function() {
-  var view = jQ("<div></div>")
+  var view = $("<div></div>")
   view.append("<img src='" + this.src + "'></img>");
   view.append("<p class='text-info'>" + this.author + "</p>");
   this.bind(view);
@@ -20,25 +20,25 @@ XImage.prototype.render = function() {
 
 XImage.prototype.buildEditor = function() {
   var model = this;
-  var editor = jQ("<div class='form-group'></div>");
-  var srcInp = jQ("<input type='text' class='form-control'>");
-  var authorInp = jQ("<input type='text' class='form-control'>");
+  var editor = $("<div class='form-group'></div>");
+  var srcInp = $("<input type='text' class='form-control'>");
+  var authorInp = $("<input type='text' class='form-control'>");
   srcInp.val(model.src);
   authorInp.val(model.author);
 
   //Source editor
   srcInp.on("change", function() {
-    var val = jQ(this).val();
+    var val = $(this).val();
     model.src = val;
-    var view = jQ("*[data-x-id='" + model.id + "']");
+    var view = $("*[data-x-id='" + model.id + "']");
     view.find("img").attr("src", model.src);
   });
 
   //Author editor
   authorInp.on("change", function() {
-    var val = jQ(this).val();
+    var val = $(this).val();
     model.author = val;
-    var view = jQ("*[data-x-id='" + model.id + "']");
+    var view = $("*[data-x-id='" + model.id + "']");
     view.find("p").text(model.author);
   });
 
@@ -50,4 +50,4 @@ XImage.prototype.buildEditor = function() {
   return editor;
 }
 
-export XImage;
+export { XImage };
