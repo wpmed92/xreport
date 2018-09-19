@@ -6,7 +6,7 @@
         <div class="card-body">
           <h4 class="card-title">{{report.name}}</h4>
           <h6 class="card-subtitle mb-2 text-muted">{{report.category}}</h6>
-          <p class="card-text"><small class="text-muted">Készítette <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
+          <p class="card-text"><small class="text-muted">Készítette <strong>{{report.creator}}</strong> {{ moment(report.createdAt).fromNow() }}</small></p>
         </div>
       </div>
     </div>
