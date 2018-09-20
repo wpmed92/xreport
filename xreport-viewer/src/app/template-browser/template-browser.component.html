@@ -1,12 +1,12 @@
 <div class="container">
   <div id="li-schemes" class="row mt-4">
     <!-- List elem -->
-    <div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4" *ngFor="let report of reports | async">
+    <div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4" *ngFor="let report of reports | async" (click)="view(report)">
       <div class="card card-shadowed report-list-item h-100">
         <div class="card-body">
           <h4 class="card-title">{{report.name}}</h4>
           <h6 class="card-subtitle mb-2 text-muted">{{report.category}}</h6>
-          <p class="card-text"><small class="text-muted">Készítette <strong>{{report.creator}}</strong> {{ moment(report.createdAt).fromNow() }}</small></p>
+          <p class="card-text"><small class="text-muted">Készítette <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
         </div>
       </div>
     </div>
