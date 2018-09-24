@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { ReportMeta } from '../model/report-meta';
+import * as xreportEmbed from 'xreport-embed';
 
 @Component({
   selector: 'app-viewer',
@@ -18,11 +19,15 @@ export class ViewerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getTemplate();
   }
 
   getTemplate(): void {
-    const id = +this.route.snapshot.paramMap.get('id'); 
+    const id = this.route.snapshot.paramMap.get('id'); 
     this.itemDoc = this.afs.doc<ReportMeta>(`reports/${id}`);
-    this.item = this.itemDoc.valueChanges();
+    this.itemDoc.valueChanges().subscribe(report => {
+      console.log(report);
+      xreportEmbed.makeWidget(report.contentUrl, "div-card-holder");
+    });
   }
 }

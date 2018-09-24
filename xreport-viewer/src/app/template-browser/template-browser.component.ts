@@ -21,6 +21,7 @@ export class TemplateBrowserComponent implements OnInit {
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as ReportMeta;
         const id = a.payload.doc.id;
+        data.createdAt = moment(data.createdAt).fromNow();
         return { id, ...data };
       })));
     }
