@@ -1,6 +1,7 @@
 import { XFormElem } from './form-elem.js';
 import { XLabel } from './label.js';
 import $ from 'jquery';
+import _ from 'lodash';
 
 function XFormGroup(orientation, label) {
   XFormElem.call(this, "group");
@@ -45,7 +46,7 @@ XFormGroup.prototype.genText = function() {
     if (checked.length > 0) {
       return checked.next().text();
     }
-  } else if (isFunction(this.child.genText) && !!this.child.genText()) {
+  } else if (_.isFunction(this.child.genText) && !!this.child.genText()) {
     return this.label.val + ": " + this.child.genText();
   }
 

@@ -23,11 +23,31 @@ import $ from 'jquery';
 let xForm = [];
 
 function formCardComponent(title) {
-  return $('<div class="card">\
-              <div class="card-header">' + title + '</div>\
-              <div class="x-form card-body">\
-              </div>\
-            </div>');
+  var component = $('<div class="card">\
+                      <div class="card-header">\
+                        <div class="row">\
+                          <div class="col-5">' + title + '</div>\
+                          <div class="col-7 controls-container"></div>\
+                        </div>\
+                      </div>\
+                      <div class="x-form card-body">\
+                        <form></form>\
+                        <div class="text-output collapse"></div>\
+                      </div>\
+                    </div>');
+
+  var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
+
+  btnGenText.click(function() {
+    component.find("form").first().toggleClass("collapse");
+    let textOutput = component.find(".text-output").first();
+    textOutput.toggleClass("collapse");
+    textOutput.html("<pre>" + genText() + "</pre>");
+  });
+
+  component.find(".controls-container").append(btnGenText);
+
+  return component;
 }
 
 function createFormElemFromJSON(formElem) {
@@ -77,6 +97,16 @@ function createFormElemFromJSON(formElem) {
   }
 }
 
+function genText() {
+  var out = "";
+
+  xForm.forEach(function(elem) {
+    out += elem.genText();
+  });
+
+  return out;
+}
+
 function addToForm(view, elem) {
   var row;
 
@@ -88,12 +118,13 @@ function addToForm(view, elem) {
   }
 
   xForm.push(row);
-  view.find(".x-form").append(row.render());
+  view.find("form").append(row.render());
 }
 
 export function render(url, title, targetId) {
   let view = formCardComponent(title);
-
+  xForm = [];
+  
   $.get(url, function(template) {
     template["report"].forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
