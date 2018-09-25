@@ -27,7 +27,7 @@ export class ViewerComponent implements OnInit {
     this.itemDoc = this.afs.doc<ReportMeta>(`reports/${id}`);
     this.itemDoc.valueChanges().subscribe(report => {
       console.log(report);
-      xreportEmbed.makeWidget(report.contentUrl, "div-card-holder");
+      xreportEmbed.makeWidget(report.contentUrl, report.name, "div-card-holder");
     });
   }
 }
