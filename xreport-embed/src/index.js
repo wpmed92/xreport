@@ -1,5 +1,5 @@
 import * as renderer from './xreport-render.js';
 
-export function makeWidget(url, targetId) {
-  return renderer.render(url, targetId);
+export function makeWidget(url, title, targetId) {
+  return renderer.render(url, title, targetId);
 }

@@ -21,11 +21,10 @@ import { XFormRow } from './xreport-form/row.js';
 import $ from 'jquery';
 
 let xForm = [];
-let view = formCardComponent();
 
-function formCardComponent() {
+function formCardComponent(title) {
   return $('<div class="card">\
-              <div class="card-header">Teszt</div>\
+              <div class="card-header">' + title + '</div>\
               <div class="x-form card-body">\
               </div>\
             </div>');
@@ -78,7 +77,7 @@ function createFormElemFromJSON(formElem) {
   }
 }
 
-function addToForm(elem) {
+function addToForm(view, elem) {
   var row;
 
   if (elem.type === "row") {
@@ -92,11 +91,13 @@ function addToForm(elem) {
   view.find(".x-form").append(row.render());
 }
 
-export function render(url, targetId) {
+export function render(url, title, targetId) {
+  let view = formCardComponent(title);
+
   $.get(url, function(template) {
     template["report"].forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);
-      addToForm(relem);
+      addToForm(view, relem);
     });
 
     $("#" + targetId).html(view);
