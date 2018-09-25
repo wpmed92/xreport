@@ -22,4 +22,9 @@ XInText.prototype.genText = function() {
   return $("*[data-x-id='" + this.id + "']").val();
 }
 
+XInText.prototype.prettyPrint = function() {
+  var view = "<p>" + $("*[data-x-id='" + this.id + "']").val() + "</p>";
+  return view;
+}
+
 export { XInText };

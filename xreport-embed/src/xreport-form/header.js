@@ -18,4 +18,9 @@ XHeader.prototype.genText = function() {
   return ("\n" + this.val + "\n------------------------------------");
 }
 
+XHeader.prototype.prettyPrint = function() {
+  var view = $("<div><h5>" + this.val + "</h5><hr></div>");
+  return view;
+}
+
 export { XHeader };

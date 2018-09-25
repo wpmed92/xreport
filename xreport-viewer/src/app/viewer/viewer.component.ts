@@ -26,7 +26,6 @@ export class ViewerComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id'); 
     this.itemDoc = this.afs.doc<ReportMeta>(`reports/${id}`);
     this.itemDoc.valueChanges().subscribe(report => {
-      console.log(report);
       xreportEmbed.makeWidget(report.contentUrl, report.name, "div-card-holder");
     });
   }

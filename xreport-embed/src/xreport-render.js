@@ -42,7 +42,8 @@ function formCardComponent(title) {
     component.find("form").first().toggleClass("collapse");
     let textOutput = component.find(".text-output").first();
     textOutput.toggleClass("collapse");
-    textOutput.html("<pre>" + genText() + "</pre>");
+    textOutput.html(prettyPrint());
+    //textOutput.html("<pre>" + genText() + "</pre>");
   });
 
   component.find(".controls-container").append(btnGenText);
@@ -97,6 +98,16 @@ function createFormElemFromJSON(formElem) {
   }
 }
 
+function prettyPrint() {
+  var out = $("<div></div>");
+
+  xForm.forEach(function(elem) {
+    out.append(elem.prettyPrint());
+  });
+
+  return out;
+}
+
 function genText() {
   var out = "";
 
@@ -124,7 +135,7 @@ function addToForm(view, elem) {
 export function render(url, title, targetId) {
   let view = formCardComponent(title);
   xForm = [];
-  
+
   $.get(url, function(template) {
     template["report"].forEach(function(reportElem) {
       var relem = createFormElemFromJSON(reportElem);

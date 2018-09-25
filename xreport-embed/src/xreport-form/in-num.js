@@ -40,6 +40,11 @@ XInNum.prototype.genText = function() {
   return $("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
 }
 
+XInNum.prototype.prettyPrint = function() {
+  var view = "<p>" + $("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "") + "</p>";
+  return view;
+}
+
 XInNum.prototype.buildEditor = function() {
   var model = this;
   var editor = $("<div></div>");
