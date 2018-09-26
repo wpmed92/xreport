@@ -19,7 +19,7 @@ export class TemplateBrowserComponent implements OnInit {
   categories: Observable<Category[]>;
   selectedCategories: Category[] = [];
 
-  constructor(db: AngularFirestore, private router: Router) {
+  constructor(private db: AngularFirestore, private router: Router) {
     this.reports = db.collection('reports').snapshotChanges().pipe(
       map(reps => reps.map(rep => {
         const data = rep.payload.doc.data() as ReportMeta;
@@ -49,6 +49,13 @@ export class TemplateBrowserComponent implements OnInit {
   }
 
   selectCategory(category: Category): void {
-    this.selectedCategories.push(category);
+    this.reports = this.db.collection('reports', ref => ref.where('category', '==', category.id)).snapshotChanges().pipe(
+      map(reps => reps.map(rep => {
+        const data = rep.payload.doc.data() as ReportMeta;
+        const id = rep.payload.doc.id;
+        data.createdAt = moment(data.createdAt.toDate()).fromNow();
+        data.category = this.db.doc<Category>(`categories/${data.category}`).valueChanges();
+        return { id, ...data };
+      })));
   }
 }
