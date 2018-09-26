@@ -25,10 +25,7 @@ let xForm = [];
 function formCardComponent(title) {
   var component = $('<div class="card">\
                       <div class="card-header">\
-                        <div class="row">\
-                          <div class="col-5">' + title + '</div>\
-                          <div class="col-7 controls-container"></div>\
-                        </div>\
+                        <h5>' + title + '</h5>\
                       </div>\
                       <div class="x-form card-body">\
                         <form></form>\
@@ -42,11 +39,11 @@ function formCardComponent(title) {
     component.find("form").first().toggleClass("collapse");
     let textOutput = component.find(".text-output").first();
     textOutput.toggleClass("collapse");
-    textOutput.html(prettyPrint());
-    //textOutput.html("<pre>" + genText() + "</pre>");
+    //textOutput.html(prettyPrint());
+    textOutput.html("<pre>" + genText() + "</pre>");
   });
 
-  component.find(".controls-container").append(btnGenText);
+  //component.find(".controls-container").append(btnGenText);
 
   return component;
 }

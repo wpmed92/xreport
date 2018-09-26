@@ -1,14 +1,34 @@
-<div class="container">
+<div class="container-fluid">
   <div id="li-schemes" class="row mt-4">
-    <!-- List elem -->
-    <div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4" 
-        *ngFor="let report of reports | async" 
-        (click)="view(report)">
-      <div class="card card-shadowed report-list-item h-100">
-        <div class="card-body">
-          <h4 class="card-title">{{report.name}}</h4>
-          <h6 class="card-subtitle mb-2 text-muted">{{report.category}}</h6>
-          <p class="card-text"><small class="text-muted">Created by <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
+    <!-- Categories list -->
+    <div class="col-xl-2 col-lg-2 col-md-2 d-none d-md-block category-panel">
+      <ul class="nav flex-column mt-4">
+          <li class="nav-item" *ngFor="let category of categories | async" (click)="selectCategory(category)">
+            <a class="nav-link active" href="javacript:void()">{{category.name}}</a>
+          </li>
+        </ul>
+    </div>
+
+    <div class="col-xl-8 col-lg-8 col-md-8">
+      <h4>Templates</h4>
+      <hr/>
+      <!-- Selected filters -->
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-2">
+          <span class="badge badge-pill badge-primary mr-2" *ngFor="let category of selectedCategories">#{{ category.name }}</span>
+        </div>
+      </div>
+
+      <!-- Template list -->
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4"  *ngFor="let report of reports | async" (click)="view(report)">
+          <div class="card card-shadowed report-list-item h-100">
+            <div class="card-body">
+              <h4 class="card-title">{{report.name}}</h4>
+              <h6 class="card-subtitle mb-2 text-muted">{{ (report.category | async)?.name }}</h6>
+              <p class="card-text"><small class="text-muted">Created by <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

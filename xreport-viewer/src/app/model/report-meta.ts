@@ -1,6 +1,6 @@
 export class ReportMeta {
     name: string;
-    category: string;
+    category: any;
     creator: string;
     createdAt: any;
     contentUrl: string;
