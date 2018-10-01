@@ -26,6 +26,8 @@
             <div class="card-body">
               <h5 class="card-title">{{report.name}}</h5>
               <h6 class="card-subtitle mb-2 text-muted">{{ (report.category | async)?.name }}</h6>
+              <span *ngIf="report.status === 'draft'" class="badge badge-pill badge-warning">draft</span>
+              <span *ngIf="report.status === 'ready'" class="badge badge-pill badge-success">ready</span>
               <p class="card-text"><small class="text-muted">Created by <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
             </div>
           </div>
