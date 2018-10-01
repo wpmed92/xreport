@@ -24,10 +24,17 @@
         <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4"  *ngFor="let report of reports | async" (click)="view(report)">
           <div class="card card-shadowed report-list-item h-100">
             <div class="card-body">
+              <!-- name -->
               <h5 class="card-title">{{report.name}}</h5>
+
+              <!-- category -->
               <h6 class="card-subtitle mb-2 text-muted">{{ (report.category | async)?.name }}</h6>
+
+              <!-- status -->
               <span *ngIf="report.status === 'draft'" class="badge badge-pill badge-warning">draft</span>
               <span *ngIf="report.status === 'ready'" class="badge badge-pill badge-success">ready</span>
+
+              <!-- creator -->
               <p class="card-text"><small class="text-muted">Created by <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
             </div>
           </div>

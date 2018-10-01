@@ -29,4 +29,12 @@ export class ViewerComponent implements OnInit {
       xreportEmbed.makeWidget(report.contentUrl, report.name, "div-card-holder");
     });
   }
+
+  genReportOutput(): void {
+    xreportEmbed.genReportOutput();
+  }
+
+  startNewReporting(): void {
+
+  }
 }
