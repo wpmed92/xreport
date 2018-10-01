@@ -4,12 +4,12 @@
     <div class="col-xl-2 col-lg-2 col-md-2 d-none d-md-block category-panel">
       <ul class="nav flex-column mt-4">
           <li class="nav-item" *ngFor="let category of categories | async" (click)="selectCategory(category)">
-            <a class="nav-link active" href="javacript:void()">{{category.name}}</a>
+            <a class="nav-link active" href="javacript:void(0);">{{category.name}}</a>
           </li>
         </ul>
     </div>
 
-    <div class="col-xl-8 col-lg-8 col-md-8">
+    <div class="col-xl-9 col-lg-9 col-md-9">
       <h4>Templates</h4>
       <hr/>
       <!-- Selected filters -->

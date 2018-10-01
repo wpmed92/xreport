@@ -20,8 +20,6 @@ import { XFormRow } from './xreport-form/row.js';
 
 import $ from 'jquery';
 
-let xForm = [];
-
 function formCardComponent(title) {
   var component = $('<div class="card">\
                       <div class="card-header">\
@@ -32,6 +30,14 @@ function formCardComponent(title) {
                         <div class="text-output collapse"></div>\
                       </div>\
                     </div>');
+
+  component.addElem = function(elem) {
+    component.find("form").append(elem);
+  }
+
+  component.getForm = function() {
+    return component.find("form");
+  }
 
   var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
 
@@ -46,53 +52,6 @@ function formCardComponent(title) {
   //component.find(".controls-container").append(btnGenText);
 
   return component;
-}
-
-function createFormElemFromJSON(formElem) {
-  var type = formElem.type;
-
-  if (type === "group") {
-    var group = Object.assign(new XFormGroup, formElem);
-    group.label = Object.assign(new XLabel, formElem.label);
-    group.child = createFormElemFromJSON(formElem.child);
-    return group;
-  } else if (type === "text") {
-    return Object.assign(new XPlainText, formElem);
-  } else if (type === "intext") {
-    return Object.assign(new XInText, formElem);
-  } else if (type === "innum") {
-    return Object.assign(new XInNum, formElem);
-  } else if (type === "calcout") {
-    return Object.assign(new XCalcOut, formElem);
-  } else if (type === "inbool") {
-    return Object.assign(new XInBool, formElem);
-  } else if (type === "tarea") {
-    return Object.assign(new XTextArea, formElem);
-  } else if (type === "sel") {
-    return Object.assign(new XSel, formElem);
-  } else if (type === "mulsel") {
-    return Object.assign(new XMulSel, formElem);
-  } else if (type === "date") {
-    return Object.assign(new XDate, formElem);
-  } else if (type === "header") {
-    return Object.assign(new XHeader, formElem);
-  } else if (type === "info") {
-    return Object.assign(new XInfo, formElem);
-  } else if (type === "danger") {
-    return Object.assign(new XInfo, formElem);
-  } else if (type === "rating") {
-    return Object.assign(new XRating, formElem);
-  } else if (type === "image") {
-    return Object.assign(new XImage, formElem);
-  } else if (type === "row") {
-    var row = Object.assign(new XFormRow, formElem);
-
-    for (var i = 0; i < row.children.length; i++) {
-      row.children[i] = createFormElemFromJSON(row.children[i]);
-    }
-
-    return row;
-  }
 }
 
 function prettyPrint() {
@@ -115,30 +74,13 @@ function genText() {
   return out;
 }
 
-function addToForm(view, elem) {
-  var row;
-
-  if (elem.type === "row") {
-    row = elem;
-  } else {
-    row = new XReportForm.Row();
-    row.addChild(elem);
-  }
-
-  xForm.push(row);
-  view.find("form").append(row.render());
-}
-
-export function render(url, title, targetId) {
+export function render(dom, title, targetId) {
   let view = formCardComponent(title);
-  xForm = [];
 
-  $.get(url, function(template) {
-    template["report"].forEach(function(reportElem) {
-      var relem = createFormElemFromJSON(reportElem);
-      addToForm(view, relem);
-    });
-
-    $("#" + targetId).html(view);
+  dom.forEach(function(domElem) {
+    view.addElem(domElem.render());
   });
+
+  $("#" + targetId).html(view);
+  return view.getForm();
 }
