@@ -95,6 +95,10 @@ function XReportDOM() {
     });
   }
 
+  this.getContent = function() {
+    return dom;
+  }
+
   this.getXElemById = function(id) {
     return _.find(dom, { id: id });
   }

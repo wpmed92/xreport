@@ -135,10 +135,6 @@ function XReportEvaluator(_dom, _conditions) {
     }
   }
 
-  this.setDOM = function(dom) {
-    this.dom = dom;
-  }
-
   this.attachToForm = function(form) {
     form.on("change", function() {
       var conditionEvaluator = false;
@@ -175,6 +171,9 @@ function XReportEvaluator(_dom, _conditions) {
         }
       });
     });
+
+    //Initial trigger to go to "init state"
+    form.trigger("change");
   }
 }
 

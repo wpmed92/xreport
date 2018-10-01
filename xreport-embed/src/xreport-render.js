@@ -27,9 +27,12 @@ function formCardComponent(title) {
                       </div>\
                       <div class="x-form card-body">\
                         <form></form>\
-                        <div class="text-output collapse"></div>\
+                        <div class="text-output collapse">\
+                        </div>\
                       </div>\
                     </div>');
+
+  var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
 
   component.addElem = function(elem) {
     component.find("form").append(elem);
@@ -39,7 +42,12 @@ function formCardComponent(title) {
     return component.find("form");
   }
 
-  var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
+  component.showOutput = function(output) {
+    var textOutput = component.find(".text-output");
+    textOutput.toggleClass("collapse");
+    component.find("form").toggleClass("collapse");
+    textOutput.html("<pre>" + output + "</pre>");
+  }
 
   btnGenText.click(function() {
     component.find("form").first().toggleClass("collapse");
@@ -54,33 +62,40 @@ function formCardComponent(title) {
   return component;
 }
 
-function prettyPrint() {
-  var out = $("<div></div>");
+function XReportRenderer(dom) {
+  var view;
 
-  xForm.forEach(function(elem) {
-    out.append(elem.prettyPrint());
-  });
+  //TODO: test for pdf output
+  var prettyPrint = function() {
+    var out = $("<div></div>");
 
-  return out;
+    xForm.forEach(function(elem) {
+      out.append(elem.prettyPrint());
+    });
+
+    return out;
+  }
+
+  this.genText = function() {
+    var out = "";
+
+    dom.getContent().forEach(function(elem) {
+      out += elem.genText();
+    });
+
+    view.showOutput(out);
+  }
+
+  this.render = function(dom, title, targetId) {
+    view = formCardComponent(title);
+
+    dom.forEach(function(domElem) {
+      view.addElem(domElem.render());
+    });
+
+    $("#" + targetId).html(view);
+    return view.getForm();
+  }
 }
 
-function genText() {
-  var out = "";
-
-  xForm.forEach(function(elem) {
-    out += elem.genText();
-  });
-
-  return out;
-}
-
-export function render(dom, title, targetId) {
-  let view = formCardComponent(title);
-
-  dom.forEach(function(domElem) {
-    view.addElem(domElem.render());
-  });
-
-  $("#" + targetId).html(view);
-  return view.getForm();
-}
+export { XReportRenderer };
