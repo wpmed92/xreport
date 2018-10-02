@@ -22,10 +22,12 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "@ng-bootstrap/ng-bootstrap": "^3.2.2",
+    "@ngx-progressbar/core": "^5.1.2",
     "core-js": "^2.5.4",
     "firebase": "^5.5.0",
     "jspdf": "^1.4.1",
     "moment": "^2.22.2",
+    "nprogress": "^0.2.0",
     "rxjs": "~6.2.0",
     "xreport-embed": "file:../xreport-embed",
     "zone.js": "~0.8.26"
