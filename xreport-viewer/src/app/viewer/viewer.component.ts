@@ -5,6 +5,7 @@ import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firest
 import { ReportMeta } from '../model/report-meta';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import * as xreportEmbed from 'xreport-embed';
+import { NgProgress } from '@ngx-progressbar/core';
 
 @Component({
   selector: 'app-viewer',
@@ -16,7 +17,10 @@ export class ViewerComponent implements OnInit {
   item: Observable<ReportMeta>;
   closeResult: string;
 
-  constructor(private route: ActivatedRoute, private afs: AngularFirestore, private modalService: NgbModal)  { 
+  constructor(private route: ActivatedRoute, 
+              private afs: AngularFirestore, 
+              private modalService: NgbModal, 
+              public progress: NgProgress)  { 
     
   }
 
@@ -47,8 +51,17 @@ export class ViewerComponent implements OnInit {
   getTemplate(): void {
     const id = this.route.snapshot.paramMap.get('id'); 
     this.itemDoc = this.afs.doc<ReportMeta>(`reports/${id}`);
+    this.progress.start();
+
     this.itemDoc.valueChanges().subscribe(report => {
-      xreportEmbed.makeWidget(report.contentUrl, report.name, "div-card-holder");
+      xreportEmbed.makeWidget(
+        report.contentUrl, //Template url
+        report.name,  //Template name
+        "div-card-holder", //DOM element to inject widget to
+        ).then(() => {
+          this.progress.complete();
+          console.log("Content loaded");
+        });
     });
   }
 
