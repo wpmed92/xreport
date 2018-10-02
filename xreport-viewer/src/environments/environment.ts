@@ -5,12 +5,12 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBFDP6EaA26bsOX-wRbtxgCaJyKBOOifvw",
-    authDomain: "xreport-f792c.firebaseapp.com",
-    databaseURL: "https://xreport-f792c.firebaseio.com",
-    projectId: "xreport-f792c",
-    storageBucket: "xreport-f792c.appspot.com",
-    messagingSenderId: "507317663509"
+    apiKey: "AIzaSyC5hX_N8tFfk211A2kWs5tOhWvjX0YroS0",
+    authDomain: "xreport-dev.firebaseapp.com",
+    databaseURL: "https://xreport-dev.firebaseio.com",
+    projectId: "xreport-dev",
+    storageBucket: "xreport-dev.appspot.com",
+    messagingSenderId: "969828348185"
   }
 };
 
