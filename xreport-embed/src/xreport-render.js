@@ -19,6 +19,7 @@ import { XFormGroup } from './xreport-form/group.js';
 import { XFormRow } from './xreport-form/row.js';
 
 import $ from 'jquery';
+import ClipBoard from 'clipboard';
 
 function formCardComponent(title) {
   var component = $('<div class="card">\
@@ -28,10 +29,17 @@ function formCardComponent(title) {
                       <div class="x-form card-body">\
                         <form></form>\
                         <div class="text-output collapse">\
+                          <button type="button" class="btn btn-info btn-clip mb-4"\
+                                  data-clipboard-target="#text-output-content">\
+                                  <i class="fas fa-paste"></i> Copy to clipboard\
+                          </button>\
+                          <div id="text-output-content">\
+                          </div>\
                         </div>\
                       </div>\
                     </div>');
 
+  new ClipBoard('.btn-clip');
   var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
 
   component.addElem = function(elem) {
@@ -42,11 +50,15 @@ function formCardComponent(title) {
     return component.find("form");
   }
 
-  component.showOutput = function(output) {
-    var textOutput = component.find(".text-output");
-    textOutput.toggleClass("collapse");
-    component.find("form").toggleClass("collapse");
-    textOutput.html("<pre>" + output + "</pre>");
+  component.editorState = function() {
+    component.find(".text-output").addClass("collapse");
+    component.find("form").removeClass("collapse");
+  }
+
+  component.previewState = function(output) {
+    component.find(".text-output").removeClass("collapse");
+    component.find("form").addClass("collapse");
+    component.find("#text-output-content").html("<pre>" + output + "</pre>");
   }
 
   btnGenText.click(function() {
@@ -64,6 +76,7 @@ function formCardComponent(title) {
 
 function XReportRenderer(dom) {
   var view;
+  var inPreviewMode = false;
 
   //TODO: test for pdf output
   var prettyPrint = function() {
@@ -77,13 +90,19 @@ function XReportRenderer(dom) {
   }
 
   this.genText = function() {
-    var out = "";
+    if (inPreviewMode) {
+      view.editorState();
+    } else {
+      var out = "";
 
-    dom.getContent().forEach(function(elem) {
-      out += elem.genText();
-    });
+      dom.getContent().forEach(function(elem) {
+        out += elem.genText();
+      });
 
-    view.showOutput(out);
+      view.previewState(out);
+    }
+
+    inPreviewMode = !inPreviewMode;
   }
 
   this.render = function(dom, title, targetId) {
