@@ -6,7 +6,7 @@ import $ from 'jquery';
 
 function XReportEvaluator(_dom, _conditions) {
   let dom = _dom;
-  let conditionPool = _conditions;
+  let conditionPool = _conditions || [];
 
   var processVal = function(val) {
     var numericVal = parseInt(val);

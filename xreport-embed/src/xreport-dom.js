@@ -85,6 +85,8 @@ function XReportDOM() {
   }
 
   this.load = function(url, cb) {
+    dom = [];
+    
     $.get(url, function(template) {
       template["report"].forEach(function(reportElem) {
         var relem = createFormElemFromJSON(reportElem);
