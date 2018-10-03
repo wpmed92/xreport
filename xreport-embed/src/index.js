@@ -16,6 +16,10 @@ export function makeWidget(url, title, targetId, success) {
   });
 }
 
-export function genReportOutput() {
-  xreportRenderer.genText();
+export function togglePreviewMode() {
+  xreportRenderer.togglePreviewMode();
+}
+
+export function getReportAsText() {
+  return xreportRenderer.getReportAsText();
 }

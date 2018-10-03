@@ -19,7 +19,6 @@ import { XFormGroup } from './xreport-form/group.js';
 import { XFormRow } from './xreport-form/row.js';
 
 import $ from 'jquery';
-import ClipBoard from 'clipboard';
 
 function formCardComponent(title) {
   var component = $('<div class="card">\
@@ -29,17 +28,10 @@ function formCardComponent(title) {
                       <div class="x-form card-body">\
                         <form></form>\
                         <div class="text-output collapse">\
-                          <button type="button" class="btn btn-info btn-clip mb-4"\
-                                  data-clipboard-target="#text-output-content">\
-                                  <i class="fas fa-paste"></i> Copy to clipboard\
-                          </button>\
-                          <div id="text-output-content">\
-                          </div>\
                         </div>\
                       </div>\
                     </div>');
 
-  new ClipBoard('.btn-clip');
   var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
 
   component.addElem = function(elem) {
@@ -58,7 +50,7 @@ function formCardComponent(title) {
   component.previewState = function(output) {
     component.find(".text-output").removeClass("collapse");
     component.find("form").addClass("collapse");
-    component.find("#text-output-content").html("<pre>" + output + "</pre>");
+    component.find(".text-output").html("<pre>" + output + "</pre>");
   }
 
   btnGenText.click(function() {
@@ -89,17 +81,21 @@ function XReportRenderer(dom) {
     return out;
   }
 
-  this.genText = function() {
+  this.getReportAsText = function() {
+    var out = "";
+
+    dom.getContent().forEach(function(elem) {
+      out += elem.genText();
+    });
+
+    return out;
+  }
+
+  this.togglePreviewMode = function() {
     if (inPreviewMode) {
       view.editorState();
     } else {
-      var out = "";
-
-      dom.getContent().forEach(function(elem) {
-        out += elem.genText();
-      });
-
-      view.previewState(out);
+      view.previewState(this.getReportAsText());
     }
 
     inPreviewMode = !inPreviewMode;
