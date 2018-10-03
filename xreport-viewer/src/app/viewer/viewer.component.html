@@ -21,8 +21,8 @@
 
         <div class="mt-4 col-xl-3 col-lg-2">
             <div class="btn-group-vertical btn-group-sticky">
-                <button class="btn btn-secondary btn-medium" (click)="genReportOutput()" placement="right" ngbTooltip="Preview report"><i class="fas fa-file-alt" ></i></button>
-                <button class="btn btn-primary btn-medium" placement="right" ngbTooltip="Preview report in pdf"><i class="fas fa-file-pdf"></i></button>
+                <button class="btn btn-secondary btn-medium" (click)="togglePreviewMode()" placement="right" ngbTooltip="Preview report"><i class="fas fa-file-alt" ></i></button>
+                <button class="btn btn-primary btn-medium" (click)="copyReportToClipboard()" placement="right" ngbTooltip="Copy report to clipboard"><i class="fas fa-clipboard"></i></button>
                 <button class="btn btn-success btn-medium" (click)="newReporting(content)" placement="right" ngbTooltip="New report"><i class="fas fa-plus"></i></button>
             </div>
         </div>

@@ -6,6 +6,7 @@ import { ReportMeta } from '../model/report-meta';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import * as xreportEmbed from 'xreport-embed';
 import { NgProgress } from '@ngx-progressbar/core';
+import { ClipboardService } from 'ngx-clipboard'
 
 @Component({
   selector: 'app-viewer',
@@ -20,7 +21,8 @@ export class ViewerComponent implements OnInit {
   constructor(private route: ActivatedRoute, 
               private afs: AngularFirestore, 
               private modalService: NgbModal, 
-              public progress: NgProgress)  { 
+              public progress: NgProgress,
+              private clipboardService: ClipboardService)  { 
     
   }
 
@@ -65,7 +67,11 @@ export class ViewerComponent implements OnInit {
     });
   }
 
-  genReportOutput(): void {
-    xreportEmbed.genReportOutput();
+  togglePreviewMode(): void {
+    xreportEmbed.togglePreviewMode();
+  }
+
+  copyReportToClipboard(): void {
+    this.clipboardService.copyFromContent(xreportEmbed.getReportAsText());
   }
 }
