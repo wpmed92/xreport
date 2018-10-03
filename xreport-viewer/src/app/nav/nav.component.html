@@ -1,0 +1,34 @@
+<ng-progress [spinner]="false"></ng-progress>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#"><i class="fas fa-file-medical-alt"></i> XReport <span class="text-muted">builder</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <!-- Left -->
+      <ul class="navbar-nav mr-auto">
+        <!-- Sablonok -->
+        <li class="nav-item">
+          <a id="a-schemes" class="nav-link" [routerLink]="['templates']">Templates</a>
+        </li>
+
+        <!-- Kategóriák -->
+        <li id="navbarCategoryDropdown" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Categories
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          </div>
+        </li>
+      </ul>
+
+      <!-- Right -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a id="a-login" href="#" class="nav-link"><i class="fas fa-sign-in-alt"></i> Sign in</a>
+          <a id="a-logout" href="#" class="nav-link d-none"><i class="fas fa-sign-out-alt"></i><span id="user-info"></span></a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  

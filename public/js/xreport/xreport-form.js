@@ -177,7 +177,7 @@ var XReportForm = (function(jQ) {
   //Numberbox
   function XInNum() {
     XFormElem.call(this, "innum");
-    this.min = 0;
+    this.min = -Infinity;
     this.max = Infinity;
     this.unit = "";
   }
@@ -225,6 +225,7 @@ var XReportForm = (function(jQ) {
     var unitWrapper = jQ("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
     var unitControl = jQ("<input type='text' class='form-control'>");
 
+    unitControl.val(model.unit);
     minControl.val(model.min);
     maxControl.val(model.max);
 
@@ -264,6 +265,71 @@ var XReportForm = (function(jQ) {
     unitWrapper.append(unitControl);
     editor.append(minWrapper);
     editor.append(maxWrapper);
+    editor.append(unitWrapper);
+    return editor;
+  }
+
+  //Numberbox
+  function XCalcOut() {
+    XFormElem.call(this, "calcout");
+    this.min = -Infinity;
+    this.max = Infinity;
+    this.unit = "";
+  }
+
+  XCalcOut.prototype = Object.create(XFormElem.prototype);
+
+  XCalcOut.prototype.render = function() {
+    var model = this;
+    var view = jQ("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' disabled>");
+    this.bind(view);
+
+    if (model.unit) {
+      view.wrap("<div class='input-group mb-3'></div>");
+      view.parent().append("<div class='input-group-append'>\
+                              <span class='input-group-text'>" + model.unit + "</span>\
+                            </div>");
+      view = view.parent();
+    }
+
+    return view;
+  }
+
+  XCalcOut.prototype.getValue = function() {
+    return jQ("*[data-x-id='" + this.id + "']").val();
+  }
+
+  XCalcOut.prototype.genText = function() {
+    var val = jQ("*[data-x-id='" + this.id + "']").val();
+
+    if (!val) {
+      return null;
+    }
+
+    return jQ("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
+  }
+
+  XCalcOut.prototype.buildEditor = function() {
+    var model = this;
+    var editor = jQ("<div></div>");
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var unitWrapper = jQ("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
+    var unitControl = jQ("<input type='text' class='form-control'>");
+    unitControl.val(model.unit);
+
+    unitControl.on("change", function() {
+      var val = jQ(this).val();
+      var wasUnitEmpty = model.unit === "";
+      model.unit = val;
+
+      if (wasUnitEmpty) {
+        view.replaceWith(model.render());
+      } else {
+        view.parent().replaceWith(model.render());
+      }
+    });
+
+    unitWrapper.append(unitControl);
     editor.append(unitWrapper);
     return editor;
   }
@@ -376,6 +442,27 @@ var XReportForm = (function(jQ) {
     return selectedLabel.text();
   }
 
+  XSel.prototype.checkOption = function(check, option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).prop("checked", check);
+  }
+
+  XSel.prototype.showOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().removeClass("collapse");
+  }
+
+  XSel.prototype.hideOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().addClass("collapse");
+  }
+
   XSel.prototype.genText = function() {
     var view = jQ("*[data-x-id='" + this.id + "']");
     var selectedLabel = view.find("input:checked").first().next();
@@ -474,6 +561,20 @@ var XReportForm = (function(jQ) {
     var view = jQ("*[data-x-id='" + model.id + "']");
     var indexOfOption = model.options.indexOf(option);
     view.find("input").eq(indexOfOption).prop("checked", check);
+  }
+
+  XMulSel.prototype.showOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().removeClass("collapse");
+  }
+
+  XMulSel.prototype.hideOption = function(option) {
+    var model = this;
+    var view = jQ("*[data-x-id='" + model.id + "']");
+    var indexOfOption = model.options.indexOf(option);
+    view.find("input").eq(indexOfOption).parent().addClass("collapse");
   }
 
   XMulSel.prototype.genText = function() {
@@ -904,6 +1005,7 @@ var XReportForm = (function(jQ) {
     Header: XHeader,
     Info: XInfo,
     Num: XInNum,
+    CalcOut: XCalcOut,
     Bool: XInBool,
     Sel: XSel,
     MulSel: XMulSel,

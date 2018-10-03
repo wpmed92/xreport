@@ -2,7 +2,7 @@
 $(function() {
   "use strict";
   var readOnlyMode = false;
-  enterReadOnlyMode();
+  //enterReadOnlyMode();
 
   //#region INIT
   var myReport = {
@@ -19,11 +19,11 @@ $(function() {
 
   //NOTE: only for demo
   //#endregion
-  //$("#div-card-holder").append(addNewElemToFormEditor());
+  $("#div-card-holder").append(addNewElemToFormEditor());
   //#region COMPONENTS
   function schemeButton() {
     return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                <h4 class="text-muted">Új sablon hozzáadása</h4>\
+                <h4 class="text-muted">Add new template</h4>\
                 <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
                   <div class="card-body text-center">\
                     <img src="image/add.png" style="height: 64px; width: 64px"></i>\
@@ -68,6 +68,7 @@ $(function() {
                     <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
                     <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
                     <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+                    <a href="#" id="btn-add-calculated" class="dropdown-item"><i class="fas fa-calculator"></i> Calculated</a>\
                     <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
                     <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
                     <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
@@ -301,6 +302,9 @@ $(function() {
         break;
       case "btn-add-numberbox":
         XReportBuilder.addNumberGroup();
+        break;
+      case "btn-add-calculated":
+        XReportBuilder.addCalcGroup();
         break;
       case "btn-add-checkbox":
         XReportBuilder.addBoolGroup();
