@@ -44,6 +44,10 @@ export class TemplateBrowserComponent implements OnInit {
   ngOnInit() {
   }
 
+  newReport(): void {
+    window.location.href = "https://xreport-builder.firebaseapp.com";
+  }
+
   view(report: ReportMetaId): void {
     this.router.navigate([`/templates/${report.id}`]);
   }

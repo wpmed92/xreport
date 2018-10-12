@@ -9,41 +9,19 @@ $(function() {
     name: "",
     creator: "",
     category: "",
+    status: "",
     file: ""
   }
   var currentUser = null;
   var currentReportId = null;
   moment.locale("hu");
   getCategories();
-  loadSchemesPage();
+  showNewSchemeModal();
 
   //NOTE: only for demo
   //#endregion
   $("#div-card-holder").append(addNewElemToFormEditor());
   //#region COMPONENTS
-  function schemeButton() {
-    return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                <h4 class="text-muted">Add new template</h4>\
-                <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">\
-                  <div class="card-body text-center">\
-                    <img src="image/add.png" style="height: 64px; width: 64px"></i>\
-                  </div>\
-                </div>\
-              <div>');
-  }
-
-  function schemeListElem(scheme) {
-    return $('<div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">\
-                <div class="card card-shadowed report-list-item h-100" data-id="' + scheme.id + '">\
-                  <div class="card-body">\
-                    <h4 class="card-title">' + scheme.name + '</h4>\
-                    <h6 class="card-subtitle mb-2 text-muted">' + scheme.category + '</h6>\
-                    <p class="card-text"><small class="text-muted">Készítette <strong>' + scheme.creator + "</strong>, " + moment(scheme.createdAt).fromNow()  + '</small></p>\
-                  </div>\
-                </div>\
-              <div>');
-  }
-
   function addNewElemToConditionEditor() {
     return $('<div id="btn-add-new-condition" class="x-add-new-elem-placeholder w-100 d-flex justify-content-center mb-4">\
                 <div class="dropdown">\
@@ -65,19 +43,19 @@ $(function() {
                     <i class="fas fa-plus"></i>\
                   </button>\
                   <div id="tool-menu" class="dropdown-menu">\
-                    <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
-                    <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
-                    <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+                    <a href="#" id="btn-add-textbox" class="dropdown-item"><i class="fas fa-font"></i> Text field</a>\
+                    <a href="#" id="btn-add-text" class="dropdown-item"><i class="fas fa-text-width"></i> Plain text</a>\
+                    <a href="#" id="btn-add-numberbox" class="dropdown-item"><i class="fas fa-hashtag"></i> Number field</a>\
                     <a href="#" id="btn-add-calculated" class="dropdown-item"><i class="fas fa-calculator"></i> Calculated</a>\
-                    <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
-                    <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
-                    <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
-                    <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
-                    <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
-                    <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Szekció cím</a>\
-                    <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Magyarázó szöveg</a>\
-                    <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Értékelőskála</a>\
-                    <a href="#" id="btn-add-image" class="dropdown-item"><i class="far fa-image"></i> Kép</a>\
+                    <a href="#" id="btn-add-checkbox" class="dropdown-item"><i class="far fa-check-square"></i> Boolean field</a>\
+                    <a href="#" id="btn-add-select" class="dropdown-item"><i class="fas fa-bars"></i> Single choice</a>\
+                    <a href="#" id="btn-add-select-multiple" class="dropdown-item"><i class="fas fa-list"></i> Multiple choice</a>\
+                    <a href="#" id="btn-add-textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Textarea</a>\
+                    <a href="#" id="btn-add-date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Date</a>\
+                    <a href="#" id="btn-add-header" class="dropdown-item"><i class="fas fa-heading"></i> Header</a>\
+                    <a href="#" id="btn-add-info" class="dropdown-item"><i class="fas fa-info"></i> Information</a>\
+                    <a href="#" id="btn-add-rating" class="dropdown-item"><i class="fas fa-table"></i> Rating scale</a>\
+                    <a href="#" id="btn-add-image" class="dropdown-item"><i class="far fa-image"></i> Image</a>\
                   </div>\
                 </div>\
               </div>');
@@ -113,22 +91,6 @@ $(function() {
 
   function navTabsClick() {
     $(this).tab('show');
-  }
-
-  function startLoading() {
-    $("#anim-loader").removeClass("d-none");
-    $("#li-schemes").addClass("d-none");
-  }
-
-  function stopLoading() {
-    $("#anim-loader").addClass("d-none");
-    $("#li-schemes").removeClass("d-none");
-  }
-
-  function loadSchemesPage() {
-    $("#div-schemes").removeClass("d-none");
-    $("#div-builder").addClass("d-none");
-    getReports();
   }
 
   function loadEditorPage(json) {
@@ -175,33 +137,6 @@ $(function() {
     });
   }
 
-  function getReports() {
-    $("#li-schemes").html("");
-
-    if (!readOnlyMode) {
-      $("#li-schemes").append(schemeButton());
-    }
-
-    startLoading();
-
-    api.getReports().then(function(reports) {
-      reports.forEach(function(report) {
-        api.getCategory(report.data().category).then(function(category) {
-          $("#li-schemes").append(schemeListElem({ id: report.id,
-                                                   name: report.data().name,
-                                                   creator: report.data().creator,
-                                                   createdAt: report.data().createdAt,
-                                                   category: category.data().name }));
-        });
-      });
-
-      stopLoading();
-    }).catch(function(error) {
-      stopLoading();
-      console.log(error);
-    });
-  }
-
   function googleLogin() {
     api.logIn().then(function(result) {
       console.log("Google login succeeded.");
@@ -221,11 +156,11 @@ $(function() {
     }
 
     if (!myReport.name) {
-      showMessage({ title: "Hiba", text: "Adja meg a sablon nevét! " });
+      showMessage({ title: "Error", text: "Enter a title for the template!" });
       return;
     }
 
-    waitingDialog.show("Sablon mentése...");
+    waitingDialog.show("Saving template...");
 
     myReport.file = XReportBuilder.getReportInJSONFile();
     myReport.creator = currentUser.displayName;
@@ -262,7 +197,7 @@ $(function() {
       return;
     }
 
-    waitingDialog.show("Sablon betöltése...");
+    waitingDialog.show("Loading template...");
     XReportBuilder.initBuilder("x-form-report");
     currentReportId = $(this).attr("data-id");
 
@@ -281,7 +216,7 @@ $(function() {
       }
     }).catch(function(error) {
         waitingDialog.hide();
-        showMessage({ title: "Hiba", text: "A sablon betöltése sikertelen. " });
+        showMessage({ title: "Hiba", text: "Error loading" });
         console.log(error);
     });
   }
@@ -341,16 +276,12 @@ $(function() {
   $("body").on('click', ".report-list-item", loadReport);
   $("#btn-save-scheme").click(saveScheme);
   $("#btn-drop-scheme").click(function() {
-    loadSchemesPage();
+    window.history.back();
   });
   $("#btn-toggle-edit").click(function(e) {
     e.preventDefault();
     XReportBuilder.toggleEditState();
     console.log(XReportBuilder.genText());
-  });
-
-  $("#btn-run-script").click(function() {
-    var scriptText = $("#script-area").val();
   });
 
   $("#input-scheme-title").on("change", function(e) {
@@ -409,6 +340,7 @@ $(function() {
   $("#btn-new-scheme").click(function() {
     myReport.name = $("#modal-scheme-name").val();
     myReport.category = $("#modal-scheme-category").val();
+    myReport.status = "draft";
     loadEditorPage();
     hideNewSchemeModal();
   });
@@ -416,4 +348,4 @@ $(function() {
     loadSchemesPage();
   });
   //#endregion
-}(new ClipboardJS('#btn-copy-to-clipboard')));
+});

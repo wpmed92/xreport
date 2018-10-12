@@ -25,18 +25,18 @@ var XReportBuilder = (function(jQ, XReportForm, parser) {
             <i class="fas fa-ellipsis-v"></i>\
           </button>\
           <div class="dropdown-menu">\
-            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Szöveges mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Egyszerű szöveg</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Szám mező</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-font"></i> Text field</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Plain text</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-hashtag"></i> Number field</a>\
             <a href="#" class="dropdown-item"><i class="fas fa-calculator"></i> Calculated</a>\
-            <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Eldöntendő mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Egyszeres választás</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Többszörös választás</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Szabadszöveges mező</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Dátum</a>\
+            <a href="#" class="dropdown-item"><i class="far fa-check-square"></i> Boolean field</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-bars"></i> Single choice</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-list"></i> Multiple choice</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-text-width"></i> Textarea</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Date</a>\
             <div class="dropdown-divider"></div>\
-            <a href="#" class="dropdown-item"><i class="fas fa-trash"></i> Törlés</a>\
-            <a href="#" class="dropdown-item"><i class="fas fa-copy"></i> Duplikálás</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-trash"></i> Delete</a>\
+            <a href="#" class="dropdown-item"><i class="fas fa-copy"></i> Duplicate</a>\
           </div>\
         </div>'
       );

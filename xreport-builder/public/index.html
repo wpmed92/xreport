@@ -59,11 +59,10 @@
     <!-- Controls -->
     <div class="row mb-1">
         <div class="col col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-12 col-sm-12">
-          <button id="btn-new-reporting" type="button" class="btn btn-success"><i class="fas fa-edit"></i> Új kitöltés</button>
           <div class="btn-group" role="group" aria-label="Basic example">
-            <button id="btn-save-scheme" type="button" class="btn btn-success">Mentés</button>
-            <button id="btn-drop-scheme" type="button" class="btn btn-danger">Kilépés</button>
-            <button id="btn-toggle-edit" type="button" class="btn btn-primary">Szerkesztés</button>
+            <button id="btn-save-scheme" type="button" class="btn btn-success">Save</button>
+            <button id="btn-drop-scheme" type="button" class="btn btn-danger">Discard</button>
+            <button id="btn-toggle-edit" type="button" class="btn btn-primary">Edit</button>
           </div>
         </div>
     </div>
@@ -91,12 +90,6 @@
              </div>
 
              <div id="x-form-conditions" class="collapse">
-             </div>
-
-             <button id="btn-copy-to-clipboard" type="button" class="btn btn-info collapse" data-clipboard-target="#x-form-output"><i class="fas fa-paste"></i> Vágólapra másol</button>
-             <br>
-             <br>
-             <div id="x-form-output" class="collapse">
              </div>
             </div>
           </div>
@@ -129,7 +122,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Új sablon</h4>
+          <h4 class="modal-title">New template</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -139,20 +132,20 @@
           <form>
             <!-- Scheme title -->
             <div class="form-group">
-              <label for="recipient-name" class="col-form-label">Cím</label>
+              <label for="recipient-name" class="col-form-label">Title</label>
               <input type="text" class="form-control" id="modal-scheme-name">
             </div>
 
             <!-- Scheme category -->
             <div class="form-group">
-              <label for="message-text" class="col-form-label">Kategória</label>
+              <label for="message-text" class="col-form-label">Category</label>
               <select class="form-control" id="modal-scheme-category"></select>
             </div>
           </form>
         </div>
 
         <div class="modal-footer">
-          <button id="btn-new-scheme" type="button" class="btn btn-primary">Létrehoz</button>
+          <button id="btn-new-scheme" type="button" class="btn btn-primary">Create</button>
         </div>
       </div>
     </div>
@@ -194,9 +187,6 @@
 
   <!-- JS Expression Parser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.min.js"></script>
-
-  <!-- CLIPBOARD -->
-  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 
   <!-- APP -->
   <script src="js/backend/api.js"></script>
