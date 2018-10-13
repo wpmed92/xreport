@@ -49,6 +49,7 @@ function Tokenizer(script) {
       char === "-" || char === "/" ||
       char === "*" || char === ":" ||
       char === ";" || char === " " ||
+      char === "{" || char === "}" ||
       char === "\n" || char === "\t" ||
       char === ".";
   }
@@ -71,52 +72,77 @@ function Tokenizer(script) {
     return script[cursor];
   }
 
+  var peekChar = function() {
+    return script[cursor + 1];
+  }
+
   this.tokenize = function() {
     while (cursor < script.length) {
       skipSpaces();
       
       if (getChar() == "'" || getChar() == '"') {
         var stringLiteral = parseString();
-        tokenStream.push({ type: 'STRING_LITERAL', val: stringLiteral });
+        tokenStream.push({ type: 'STRING', val: stringLiteral });
       } else if (getChar() == '=') {
-        tokenStream.push({ type: 'EQUAL_SIGN' });
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'EQUAL', val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'ASSIGN', val: getChar() });
+        }
       } else if (getChar() == '<') {
-        tokenStream.push({ type: 'LT_SIGN' });
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'LT_EQUAL', val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'LT', val: getChar() });
+        }
       } else if (getChar() == '>') {
-        tokenStream.push({ type: 'GT_SIGN' });
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'GT_EQUAL', val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'GT', val: getChar() });
+        }
       } else if (getChar() == '+') {
-        tokenStream.push({ type: 'PLUS_SIGN' });
+        tokenStream.push({ type: 'PLUS_OP', val: getChar() });
       } else if (getChar() == '-') {
-        tokenStream.push({ type: 'MINUS_SIGN' });
+        tokenStream.push({ type: 'MINUS_OP', val: getChar() });
       } else if (getChar() == '*') {
-        tokenStream.push({ type: 'MUL_SIGN' });
+        tokenStream.push({ type: 'MUL_OP', val: getChar() });
       } else if (getChar() == '/') {
-        tokenStream.push({ type: 'DIV_SIGN' });
+        tokenStream.push({ type: 'DIV_OP', val: getChar() });
+      } else if (getChar() == '%') {
+        tokenStream.push({ type: 'MOD_OP', val: getChar() });
       } else if (getChar() == ':') {
-        tokenStream.push({ type: 'COLON' });
+        tokenStream.push({ type: 'COLON', val: getChar()});
       } else if (getChar() == ';') {
-        tokenStream.push({ type: 'SEMI_COLON' });
+        tokenStream.push({ type: 'SEMI_COLON', val: getChar() });
       } else if (getChar() == '.') {
-        tokenStream.push({ type: 'PROP_ACCESS' });
+        tokenStream.push({ type: 'DOT', val: getChar() });
       } else if (getChar() == ',') {
-        tokenStream.push({ type: 'COMMA' });
+        tokenStream.push({ type: 'COMMA', val: getChar() });
       } else if (getChar() == '(') {
-        tokenStream.push({ type: 'OPEN_PARENTH'});
+        tokenStream.push({ type: 'LEFT_BRACKET', val: getChar()});
       } else if (getChar() == ')') {
-        tokenStream.push({ type: 'CLOSING_PARENTH'});
+        tokenStream.push({ type: 'RIGHT_BRACKET', val: getChar()});
+      } else if (getChar() == '{') {
+        tokenStream.push({ type: 'LEFT_CURLY', val: getChar()});
+      } else if (getChar() == '}') {
+        tokenStream.push({ type: 'RIGHT_CURLY', val: getChar()});
       } else {
         var token = parseToken();
         
         if (isNumericalLiteral(token)) {
-          tokenStream.push({ type: "NUMERICAL_LITERAL", val: parseInt(token) });
+          tokenStream.push({ type: "NUMBER", val: parseInt(token) });
         } else if (token === "and") {
-          tokenStream.push({ type: "AND_KEYWORD" });
+          tokenStream.push({ type: "AND_KEYWORD", val: token });
         } else if (token === "or") {
-          tokenStream.push({ type: "OR_KEYWORD" });
+          tokenStream.push({ type: "OR_KEYWORD", val: token});
         } else if (token === "if") {
-          tokenStream.push({ type: "IF_KEYWORD" });
+          tokenStream.push({ type: "IF_KEYWORD", val: token });
         } else if (token === "then") {
-          tokenStream.push({ type: "THEN_KEYWORD" });
+          tokenStream.push({ type: "THEN_KEYWORD", val: token });
         } else if (isVariableName(token)) {
           tokenStream.push({ type: "VARIABLE_NAME", val: token });
         } else {
