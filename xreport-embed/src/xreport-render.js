@@ -3,16 +3,25 @@ import $ from 'jquery';
 function formCardComponent(title) {
   var component = $('<div class="card">\
                       <div class="card-header">\
-                        <h5>' + title + '</h5>\
+                        <div class="row">\
+                          <div class="col-5">\
+                              <input id="input-scheme-title" type="text" class="form-control" placeholder="Írja be a sablon nevét">\
+                          </div>\
+                          <div class="col-7 controls-container">\
+                          </div>\
+                        </div>\
                       </div>\
                       <div class="x-form card-body">\
                         <form></form>\
                         <div class="text-output collapse">\
+                        <h5>Form script</h5>\
+                        <hr>\
+                        <textarea class="form-control" rows="7"></textarea>\
                         </div>\
                       </div>\
                     </div>');
 
-  var btnGenText = $('<button type="button" class="btn btn-primary float-right"><i class="far fa-file-alt"></i></button>');
+  var btnGenText = $('<button type="button" class="btn btn-secondary float-right"><i class="fas fa-code-branch"></i></button>');
 
   component.addElem = function(elem) {
     component.find("form").append(elem);
@@ -37,11 +46,9 @@ function formCardComponent(title) {
     component.find("form").first().toggleClass("collapse");
     let textOutput = component.find(".text-output").first();
     textOutput.toggleClass("collapse");
-    //textOutput.html(prettyPrint());
-    textOutput.html("<pre>" + genText() + "</pre>");
   });
 
-  //component.find(".controls-container").append(btnGenText);
+  component.find(".controls-container").append(btnGenText);
 
   return component;
 }
