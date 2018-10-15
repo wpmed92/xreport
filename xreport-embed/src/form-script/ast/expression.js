@@ -1,8 +1,8 @@
 import { AST } from './ast';
 
-function Expression() {
-    AST.call(this, "MATH_EXP");
-    this.outputQueue = [];
+function Expression(outputQueue) {
+    AST.call(this, "EXP");
+    this.outputQueue = outputQueue;
 }
 
 export { Expression };

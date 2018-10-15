@@ -1,5 +1,4 @@
 function Tokenizer(script) {
-  let script = script;
   let tokenStream = [];
   let lineCounter = 0;
   let cursor = 0;
@@ -33,8 +32,8 @@ function Tokenizer(script) {
     return token;
   }
 
-  var isNumericalLiteral = function(token) {
-	  return /^\d+$/.test(token);
+  var isNumber = function(token) {
+	  return !isNaN(parseFloat(token));
   }
 
   var isVariableName = function(token) {
@@ -51,7 +50,7 @@ function Tokenizer(script) {
       char === ";" || char === " " ||
       char === "{" || char === "}" ||
       char === "\n" || char === "\t" ||
-      char === ".";
+      char === "." || char === ",";
   }
 
   var skipSpaces = function() {
@@ -85,24 +84,24 @@ function Tokenizer(script) {
         tokenStream.push({ type: 'STRING', val: stringLiteral });
       } else if (getChar() == '=') {
         if (peekChar() == '=') {
-          tokenStream.push({ type: 'EQUAL', val: getChar() + peekChar() });
+          tokenStream.push({ type: 'EQUAL_OP', val: getChar() + peekChar() });
           move();
         } else {
           tokenStream.push({ type: 'ASSIGN', val: getChar() });
         }
       } else if (getChar() == '<') {
         if (peekChar() == '=') {
-          tokenStream.push({ type: 'LT_EQUAL', val: getChar() + peekChar() });
+          tokenStream.push({ type: 'LT_EQUAL_OP', val: getChar() + peekChar() });
           move();
         } else {
-          tokenStream.push({ type: 'LT', val: getChar() });
+          tokenStream.push({ type: 'LT_OP', val: getChar() });
         }
       } else if (getChar() == '>') {
         if (peekChar() == '=') {
-          tokenStream.push({ type: 'GT_EQUAL', val: getChar() + peekChar() });
+          tokenStream.push({ type: 'GT_EQUAL_OP', val: getChar() + peekChar() });
           move();
         } else {
-          tokenStream.push({ type: 'GT', val: getChar() });
+          tokenStream.push({ type: 'GT_OP', val: getChar() });
         }
       } else if (getChar() == '+') {
         tokenStream.push({ type: 'PLUS_OP', val: getChar() });
@@ -133,16 +132,14 @@ function Tokenizer(script) {
       } else {
         var token = parseToken();
         
-        if (isNumericalLiteral(token)) {
-          tokenStream.push({ type: "NUMBER", val: parseInt(token) });
+        if (isNumber(token)) {
+          tokenStream.push({ type: "NUMBER", val: parseFloat(token) });
         } else if (token === "and") {
-          tokenStream.push({ type: "AND_KEYWORD", val: token });
+          tokenStream.push({ type: "AND_OP", val: token });
         } else if (token === "or") {
-          tokenStream.push({ type: "OR_KEYWORD", val: token});
+          tokenStream.push({ type: "OR_OP", val: token});
         } else if (token === "if") {
           tokenStream.push({ type: "IF_KEYWORD", val: token });
-        } else if (token === "then") {
-          tokenStream.push({ type: "THEN_KEYWORD", val: token });
         } else if (isVariableName(token)) {
           tokenStream.push({ type: "VARIABLE_NAME", val: token });
         } else {
@@ -152,6 +149,8 @@ function Tokenizer(script) {
       
       move();
     }
+
+    return tokenStream;
   }
 }
 

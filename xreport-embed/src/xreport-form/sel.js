@@ -48,11 +48,18 @@ XSel.prototype.getValue = function() {
   return selectedLabel.text();
 }
 
-XSel.prototype.checkOption = function(check, option) {
+XSel.prototype.checkOption = function(option) {
   var model = this;
   var view = $("*[data-x-id='" + model.id + "']");
   var indexOfOption = model.options.indexOf(option);
-  view.find("input").eq(indexOfOption).prop("checked", check);
+  view.find("input").eq(indexOfOption).prop("checked", true);
+}
+
+XSel.prototype.uncheckOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).prop("checked", false);
 }
 
 XSel.prototype.showOption = function(option) {

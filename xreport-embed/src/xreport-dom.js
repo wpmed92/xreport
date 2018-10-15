@@ -93,7 +93,7 @@ function XReportDOM() {
         addToDOM(relem);
       });
 
-      cb(dom, template["conditions"]);
+      cb(dom, template["formScript"]);
     });
   }
 
@@ -102,7 +102,27 @@ function XReportDOM() {
   }
 
   this.getXElemById = function(id) {
-    return _.find(dom, { id: id });
+    for (let i = 0; i < dom.length; i++) {
+      let domElem = dom[i];
+
+      if (domElem.id === id) {
+        return domElem;
+      }
+      
+      if (domElem.children) {
+        for (let j = 0; j < domElem.children.length; j++) {
+          let domChildElem = domElem.children[j];
+
+          if (domChildElem.id === id) {
+            return domChildElem;
+          }
+
+          if (domChildElem.child && domChildElem.child.id === id) {
+            return domChildElem.child;
+          }
+        }
+      }
+    }
   }
 
   this.getValueFromXElem = function(id) {

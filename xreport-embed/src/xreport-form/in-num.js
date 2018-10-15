@@ -26,6 +26,10 @@ XInNum.prototype.render = function() {
   return view;
 }
 
+XInNum.prototype.setValue = function(val) {
+  return $("*[data-x-id='" + this.id + "']").val(val);
+}
+
 XInNum.prototype.getValue = function() {
   return $("*[data-x-id='" + this.id + "']").val();
 }

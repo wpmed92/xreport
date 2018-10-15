@@ -1,23 +1,3 @@
-//static controls
-import { XLabel } from './xreport-form/label.js';
-import { XHeader } from './xreport-form/header.js';
-import { XPlainText } from './xreport-form/plain-text.js';
-import { XInfo } from './xreport-form/info.js';
-import { XImage } from './xreport-form/image.js';
-import { XTextArea } from './xreport-form/text-area.js';
-//input controls
-import { XInNum } from './xreport-form/in-num.js';
-import { XInText } from './xreport-form/in-text.js';
-import { XInBool } from './xreport-form/in-bool.js';
-import { XSel } from './xreport-form/sel.js';
-import { XMulSel } from './xreport-form/mulsel.js';
-import { XRating } from './xreport-form/rating.js';
-import { XCalcOut }from './xreport-form/calc-out.js';
-import { XDate} from './xreport-form/date.js';
-//parents
-import { XFormGroup } from './xreport-form/group.js';
-import { XFormRow } from './xreport-form/row.js';
-
 import $ from 'jquery';
 
 function formCardComponent(title) {

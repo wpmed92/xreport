@@ -14,6 +14,10 @@ XInText.prototype.render = function() {
   return view;
 }
 
+XInText.prototype.setValue = function(val) {
+  return $("*[data-x-id='" + this.id + "']").val(val);
+}
+
 XInText.prototype.getValue = function() {
   return $("*[data-x-id='" + this.id + "']").val();
 }

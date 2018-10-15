@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 function XFormElem(type) {
   var that = this;
   that.type = type;
@@ -14,6 +16,14 @@ XFormElem.prototype.bind = function(view) {
 
 XFormElem.prototype.buildEditor = function() {
 
+}
+
+XFormElem.prototype.show = function() {
+  $("*[data-x-id='" + this.id + "']").closest(".col").show();
+}
+
+XFormElem.prototype.hide = function() {
+  $("*[data-x-id='" + this.id + "']").closest(".col").hide();
 }
 
 export { XFormElem };
