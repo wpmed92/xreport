@@ -1,5 +1,4 @@
 import { Parser } from './parser';
-import { FunctionCall } from './ast/function-call';
 
 const OPERATORS = {
     "+": function(left, right) {

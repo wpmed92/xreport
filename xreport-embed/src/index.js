@@ -1,7 +1,7 @@
 import { XReportDOM } from './xreport-dom.js';
-import { XReportEvaluator } from './xreport-evaluator.js';
 import { XReportRenderer } from './xreport-render.js';
 import { Evaluator } from './form-script/evaluator';
+import 'bootstrap';
 
 const xreportDOM = new XReportDOM();
 const xreportRenderer = new XReportRenderer(xreportDOM);
@@ -12,9 +12,9 @@ export function makeWidget(url, title, targetId, success) {
     console.log("In xreport-embed");
 
     xreportDOM.load(url, function(dom, formScript) {
-      let form = xreportRenderer.render(dom, title, targetId);
-      let xreportEval = new Evaluator(testScript, xreportDOM);
-      xreportEval.attachToForm(form);
+      let form = xreportRenderer.render(xreportDOM, title, targetId, /*editorMode*/true);
+      /*let xreportEval = new Evaluator(testScript, xreportDOM);
+      xreportEval.attachToForm(form);*/
       resolve();
     });
   });

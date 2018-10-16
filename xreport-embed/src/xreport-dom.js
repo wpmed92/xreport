@@ -17,25 +17,159 @@ import { XDate} from './xreport-form/date.js';
 //parents
 import { XFormGroup } from './xreport-form/group.js';
 import { XFormRow } from './xreport-form/row.js';
+//Components
+import { RowEditorComponent } from './components/form-builder/row-editor-component';
 
 import $ from 'jquery';
-import _ from 'lodash';
+
+//Styles
+import './css/editor-styles.css';
 
 function XReportDOM() {
   var dom = [];
+  var domView = $("<div></div>");
+  var cellEditorMode = false;
+  var that = this;
 
-  var addToDOM = function(elem) {
-    var row;
+  var addToDOM = function(elem, after, insertAt) {
+    var row = null;
+    var rowView = null;
 
     if (elem.type === "row") {
       row = elem;
     } else {
-      row = new XReportForm.Row();
+      row = new XFormRow();
       row.addChild(elem);
     }
 
-    dom.push(row);
+    rowView = row.render();
+
+    if (after) {
+      dom.splice(insertAt, 0, row);
+      rowView.insertAfter(after);
+    } else {
+      dom.push(row);
+      domView.append(rowView);
+    }
+
+    let rowEditor = new RowEditorComponent(that);
+    rowView.append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditor.render(row)));
   }
+
+  this.attachEditorControls = function() {
+    for (let i = 0; i < dom.length; i++) {
+      let row = dom[i];
+
+      for (let j = 0; j < row.children.length; j++) {
+        let child = row.children[j];
+
+        $("*[data-x-id='" + child.id + "']").closest(".x-form-wrapper").hover(
+          function() {
+            if (cellEditorMode) {
+              return;
+            }
+
+            $(this).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
+          }, function() {
+              $(this).find(".x-form-edit-group").remove();
+          }
+        );
+      }
+    }
+  }
+
+  //{Start}[Row manipulation]
+  var appendToRow = function(row, elem) {
+    row.addChild(elem);
+    var col = $("<div class='col x-form-wrapper'></div>").append(elem.render());
+    col.insertBefore($("*[data-x-id='" + row.id + "']").find(".x-row-editor"));
+    col.hover(
+      function() {
+        $(this).append(editorWrapper($("*[data-x-id='" + elem.id + "']"), elem, row));
+      }, function() {
+          $(this).find(".x-form-edit-group").remove();
+      }
+    );
+  }
+
+  this.duplicateRow = function(row) {
+    var insertAt = dom.indexOf(row) + 1;
+    var newRow = new XFormRow();
+
+    for (var i = 0; i < row.children.length; i++) {
+      newRow.addChild(createFormElemFromJSON(row.children[i]));
+      newRow.children[i].id = newRow.children[i].genUniqueId();
+
+      if (newRow.children[i].type === "group") {
+        newRow.children[i].label.id = newRow.children[i].label.genUniqueId();
+        newRow.children[i].child.id = newRow.children[i].child.genUniqueId();
+      }
+    }
+
+    addToDOM(newRow, $("*[data-x-id='" + row.id + "']"), insertAt);
+  }
+
+  this.deleteRow = function(row) {
+    var curRowIndex = dom.indexOf(row);
+    dom.splice(curRowIndex, 1);
+    $("*[data-x-id='" + row.id + "']").remove();
+  }
+  //{End}[Row manipulation]
+
+  //{Start}[Editor components]
+  function editorWrapper(xElem, row) {
+    //Create editor buttons
+    var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
+    var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
+    var removeButton = $("<button type='button' class='btn btn-sm btn-outline-danger x-form-edit-btn'><i class='fas fa-minus-circle'></i></button>");
+
+    buttonGroup.append(editButton);
+    buttonGroup.append(removeButton);
+
+    //Create editor menu
+    editButton.click(function() {
+      buildEditor(xElem);
+    });
+
+    //Remove elem
+    removeButton.click(function() {
+      row.children.splice(row.children.indexOf(xElem), 1);
+
+      if (row.children.length == 0) {
+        var curRowIndex = dom.indexOf(row);
+        dom.splice(curRowIndex, 1);
+        $("*[data-x-id='" + row.id + "']").remove();
+      } else {
+        //elem -> btn-group -> col
+        $(this).parent().parent().remove();
+      }
+    });
+
+    return buttonGroup;
+  }
+
+  function buildEditor(xElem) {
+    cellEditorMode = true;
+    sortable.option("disabled", true);
+    var view = $("*[data-x-id='" + xElem.id + "']");
+    var editorWrapper = $("<div class='x-editor-wrapper'></div>");
+    var closeBtn = $("<button type='button' class='btn btn-sm btn-outline-danger x-editor-close'><i class='far fa-times-circle'></i></div>");
+
+    closeBtn.click(function() {
+      $("*[data-x-id='" + xElem.id + "']").removeClass("d-none");
+      editorWrapper.remove();
+      $(".x-form-edit-btn").toggleClass("collapse");
+      sortable.option("disabled", false);
+      cellEditorMode = false;
+    });
+
+    editorWrapper.append(xElem.buildEditor());
+    editorWrapper.append(closeBtn);
+    $("*[data-x-id='" + xElem.id + "']").addClass("d-none");
+    $("*[data-x-id='" + xElem.id + "']").parent().append(editorWrapper);
+    $(".x-form-edit-btn").toggleClass("collapse");
+  }
+  //{End}[Editor components]
 
   var createFormElemFromJSON = function(formElem) {
     var type = formElem.type;
@@ -84,6 +218,135 @@ function XReportDOM() {
     }
   }
 
+  this.getReportInJSONFile = function() {
+    return new Blob([this.getReportInJSON()], { type: "application/json" });
+  }
+
+  //{Start}[Add elements]
+  this.addTextGroup = function(row) {
+    var group = new XFormGroup("vertical", "Text field");
+    group.addChild(new XInText());
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addNumberGroup = function(row) {
+    var group = new XFormGroup("vertical", "Number field");
+    group.addChild(new XInNum());
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addCalcGroup = function(row) {
+    var group = new XFormGroup("vertical", "Calculated field");
+    group.addChild(new XCalcOut());
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addBoolGroup = function(row) {
+    var group = new XFormGroup("vertical", "Boolean field");
+    group.addChild(new XInBool());
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addSelGroup = function(row) {
+    var group = new XFormGroup("vertical", "Single choice");
+    group.addChild(new XSel("radio"));
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addMulSelGroup = function(row) {
+    var group = new XFormGroup("vertical", "Multiple choice");
+    group.addChild(new XMulSel("checkbox"));
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addPlainText = function(row) {
+    var plainText = new XPlainText("Plain text");
+
+    if (row) {
+      appendToRow(row, plainText);
+      return;
+    }
+
+    addToDOM(plainText);
+  }
+
+  this.addTextAreaGroup = function(row) {
+    var group = new XFormGroup("vertical", "Textarea");
+    group.addChild(new XTextArea(4));
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addDateGroup = function(row) {
+    var group = new XFormGroup("vertical", "Date");
+    group.addChild(new XDate());
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addHeader = function() {
+    addToDOM(new XHeader("Header"));
+  }
+
+  this.addInfo = function() {
+    addToDOM(new XInfo("Information", "info"));
+  }
+
+  this.addRating = function() {
+    addToDOM(new XRating());
+  }
+
+  this.addImage = function() {
+    addToDOM(new XImage());
+  }
+  //{End}[Add elements]
+
   this.load = function(url, cb) {
     dom = [];
     
@@ -99,6 +362,10 @@ function XReportDOM() {
 
   this.getContent = function() {
     return dom;
+  }
+
+  this.render = function() {
+    return domView;
   }
 
   this.getXElemById = function(id) {
