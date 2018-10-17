@@ -19,7 +19,7 @@ XLabel.prototype.render = function(forId) {
 XLabel.prototype.buildEditor = function() {
   var model = this;
   var editor = $("<div class='form-group'></div>");
-  editor.append("<label>Mező neve</label>");
+  editor.append("<label>Field name</label>");
   var inp = $("<input type='text' class='form-control'>");
   inp.val(model.val);
 

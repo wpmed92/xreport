@@ -39,10 +39,9 @@ const OPERATORS = {
     }
 }
 
-function Evaluator(script, context) {
-    const parser = new Parser(script);
-    const ast = parser.parse();
+function Evaluator(context) {
     const dom = context;
+    let ast;
 
     var evalExpression = function(expression) {
         let valueStack = [];
@@ -70,7 +69,9 @@ function Evaluator(script, context) {
     }
 
     var extractValue = function(variable) {
-        var xElem = dom.getXElemById(variable);
+        var xElem = dom.getXElemByScriptAlias(variable);
+        console.log(variable);
+        console.log(xElem);
         var val = xElem.getValue();
         var numericVal = parseFloat(val);
     
@@ -82,13 +83,13 @@ function Evaluator(script, context) {
     }
 
     var evalAssignment = function(assignment) {
-        var xElem = dom.getXElemById(assignment.lhs);
+        var xElem = dom.getXElemByScriptAlias(assignment.lhs);
         var val = evalExpression(assignment.rhs);
         xElem.setValue(val);
     }
 
     var evalFunctionCall = function(functionCall) {
-        var xElem = dom.getXElemById(functionCall.variableName);
+        var xElem = dom.getXElemByScriptAlias(functionCall.variableName);
         var funName = functionCall.funName;
         var args = [];
 
@@ -124,7 +125,17 @@ function Evaluator(script, context) {
         }
     }
 
-    this.eval = function() {
+    this.eval = function(script, context) {
+        let parser;
+        console.log(context);
+
+        if (context === "builder" || !ast) {
+            parser = new Parser(script);
+            ast = parser.parse();
+            console.log(JSON.stringify(ast));
+            console.log("Parsing...");
+        }
+
         for (let i = 0; i < ast.length; i++) {
             let stmt = ast[i];
 
@@ -138,17 +149,23 @@ function Evaluator(script, context) {
         }
     }
 
-    this.attachToForm = function(form) {
+    this.bind = function(params) {
         var that = this;
+        var widget = params.widget;
 
-        form.on("change", function() {
-            let start = performance.now();
-            that.eval();
-            console.log(performance.now() - start);
-        });
-    
+        if (params.context === "builder") {
+            widget.getForm().on("change", function() {
+                let start = performance.now();
+                that.eval(widget.getScript(), params.context);
+                console.log(performance.now() - start);
+            });
+        } else {
+            widget.getForm().on("change", function() {
+                that.eval(dom.getScript(), params.context);
+            });
+        }
         //Initial trigger to go to "init state"
-        form.trigger("change");
+        widget.getForm().trigger("change");
       }
 }
 

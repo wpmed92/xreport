@@ -53,6 +53,7 @@ XPlainText.prototype.buildEditor = function() {
   });
 
   baseEditor.append(view);
+  
   return baseEditor;
 }
 

@@ -30,6 +30,10 @@ XCalcOut.prototype.getValue = function() {
   return $("*[data-x-id='" + this.id + "']").val();
 }
 
+XCalcOut.prototype.setValue = function(val) {
+  return $("*[data-x-id='" + this.id + "']").val(val);
+}
+
 XCalcOut.prototype.genText = function() {
   var val = $("*[data-x-id='" + this.id + "']").val();
 
@@ -41,6 +45,7 @@ XCalcOut.prototype.genText = function() {
 }
 
 XCalcOut.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div></div>");
   var view = $("*[data-x-id='" + model.id + "']");
@@ -62,7 +67,8 @@ XCalcOut.prototype.buildEditor = function() {
 
   unitWrapper.append(unitControl);
   editor.append(unitWrapper);
-  return editor;
+  baseEditor.append(editor);
+  return baseEditor;
 }
 
 export { XCalcOut };

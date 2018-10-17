@@ -1,10 +1,9 @@
-import { XFormElem } from './form-elem.js';
+import { XFormElem } from './form-elem';
 import $ from 'jquery';
 
 function XImage() {
   XFormElem.call(this, "image");
   this.src = "https://uploads-ssl.webflow.com/57e5747bd0ac813956df4e96/5aebae14c6d254621d81f826_placeholder.png";
-  this.author = "Kép forrása";
 }
 
 XImage.prototype = Object.create(XFormElem.prototype);
@@ -12,19 +11,17 @@ XImage.prototype = Object.create(XFormElem.prototype);
 XImage.prototype.render = function() {
   var view = $("<div></div>")
   view.append("<img src='" + this.src + "'></img>");
-  view.append("<p class='text-info'>" + this.author + "</p>");
   this.bind(view);
 
   return view;
 }
 
 XImage.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
   var srcInp = $("<input type='text' class='form-control'>");
-  var authorInp = $("<input type='text' class='form-control'>");
   srcInp.val(model.src);
-  authorInp.val(model.author);
 
   //Source editor
   srcInp.on("change", function() {
@@ -34,20 +31,11 @@ XImage.prototype.buildEditor = function() {
     view.find("img").attr("src", model.src);
   });
 
-  //Author editor
-  authorInp.on("change", function() {
-    var val = $(this).val();
-    model.author = val;
-    var view = $("*[data-x-id='" + model.id + "']");
-    view.find("p").text(model.author);
-  });
-
-  editor.append("<label>Kép URL</label>");
+  editor.append("<label>Image URL</label>");
   editor.append(srcInp);
-  editor.append("<label>Kép forrása</label>");
-  editor.append(authorInp);
+  baseEditor.append(editor);
 
-  return editor;
+  return baseEditor;
 }
 
 export { XImage };

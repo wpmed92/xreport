@@ -3,8 +3,8 @@ import $ from 'jquery';
 
 function XRating() {
   XFormElem.call(this, "rating");
-  this.parameters = ["Paraméter 1", "Paraméter 2"];
-  this.ratings = ["❌", "✔", "Érték 3"];
+  this.parameters = ["Parameter 1", "Parameter 2"];
+  this.ratings = ["Value 1", "Value 2", "Value 3"];
   this.title = "Cím";
 }
 
@@ -59,11 +59,12 @@ XRating.prototype.render = function() {
 }
 
 XRating.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
   var textAreaParameters = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
   var textAreaRatings = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Save</button>");
 
   updateOptionsBtn.click(function() {
     var parameters = textAreaParameters.val().split(';');
@@ -97,7 +98,7 @@ XRating.prototype.buildEditor = function() {
     view.replaceWith(newView);
   });
 
-  var titleEditor = $("<div class='form-group'><label>Táblázat címe</label></div>");
+  var titleEditor = $("<div class='form-group'><label>Title</label></div>");
   var inp = $("<input type='text' class='form-control'>");
   inp.val(model.val);
 
@@ -129,13 +130,14 @@ XRating.prototype.buildEditor = function() {
   textAreaRatings.val(ratingsString);
   titleEditor.append(inp);
   editor.append(titleEditor);
-  editor.append("<label>Értékek</label>");
+  editor.append("<label>Values</label>");
   editor.append(textAreaRatings);
-  editor.append("<label>Paraméterek</label>");
+  editor.append("<label>Parameters</label>");
   editor.append(textAreaParameters);
   editor.append(updateOptionsBtn);
+  baseEditor.append(editor);
 
-  return editor;
+  return baseEditor;
 }
 
 XRating.prototype.genText = function() {

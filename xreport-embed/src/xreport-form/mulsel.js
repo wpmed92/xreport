@@ -74,6 +74,7 @@ XMulSel.prototype.genText = function() {
 }
 
 XMulSel.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
   editor.append("<label>Opciók</label>");
@@ -107,8 +108,9 @@ XMulSel.prototype.buildEditor = function() {
   textArea.val(optionsStringified);
   editor.append(textArea);
   editor.append(updateOptionsBtn);
+  baseEditor.append(editor);
 
-  return editor;
+  return baseEditor;
 }
 
 export { XMulSel };

@@ -1,4 +1,5 @@
-import { XLabel } from './label.js';
+import { XLabel } from './label';
+import { XFormElem } from './form-elem';
 import $ from 'jquery';
 
 function XInfo(text, type) {
@@ -15,7 +16,7 @@ XInfo.prototype.render = function() {
 }
 
 XInfo.prototype.buildEditor = function() {
-  var baseEditor = XLabel.prototype.buildEditor.call(this);
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var view = $("<select class='form-control'></select>");
   var model = this;
 
@@ -36,6 +37,7 @@ XInfo.prototype.buildEditor = function() {
   });
 
   baseEditor.append(view);
+  
   return baseEditor;
 }
 

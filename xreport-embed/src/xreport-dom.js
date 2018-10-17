@@ -21,6 +21,7 @@ import { XFormRow } from './xreport-form/row.js';
 import { RowEditorComponent } from './components/form-builder/row-editor-component';
 
 import $ from 'jquery';
+import * as Sortable from "sortablejs";
 
 //Styles
 import './css/editor-styles.css';
@@ -30,6 +31,29 @@ function XReportDOM() {
   var domView = $("<div></div>");
   var cellEditorMode = false;
   var that = this;
+  var script = "";
+  var isEditor;
+  var cellEditorMode;
+  var sortable = createSortable();
+
+  function createSortable() {
+    return Sortable.create(domView[0], {
+      handle: ".x-row-editor",
+      onEnd: function (evt) {
+        var temp = dom[evt.oldIndex];
+        dom.splice(evt.oldIndex, 1);
+        dom.splice(evt.newIndex, 0, temp);
+      }
+    });
+  }
+
+  this.init = function() {
+    dom = [];
+    domView = $("<div></div>");
+    cellEditorMode = false;
+    sortable = createSortable();
+    script = "";
+  }
 
   var addToDOM = function(elem, after, insertAt) {
     var row = null;
@@ -52,8 +76,30 @@ function XReportDOM() {
       domView.append(rowView);
     }
 
-    let rowEditor = new RowEditorComponent(that);
-    rowView.append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditor.render(row)));
+    console.log(isEditor);
+
+    if (isEditor) {
+      row.children.forEach(function(child) {
+        $("*[data-x-id='" + child.id + "']").parent().closest("div").hover(
+          function() {
+            if (cellEditorMode) {
+              return;
+            }
+  
+            $(this).append(editorWrapper(child, row));
+          }, function() {
+              $(this).find(".x-form-edit-group").remove();
+          }
+        );
+      });
+
+      let rowEditor = new RowEditorComponent(that);
+      rowView.append($("<div class='col-auto d-flex align-items-center x-row-editor'></div>").append(rowEditor.render(row)));
+    }
+  }
+
+  this.setIsEditor = function(_isEditor) {
+    isEditor = _isEditor;
   }
 
   this.attachEditorControls = function() {
@@ -69,7 +115,7 @@ function XReportDOM() {
               return;
             }
 
-            $(this).append(editorWrapper($("*[data-x-id='" + child.id + "']"), child, row));
+            $(this).append(editorWrapper(child, row));
           }, function() {
               $(this).find(".x-form-edit-group").remove();
           }
@@ -85,7 +131,7 @@ function XReportDOM() {
     col.insertBefore($("*[data-x-id='" + row.id + "']").find(".x-row-editor"));
     col.hover(
       function() {
-        $(this).append(editorWrapper($("*[data-x-id='" + elem.id + "']"), elem, row));
+        $(this).append(editorWrapper(elem, row));
       }, function() {
           $(this).find(".x-form-edit-group").remove();
       }
@@ -117,7 +163,7 @@ function XReportDOM() {
   //{End}[Row manipulation]
 
   //{Start}[Editor components]
-  function editorWrapper(xElem, row) {
+  var editorWrapper = function(xElem, row) {
     //Create editor buttons
     var buttonGroup = $("<div class='btn-group x-form-edit-group' role='group'></div>");
     var editButton = $("<button type='button' class='btn btn-sm btn-outline-primary x-form-edit-btn'><i class='fas fa-pencil-alt'></i></button>");
@@ -128,6 +174,7 @@ function XReportDOM() {
 
     //Create editor menu
     editButton.click(function() {
+      cellEditorMode = true;
       buildEditor(xElem);
     });
 
@@ -148,10 +195,9 @@ function XReportDOM() {
     return buttonGroup;
   }
 
-  function buildEditor(xElem) {
+  var buildEditor = function(xElem) {
     cellEditorMode = true;
     sortable.option("disabled", true);
-    var view = $("*[data-x-id='" + xElem.id + "']");
     var editorWrapper = $("<div class='x-editor-wrapper'></div>");
     var closeBtn = $("<button type='button' class='btn btn-sm btn-outline-danger x-editor-close'><i class='far fa-times-circle'></i></div>");
 
@@ -218,8 +264,17 @@ function XReportDOM() {
     }
   }
 
-  this.getReportInJSONFile = function() {
-    return new Blob([this.getReportInJSON()], { type: "application/json" });
+  this.getTemplateInJSON = function(_script) {
+    var report = {
+      report: dom,
+      formScript: _script
+    }
+
+    return JSON.stringify(report);
+  }
+
+  this.getTemplateInJSONFile = function(_script) {
+    return new Blob([this.getTemplateInJSON(_script)], { type: "application/json" });
   }
 
   //{Start}[Add elements]
@@ -348,15 +403,18 @@ function XReportDOM() {
   //{End}[Add elements]
 
   this.load = function(url, cb) {
-    dom = [];
-    
     $.get(url, function(template) {
       template["report"].forEach(function(reportElem) {
         var relem = createFormElemFromJSON(reportElem);
         addToDOM(relem);
       });
 
-      cb(dom, template["formScript"]);
+      if (sortable == null) {
+        sortable = createSortable();
+      }
+
+      script = template["formScript"];
+      cb();
     });
   }
 
@@ -364,15 +422,20 @@ function XReportDOM() {
     return dom;
   }
 
+  this.getScript = function() {
+    console.log(script);
+    return script;
+  }
+
   this.render = function() {
     return domView;
   }
 
-  this.getXElemById = function(id) {
+  this.getXElemByScriptAlias = function(scriptAlias) {
     for (let i = 0; i < dom.length; i++) {
       let domElem = dom[i];
 
-      if (domElem.id === id) {
+      if (domElem.scriptAlias === scriptAlias) {
         return domElem;
       }
       
@@ -380,11 +443,11 @@ function XReportDOM() {
         for (let j = 0; j < domElem.children.length; j++) {
           let domChildElem = domElem.children[j];
 
-          if (domChildElem.id === id) {
+          if (domChildElem.scriptAlias === scriptAlias) {
             return domChildElem;
           }
 
-          if (domChildElem.child && domChildElem.child.id === id) {
+          if (domChildElem.child && domChildElem.child.scriptAlias === scriptAlias) {
             return domChildElem.child;
           }
         }

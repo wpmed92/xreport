@@ -45,7 +45,7 @@ export class TemplateBrowserComponent implements OnInit {
   }
 
   newReport(): void {
-    window.location.href = "https://xreport-builder.firebaseapp.com";
+    this.router.navigate(['/templates/new']);
   }
 
   view(report: ReportMetaId): void {

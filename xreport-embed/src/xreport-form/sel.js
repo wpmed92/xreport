@@ -84,6 +84,7 @@ XSel.prototype.genText = function() {
 }
 
 XSel.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
   editor.append("<label>Opciók</label>");
@@ -117,7 +118,9 @@ XSel.prototype.buildEditor = function() {
   textArea.val(optionsStringified);
   editor.append(textArea);
   editor.append(updateOptionsBtn);
-  return editor;
+  baseEditor.append(editor);
+
+  return baseEditor;
 }
 
 export { XSel };

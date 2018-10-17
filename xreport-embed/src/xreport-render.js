@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { BuilderCardComponent } from './components/form-builder/builder-component';
 import { AddElemButtonComponent } from './components/form-builder/add-elem-button-component';
+import { ViewerComponent } from './components/viewer/viewer-component';
 
 function XReportRenderer(dom) {
   var view;
@@ -27,6 +28,13 @@ function XReportRenderer(dom) {
     return out;
   }
 
+  this.getTemplateAsPayload = function() {
+    return {
+      title: view.getTitle(),
+      templateJSON: dom.getTemplateInJSONFile(view.getScript())
+    };
+  }
+
   this.togglePreviewMode = function() {
     if (inPreviewMode) {
       view.editorState();
@@ -37,8 +45,8 @@ function XReportRenderer(dom) {
     inPreviewMode = !inPreviewMode;
   }
 
-  this.render = function(dom, title, targetId, editorMode) {
-    view = new BuilderCardComponent();
+  this.render = function(dom, title, targetId, editorMode, evaluator) {
+    view = editorMode ? new BuilderCardComponent(evaluator, dom, title) : new ViewerComponent(title);
     view.addElem(dom.render());
     $("#" + targetId).html(view.render());
 
@@ -48,7 +56,7 @@ function XReportRenderer(dom) {
       $("#" + targetId).append(addElemButtonComponent.render());
     }
 
-    return view.getForm();
+    return view;
   }
 }
 
