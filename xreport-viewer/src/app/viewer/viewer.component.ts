@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { switchMap, finalize } from 'rxjs/operators';
+import { switchMap, finalize, tap } from 'rxjs/operators';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { ReportMeta } from '../model/report-meta';
@@ -24,6 +24,7 @@ export class ViewerComponent implements OnInit {
   private SERVERTIME = firebase.firestore.FieldValue.serverTimestamp();
   private editorModeSubject = new BehaviorSubject<Boolean>(false);
   private editorMode: Observable<Boolean>;
+  private savingTemplate = false;
 
   constructor(private route: ActivatedRoute, 
               private afs: AngularFirestore, 
@@ -69,26 +70,58 @@ export class ViewerComponent implements OnInit {
   }
 
   saveTemplate(): void {
+    if (this.savingTemplate) {
+      return;
+    }
+
+    this.progress.start();
+    this.savingTemplate = true;
     let templateForUpload = xreportEmbed.getTemplateForUpload();
-    const templateId = this.afs.collection('reports').ref.doc().id;
+    const routeId = this.route.snapshot.paramMap.get('id'); 
+    let templateId;
+    let updateOperation = false;
+
+    if (routeId !== "new") {
+      templateId = routeId;
+      updateOperation = true;
+    } else {
+      templateId = this.afs.collection('reports').ref.doc().id;
+    }
+
     const storageRef = this.storage.ref(`templates/${templateId}.json`);
+
     this.storage.upload(`templates/${templateId}.json`, templateForUpload.templateJSON)
     .then((result) => {
-      storageRef.getDownloadURL().pipe(
-        switchMap(url => {
-          let report = {
-            category: "NR",
-            //TODO: auth
-            creator: "anonymous",
-            name: templateForUpload.title,
-            createdAt: this.SERVERTIME,
-            contentUrl: url,
-            status: "draft"
-          }
+      return new Promise((resolve, reject) => {
+        storageRef.getDownloadURL().pipe(
+          tap(url => {
+            let report = {
+              category: "NR",
+              //TODO: auth
+              creator: "anonymous",
+              name: templateForUpload.title,
+              createdAt: this.SERVERTIME,
+              contentUrl: url,
+              status: "draft"
+            }
 
-          return this.afs.collection<ReportMeta>('reports').add(report);
-        })).subscribe();
+            if (updateOperation) {
+              resolve(this.afs.doc<ReportMeta>(`reports/${templateId}`).update(report));
+            } else { 
+              resolve(this.afs.collection<ReportMeta>('reports').add(report));
+            }
+          })).subscribe(() => {
+          }, error => {
+            reject(error);
+          });
+      });
+    }).then(()=> {
+      this.savingTemplate = false;
+      this.progress.complete();
+      this.location.back();
     }).catch((error) => {
+      this.savingTemplate = false;
+      this.progress.complete();
       console.log(error);
     });
   }
@@ -107,6 +140,9 @@ export class ViewerComponent implements OnInit {
       ).then(() => {
         this.progress.complete();
         console.log("Content loaded");
+      }).catch(error => {
+        this.progress.complete();
+        console.log(error);
       });
   }
 
@@ -125,6 +161,9 @@ export class ViewerComponent implements OnInit {
         ).then(() => {
           this.progress.complete();
           console.log("Content loaded");
+        }).catch(error => {
+          this.progress.complete();
+          console.log(error);
         });
     });
   }

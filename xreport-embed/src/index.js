@@ -21,7 +21,7 @@ export function makeWidget(url, title, targetId, editorMode) {
       xreportDOM.setIsEditor(editorMode);
       xreportDOM.load(url, function() {
         let component = xreportRenderer.render(xreportDOM, title, targetId, /*editorMode*/ editorMode);
-        xreportEval.bind({ context: "viewer", widget: component });
+        xreportEval.bind({ context: editorMode ? "builder" : "viewer", widget: component });
         resolve();
       });
     }
