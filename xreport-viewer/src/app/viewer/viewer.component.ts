@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { switchMap, finalize } from 'rxjs/operators';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { ReportMeta } from '../model/report-meta';
@@ -21,9 +21,9 @@ export class ViewerComponent implements OnInit {
   private itemDoc: AngularFirestoreDocument<ReportMeta>;
   item: Observable<ReportMeta>;
   closeResult: string;
-  private editorMode: boolean;
   private SERVERTIME = firebase.firestore.FieldValue.serverTimestamp();
-  private downloadURL;
+  private editorModeSubject = new BehaviorSubject<Boolean>(false);
+  private editorMode: Observable<Boolean>;
 
   constructor(private route: ActivatedRoute, 
               private afs: AngularFirestore, 
@@ -31,8 +31,8 @@ export class ViewerComponent implements OnInit {
               public progress: NgProgress,
               private clipboardService: ClipboardService,
               private storage: AngularFireStorage,
-              private location: Location)  { 
-    
+              private location: Location)  {
+      this.editorMode = this.editorModeSubject.asObservable();
   }
 
   newReporting(content) {
@@ -61,7 +61,10 @@ export class ViewerComponent implements OnInit {
     if (id === "new") {
       this.initBuilder();
     } else {
-      this.getTemplate();
+      this.route.queryParams.subscribe(params => {
+        let mode = params["mode"];
+        this.getTemplate(mode);
+      });
     }
   }
 
@@ -79,7 +82,8 @@ export class ViewerComponent implements OnInit {
             creator: "anonymous",
             name: templateForUpload.title,
             createdAt: this.SERVERTIME,
-            contentUrl: url
+            contentUrl: url,
+            status: "draft"
           }
 
           return this.afs.collection<ReportMeta>('reports').add(report);
@@ -94,7 +98,7 @@ export class ViewerComponent implements OnInit {
   }
 
   initBuilder(): void {
-    this.editorMode = true;
+    this.editorModeSubject.next(true);
 
     xreportEmbed.makeWidget(
       null, //Template url
@@ -106,8 +110,8 @@ export class ViewerComponent implements OnInit {
       });
   }
 
-  getTemplate(): void {
-    this.editorMode = false;
+  getTemplate(mode): void {
+    this.editorModeSubject.next(mode === "builder");
     const id = this.route.snapshot.paramMap.get('id'); 
     this.itemDoc = this.afs.doc<ReportMeta>(`reports/${id}`);
     this.progress.start();
@@ -117,6 +121,7 @@ export class ViewerComponent implements OnInit {
         report.contentUrl, //Template url
         report.name,  //Template name
         "div-card-holder", //DOM element to inject widget to
+        mode === "builder" //'builder' or 'viewer'
         ).then(() => {
           this.progress.complete();
           console.log("Content loaded");

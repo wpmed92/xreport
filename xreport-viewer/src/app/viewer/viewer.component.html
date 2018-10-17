@@ -20,13 +20,13 @@
         </div>
 
         <div class="mt-4 col-xl-3 col-lg-2">
-            <div class="btn-group-vertical btn-group-sticky" [hidden]='editorMode'>
+            <div class="btn-group-vertical btn-group-sticky" [hidden]='editorMode | async'>
                 <button class="btn btn-secondary btn-medium" (click)="togglePreviewMode()" placement="right" ngbTooltip="Preview report"><i class="fas fa-file-alt" ></i></button>
                 <button class="btn btn-primary btn-medium" (click)="copyReportToClipboard()" placement="right" ngbTooltip="Copy report to clipboard"><i class="fas fa-clipboard"></i></button>
                 <button class="btn btn-success btn-medium" (click)="newReporting(content)" placement="right" ngbTooltip="New report"><i class="fas fa-plus"></i></button>
             </div>
 
-            <div class="btn-group-vertical btn-group-sticky" [hidden]='!editorMode'>
+            <div class="btn-group-vertical btn-group-sticky" [hidden]='!(editorMode | async)'>
                 <button class="btn btn-success btn-medium" (click)="saveTemplate()" placement="right" ngbTooltip="Save template"><i class="fas fa-check"></i></button>
                 <button class="btn btn-danger btn-medium" (click)="discardTemplate()" placement="right" ngbTooltip="Discard template"><i class="fas fa-times"></i></button>
             </div>

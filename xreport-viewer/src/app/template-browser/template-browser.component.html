@@ -36,7 +36,10 @@
           <div class="card card-shadowed report-list-item h-100">
             <div class="card-body">
               <!-- name -->
-              <h5 class="card-title">{{report.name}}</h5>
+              <h5 class="card-title">{{report.name}} 
+                <button type="button" class="btn btn-primary btn-sm float-right" [hidden]="report.status === 'ready'" (click)="editTemplate(report)"><i class="fas fa-edit"></i></button>
+              </h5>
+
 
               <!-- category -->
               <h6 class="card-subtitle mb-2 text-muted">{{ (report.category | async)?.name }}</h6>

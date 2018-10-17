@@ -5,19 +5,25 @@ import { Expression } from './ast/expression';
 import { Tokenizer } from './tokenizer';
 
 const OP_PRECEDENCE_MAP = {
-    'or': 0,
-    'and': 1,
-    '!=': 2,
-    '==': 2,
-    '<=': 3,
-    '<' : 3,
-    '>=': 3,
-    '>': 3,
-    '+': 4,
-    '-': 4,
-    '*': 5,
-    '/': 5,
-    '%': 5
+    //Binary ops
+    'or': { precedence: 0, associavity: "left" },
+    'and': { precedence: 1, associavity: "left" },
+    '!=': { precedence: 2, associavity: "left" },
+    '==': { precedence: 2, associavity: "left" },
+    '<=': { precedence: 3, associavity: "left" },
+    '<' : { precedence: 3, associavity: "left" },
+    '>=': { precedence: 3, associavity: "left" },
+    '>': { precedence: 3, associavity: "left" },
+    '+': { precedence: 4, associavity: "left" },
+    '-': { precedence: 4, associavity: "left" },
+    '*': { precedence: 5, associavity: "left" },
+    '/': { precedence: 5, associavity: "left" },
+    '%': { precedence: 5, associavity: "left" },
+    '^': { precedence: 6, associavity: "right" },
+    //Unary ops
+    'u-': { precedence: 7, associavity: "right" },
+    'u+': { precedence: 7, associavity: "right" },
+    '!': { precedence: 7, associavity: "right" }
 }
 
 const INVERT_FUNCTION = {
@@ -162,7 +168,23 @@ function Parser(script) {
             return false;
         }
 
-        return OP_PRECEDENCE_MAP[op.val] >= OP_PRECEDENCE_MAP[token.val];
+        return OP_PRECEDENCE_MAP[op.val].precedence >= OP_PRECEDENCE_MAP[token.val].precedence;
+    }
+
+    var getPrecedence = function(op) {
+        if (!op) {
+            return undefined;
+        }
+
+        return OP_PRECEDENCE_MAP[op.val].precedence;
+    }
+
+    var getAssociavity = function(op) {
+        if (!op) {
+            return undefined;
+        }
+
+        return OP_PRECEDENCE_MAP[op.val].associavity;
     }
 
     var parseExpression = function() {
@@ -174,9 +196,13 @@ function Parser(script) {
 
             if (token.type === "NUMBER" || token.type === "VARIABLE_NAME" || token.type === "STRING") {
                 outputQueue.push(token);
-            } else if (token.type.includes("_OP")) {
-                while (hasHigherPrecedenceOpOnStack(token)) {
-                  outputQueue.push(operatorStack.pop());
+            } else if (token.isOperator) {
+                let top = operatorStack[operatorStack.length - 1];
+
+                while ((getAssociavity(token) === "left" && getPrecedence(token) <= getPrecedence(top)) 
+                || (getAssociavity(token) === "right" && getPrecedence(token) < getPrecedence(top))) {
+                    outputQueue.push(operatorStack.pop());
+                    top = operatorStack[operatorStack.length - 1];
                 }
 
                 operatorStack.push(token);

@@ -32,8 +32,8 @@ function Tokenizer(script) {
     return token;
   }
 
-  var isNumber = function(token) {
-	  return !isNaN(parseFloat(token));
+  var isInteger = function(token) {
+	  return /^\d+$/.test(token);
   }
 
   var isVariableName = function(token) {
@@ -47,6 +47,7 @@ function Tokenizer(script) {
       char === ")" || char === "+" ||
       char === "-" || char === "/" ||
       char === "*" || char === ":" ||
+      char === "!" || char === "^" ||
       char === ";" || char === " " ||
       char === "{" || char === "}" ||
       char === "\n" || char === "\t" ||
@@ -67,12 +68,25 @@ function Tokenizer(script) {
 	  cursor--;
   }
 
+  var rollback = function(to) {
+    cursor = to;
+  }
+
   var getChar = function() {
     return script[cursor];
   }
 
   var peekChar = function() {
     return script[cursor + 1];
+  }
+
+  var prevToken = function() {
+    return tokenStream[tokenStream.length - 1];
+  }
+
+  var isCurrentOpUnary = function() {
+    return !(prevToken().type === "NUMBER" || prevToken().type === "STRING" || 
+    prevToken().type === "VARIABLE_NAME" || prevToken().type === "LEFT_BRACKET");
   }
 
   this.tokenize = function() {
@@ -84,35 +98,52 @@ function Tokenizer(script) {
         tokenStream.push({ type: 'STRING', val: stringLiteral });
       } else if (getChar() == '=') {
         if (peekChar() == '=') {
-          tokenStream.push({ type: 'EQUAL_OP', val: getChar() + peekChar() });
+          tokenStream.push({ type: 'EQUAL', isOperator: true, val: getChar() + peekChar() });
           move();
         } else {
           tokenStream.push({ type: 'ASSIGN', val: getChar() });
         }
       } else if (getChar() == '<') {
         if (peekChar() == '=') {
-          tokenStream.push({ type: 'LT_EQUAL_OP', val: getChar() + peekChar() });
+          tokenStream.push({ type: 'LT_EQUAL', isOperator: true, val: getChar() + peekChar() });
           move();
         } else {
-          tokenStream.push({ type: 'LT_OP', val: getChar() });
+          tokenStream.push({ type: 'LT', isOperator: true, val: getChar() });
         }
       } else if (getChar() == '>') {
         if (peekChar() == '=') {
-          tokenStream.push({ type: 'GT_EQUAL_OP', val: getChar() + peekChar() });
+          tokenStream.push({ type: 'GT_EQUAL', isOperator: true, val: getChar() + peekChar() });
           move();
         } else {
-          tokenStream.push({ type: 'GT_OP', val: getChar() });
+          tokenStream.push({ type: 'GT', isOperator: true, val: getChar() });
+        }
+      } else if (getChar() == '!') {
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'NOT_EQUAL', isOperator: true, val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'NOT', isOperator: true, isUnary: true, val: getChar() });
         }
       } else if (getChar() == '+') {
-        tokenStream.push({ type: 'PLUS_OP', val: getChar() });
+        if (isCurrentOpUnary()) {
+          tokenStream.push({ type: 'UNARY_PLUS', isOperator: true, isUnary: true, val: "u" + getChar() });
+        } else {
+          tokenStream.push({ type: 'PLUS', isOperator: true, val: getChar() });
+        }
       } else if (getChar() == '-') {
-        tokenStream.push({ type: 'MINUS_OP', val: getChar() });
+        if (isCurrentOpUnary()) {
+          tokenStream.push({ type: 'UNARY_MINUS', isOperator: true, isUnary: true, val: "u" + getChar() });
+        } else {
+          tokenStream.push({ type: 'MINUS', isOperator: true, val: getChar() });
+        }
+      } else if (getChar() == '^') {
+        tokenStream.push({ type: 'EXP', isOperator: true, val: getChar() });
       } else if (getChar() == '*') {
-        tokenStream.push({ type: 'MUL_OP', val: getChar() });
+        tokenStream.push({ type: 'MUL', isOperator: true, val: getChar() });
       } else if (getChar() == '/') {
-        tokenStream.push({ type: 'DIV_OP', val: getChar() });
+        tokenStream.push({ type: 'DIV', isOperator: true, val: getChar() });
       } else if (getChar() == '%') {
-        tokenStream.push({ type: 'MOD_OP', val: getChar() });
+        tokenStream.push({ type: 'MOD', isOperator: true, val: getChar() });
       } else if (getChar() == ':') {
         tokenStream.push({ type: 'COLON', val: getChar()});
       } else if (getChar() == ';') {
@@ -132,12 +163,26 @@ function Tokenizer(script) {
       } else {
         var token = parseToken();
         
-        if (isNumber(token)) {
-          tokenStream.push({ type: "NUMBER", val: parseFloat(token) });
+        if (isInteger(token)) {
+          if (peekChar() === '.') {
+            var anchorPoint = cursor;
+            move();
+            move();
+            var decimalPart = parseToken();
+
+            if (isInteger(decimalPart)) {
+              var floatNumber = token + "." + decimalPart;
+              tokenStream.push({ type: "NUMBER", val: floatNumber });
+            } else {
+              rollback(anchorPoint);
+            }
+          } else {
+            tokenStream.push({ type: "NUMBER", val: parseInt(token) });
+          }
         } else if (token === "and") {
-          tokenStream.push({ type: "AND_OP", val: token });
+          tokenStream.push({ type: "AND", isOperator: true, val: token });
         } else if (token === "or") {
-          tokenStream.push({ type: "OR_OP", val: token});
+          tokenStream.push({ type: "OR", isOperator: true, val: token});
         } else if (token === "if") {
           tokenStream.push({ type: "IF_KEYWORD", val: token });
         } else if (isVariableName(token)) {
@@ -149,6 +194,8 @@ function Tokenizer(script) {
       
       move();
     }
+
+    console.log(JSON.stringify(tokenStream));
 
     return tokenStream;
   }

@@ -44,12 +44,16 @@ export class TemplateBrowserComponent implements OnInit {
   ngOnInit() {
   }
 
+  editTemplate(report: ReportMetaId): void {
+    this.router.navigate([`/templates/${report.id}`], { queryParams: { mode: "builder" }});
+  }
+
   newReport(): void {
     this.router.navigate(['/templates/new']);
   }
 
   view(report: ReportMetaId): void {
-    this.router.navigate([`/templates/${report.id}`]);
+    this.router.navigate([`/templates/${report.id}`], { queryParams: { mode: "viewer" }});
   }
 
   selectCategory(category: Category): void {

@@ -1,6 +1,7 @@
 import { Parser } from './parser';
 
 const OPERATORS = {
+    //Binary ops
     "+": function(left, right) {
         return left + right;
     },
@@ -36,6 +37,19 @@ const OPERATORS = {
     },
     "or": function(left, right) {
         return left || right;
+    },
+    "^": function(left, right) {
+        return left ** right;
+    },
+    //Unary ops
+    "u+": function(val) {
+        return val;
+    },
+    "u-": function(val) {
+        return -val;
+    },
+    "!": function(val) {
+        return !val;
     }
 }
 
@@ -57,10 +71,18 @@ function Evaluator(context) {
                 valueStack.push(extractValue(tok.val));
             }
         
-            if (tok.type.includes("_OP")) {
-                var right = valueStack.pop();
-                var left = valueStack.pop();
-                var sum = OPERATORS[tok.val](left, right);
+            if (tok.isOperator) {
+                var sum;
+
+                if (tok.isUnary) {
+                    var val = valueStack.pop();
+                    sum = OPERATORS[tok.val](val);
+                } else {
+                    var right = valueStack.pop();
+                    var left = valueStack.pop();
+                    sum = OPERATORS[tok.val](left, right);
+                }
+
                 valueStack.push(sum);
             }
         }
