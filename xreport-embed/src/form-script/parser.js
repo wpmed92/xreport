@@ -172,6 +172,8 @@ function Parser(script) {
     }
 
     var getPrecedence = function(op) {
+        console.log(op);
+
         if (!op) {
             return undefined;
         }
@@ -180,6 +182,8 @@ function Parser(script) {
     }
 
     var getAssociavity = function(op) {
+        console.log(op);
+
         if (!op) {
             return undefined;
         }
@@ -199,7 +203,7 @@ function Parser(script) {
             } else if (token.isOperator) {
                 let top = operatorStack[operatorStack.length - 1];
 
-                while ((getAssociavity(token) === "left" && getPrecedence(token) <= getPrecedence(top)) 
+                while (top && top.isOperator && (getAssociavity(token) === "left" && getPrecedence(token) <= getPrecedence(top)) 
                 || (getAssociavity(token) === "right" && getPrecedence(token) < getPrecedence(top))) {
                     outputQueue.push(operatorStack.pop());
                     top = operatorStack[operatorStack.length - 1];
