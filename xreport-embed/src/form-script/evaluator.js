@@ -32,6 +32,9 @@ const OPERATORS = {
     "==": function(left, right) {
         return left == right;
     },
+    "!=": function(left, right) {
+        return left != right;
+    },
     "and": function(left, right) {
         return left && right;
     },
@@ -80,6 +83,7 @@ function Evaluator(context) {
                 } else {
                     var right = valueStack.pop();
                     var left = valueStack.pop();
+                    console.log("Op:" + tok.val + ", operands: left: " + left + ", right: " + right);
                     sum = OPERATORS[tok.val](left, right);
                 }
 

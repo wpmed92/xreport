@@ -38,11 +38,18 @@ XMulSel.prototype.render = function() {
   return view;
 }
 
-XMulSel.prototype.checkOption = function(check, option) {
+XMulSel.prototype.checkOption = function(option) {
   var model = this;
   var view = $("*[data-x-id='" + model.id + "']");
   var indexOfOption = model.options.indexOf(option);
-  view.find("input").eq(indexOfOption).prop("checked", check);
+  view.find("input").eq(indexOfOption).prop("checked", true);
+}
+
+XMulSel.prototype.uncheckOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).prop("checked", false);
 }
 
 XMulSel.prototype.showOption = function(option) {

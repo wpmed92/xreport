@@ -174,7 +174,7 @@ function Parser(script) {
     var getPrecedence = function(op) {
         console.log(op);
 
-        if (!op) {
+        if (!OP_PRECEDENCE_MAP[op.val]) {
             return undefined;
         }
 
@@ -184,7 +184,7 @@ function Parser(script) {
     var getAssociavity = function(op) {
         console.log(op);
 
-        if (!op) {
+        if (!OP_PRECEDENCE_MAP[op.val]) {
             return undefined;
         }
 
