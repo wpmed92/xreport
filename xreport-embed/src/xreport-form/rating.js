@@ -105,6 +105,12 @@ XRating.prototype.buildEditor = function() {
   var textAreaRatings = $("<textarea class='form-control' rows='4'></textarea>");
   var textAreaScores = $("<textarea class='form-control' rows='4'></textarea>");
   var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Save</button>");
+  var hideFromOutput = $('<div class="form-check">\
+                            <input class="form-check-input" type="checkbox" value="' + model.hideFromOutput + '"id="hideFromOutputCheckbox">\
+                            <label class="form-check-label" for="hideFromOutputCheckbox">\
+                              Hide field from output\
+                            </label>\
+                          </div>');
 
   updateOptionsBtn.click(function() {
     var parameters = textAreaParameters.val().split(';');
@@ -163,6 +169,12 @@ XRating.prototype.buildEditor = function() {
     newView.addClass(view.hasClass("d-none") ? "d-none" : "");
     view.replaceWith(newView);
   });
+  
+  hideFromOutput.find(".form-check-input").on("change", function() {
+    var val = $(this).prop("checked");
+    model.hideFromOutput = val;
+    console.log("Hide from output: " + val);
+  });
 
   //Fill in model data to editor
   var parametersString = "";
@@ -174,16 +186,22 @@ XRating.prototype.buildEditor = function() {
   });
 
   model.ratings.forEach(function(rating) {
-     ratingsString += rating + ";";
+    ratingsString += rating + ";";
+  });
+
+  model.scores.forEach(function(score) {
+    scoresString += score + ";";
   });
 
   inp.val(model.title);
-
+  console.log(model.hideFromOutput);
+  hideFromOutput.find(".form-check-input").prop("checked", model.hideFromOutput);
   textAreaParameters.val(parametersString);
   textAreaRatings.val(ratingsString);
   textAreaScores.val(scoresString);
   titleEditor.append(inp);
   editor.append(titleEditor);
+  editor.append(hideFromOutput);
   editor.append("<label>Values (text)</label>");
   editor.append(textAreaRatings);
   editor.append("<label>Values (scores)</label>");
@@ -207,23 +225,19 @@ XRating.prototype.genText = function() {
     var ratingIndex = row.find("input:checked").first().parent().index() - 1;
 
     if (ratingIndex >= 0) {
-      if (model.ratings[ratingIndex] === "Van") {
-        out += "->" + model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
-      } else {
-        out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
-      }
+      out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
     }
 
     parameterIndex++;
   });
 
-  if (out !== "") {
+  /*if (out !== "") {
     if (model.title !== "") {
       out = "\n|" + model.title + "|\n" + out;
     } else {
       out = "\n" + out;
     }
-  }
+  }*/
 
   return out;
 }

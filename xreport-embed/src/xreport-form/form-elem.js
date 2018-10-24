@@ -5,6 +5,7 @@ function XFormElem(type) {
   that.type = type;
   that.id = that.genUniqueId();
   that.scriptAlias = that.id;
+  that.hideFromOutput = false;
 }
 
 XFormElem.prototype.genUniqueId = function() {
