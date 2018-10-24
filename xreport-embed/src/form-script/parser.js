@@ -41,10 +41,6 @@ function Parser(script) {
     let cursor = 0;
     let ast = [];
 
-    //Expression parsing
-    var operatorStack = [];
-    var outputQueue = [];
-
     var advanceToken = function() {
         cursor++;
     }
@@ -124,7 +120,7 @@ function Parser(script) {
         return null;
     }
 
-    var parseFunctionCall = function() {
+    var parseFunctionCall = function(inExpression) {
         if (curToken().type === "VARIABLE_NAME" && peekToken().type === "DOT") {
             var functionCall = new FunctionCall();
             functionCall.variableName = curToken().val;
@@ -137,21 +133,23 @@ function Parser(script) {
                 throw "Variable name expected.";
             }
 
+            if (peekToken().type !== "LEFT_BRACKET") {
+                throw "Left bracket expected.";
+            }
+            
             advanceToken();
+            functionCall.args.push(parseExpression(true));
 
-            if (curToken().type === "LEFT_BRACKET") {
+            while (curToken().type === "COMMA") {
                 advanceToken();
-                functionCall.args.push(parseExpression());
+                functionCall.args.push(parseExpression(true));
+            }
 
-                while (curToken().type === "COMMA") {
-                  advanceToken();
-                  functionCall.args.push(parseExpression());
-                }
-
+            if (!inExpression) {
                 advanceToken();
 
                 if (curToken().type !== "SEMI_COLON") {
-                  throw "End of statement expected";
+                    throw "End of statement expected";
                 }
             }
 
@@ -172,8 +170,6 @@ function Parser(script) {
     }
 
     var getPrecedence = function(op) {
-        console.log(op);
-
         if (!OP_PRECEDENCE_MAP[op.val]) {
             return undefined;
         }
@@ -182,8 +178,6 @@ function Parser(script) {
     }
 
     var getAssociavity = function(op) {
-        console.log(op);
-
         if (!OP_PRECEDENCE_MAP[op.val]) {
             return undefined;
         }
@@ -191,14 +185,17 @@ function Parser(script) {
         return OP_PRECEDENCE_MAP[op.val].associavity;
     }
 
-    var parseExpression = function() {
-        operatorStack = [];
-        outputQueue = [];
+    var parseExpression = function(inFunctionCall) {
+        let operatorStack = [];
+        let outputQueue = [];
 
         while (cursor < tokenStream.length) {
             var token = curToken();
+            let funCall = parseFunctionCall(/*inExpression*/ true);
 
-            if (token.type === "NUMBER" || token.type === "VARIABLE_NAME" || token.type === "STRING") {
+            if (funCall) {
+                outputQueue.push(funCall);
+            } else if (token.type === "NUMBER" || token.type === "VARIABLE_NAME" || token.type === "STRING") {
                 outputQueue.push(token);
             } else if (token.isOperator) {
                 let top = operatorStack[operatorStack.length - 1];
@@ -212,7 +209,9 @@ function Parser(script) {
                 operatorStack.push(token);
             } else if (token.type === "LEFT_BRACKET") {
                 operatorStack.push(token);
+                console.log("Got a left bracket");
             } else if (token.type === "RIGHT_BRACKET") {
+                console.log("Got a right bracket");
                 if (peekToken().type === "SEMI_COLON") {
                   break;
                 }
@@ -223,6 +222,10 @@ function Parser(script) {
 
                 //Discard LEFT_BRACKET
                 operatorStack.pop();
+
+                if (operatorStack.length === 0) {
+                    break;
+                }
             } else {
                 break;
             }
@@ -240,6 +243,8 @@ function Parser(script) {
     this.parse = function() {
       while (cursor < tokenStream.length) {
         var stmt = parseAssignment();
+
+        console.log(JSON.stringify(stmt));
 
         if (!stmt) {
             stmt = parseFunctionCall();

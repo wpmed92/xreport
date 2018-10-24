@@ -86,7 +86,7 @@ function Tokenizer(script) {
 
   var isCurrentOpUnary = function() {
     return !(prevToken().type === "NUMBER" || prevToken().type === "STRING" || 
-    prevToken().type === "VARIABLE_NAME" || prevToken().type === "LEFT_BRACKET");
+    prevToken().type === "VARIABLE_NAME" || prevToken().type === "RIGHT_BRACKET");
   }
 
   this.tokenize = function() {

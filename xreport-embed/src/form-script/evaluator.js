@@ -70,6 +70,13 @@ function Evaluator(context) {
                 valueStack.push(tok.val);
             }
 
+            if (tok.type === "FUNCALL") {
+                console.log("Got a funcall in expression");
+                let funVal = evalFunctionCall(tok);
+                console.log(funVal);
+                valueStack.push(funVal);
+            }
+
             if (tok.type === "VARIABLE_NAME") {
                 valueStack.push(extractValue(tok.val));
             }
@@ -83,7 +90,6 @@ function Evaluator(context) {
                 } else {
                     var right = valueStack.pop();
                     var left = valueStack.pop();
-                    console.log("Op:" + tok.val + ", operands: left: " + left + ", right: " + right);
                     sum = OPERATORS[tok.val](left, right);
                 }
 
@@ -96,8 +102,6 @@ function Evaluator(context) {
 
     var extractValue = function(variable) {
         var xElem = dom.getXElemByScriptAlias(variable);
-        console.log(variable);
-        console.log(xElem);
         var val = xElem.getValue();
         var numericVal = parseFloat(val);
     
@@ -125,7 +129,7 @@ function Evaluator(context) {
             args.push(evaluatedArg);
         }
 
-        xElem[funName](...args);
+        return xElem[funName](...args);
     }
 
     var evalIfThen = function(ifThen) {
@@ -153,13 +157,10 @@ function Evaluator(context) {
 
     this.eval = function(script, context) {
         let parser;
-        console.log(context);
 
         if (context === "builder" || !ast) {
             parser = new Parser(script);
             ast = parser.parse();
-            console.log(JSON.stringify(ast));
-            console.log("Parsing...");
         }
 
         for (let i = 0; i < ast.length; i++) {
