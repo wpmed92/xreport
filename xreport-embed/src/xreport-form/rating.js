@@ -5,7 +5,7 @@ function XRating() {
   XFormElem.call(this, "rating");
   this.parameters = ["Parameter 1", "Parameter 2"];
   this.ratings = ["Value 1", "Value 2", "Value 3"];
-  this.title = "Cím";
+  this.title = "Title";
 }
 
 XRating.prototype = Object.create(XFormElem.prototype);

@@ -10,8 +10,17 @@ function XInfo(text, type) {
 XInfo.prototype = Object.create(XLabel.prototype);
 
 XInfo.prototype.render = function() {
-  var view = $("<div class='alert alert-" + this.type + "' role='alert'>" + this.val + "</div>");
-  this.bind(view);
+  var view = $("<div></div>");
+  var questionMark = $("<i class='fas fa-question-circle text-info'></i>");
+  var infoContent = $("<div class='alert alert-" + this.type + " collapse' role='alert'>" + this.val + "</div>");
+
+  questionMark.click(function() {
+    $(this).next().toggleClass("collapse");
+  });
+
+  view.append(questionMark);
+  view.append(infoContent);
+  this.bind(infoContent);
   return view;
 }
 

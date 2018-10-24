@@ -84,9 +84,9 @@ XMulSel.prototype.buildEditor = function() {
   var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
-  editor.append("<label>Opciók</label>");
+  editor.append("<label>Options/label>");
   var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Save</button>");
   var view = $("*[data-x-id='" + model.id + "']");
 
   updateOptionsBtn.click(function() {
