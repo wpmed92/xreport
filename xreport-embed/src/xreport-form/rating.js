@@ -231,13 +231,13 @@ XRating.prototype.genText = function() {
     parameterIndex++;
   });
 
-  /*if (out !== "") {
+  if (out !== "") {
+    out = out.slice(0, out.length - 1);
+  
     if (model.title !== "") {
-      out = "\n|" + model.title + "|\n" + out;
-    } else {
-      out = "\n" + out;
+      out = "(" + model.title + ")\n" + out;
     }
-  }*/
+  }
 
   return out;
 }
