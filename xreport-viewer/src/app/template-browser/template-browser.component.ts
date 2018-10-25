@@ -7,6 +7,7 @@ import { ReportMetaId } from '../model/report-meta-id';
 import { Category } from '../model/category';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
+import { NavVisibilityService } from '../services/nav-visibility.service';
 
 @Component({
   selector: 'app-template-browser',
@@ -19,7 +20,8 @@ export class TemplateBrowserComponent implements OnInit {
   categories: Observable<Category[]>;
   selectedCategories: Category[] = [];
 
-  constructor(private db: AngularFirestore, private router: Router) {
+  constructor(private db: AngularFirestore, private router: Router, private navVisibilityService: NavVisibilityService) {
+    this.navVisibilityService.showNav();
     this.reports = db.collection('reports').snapshotChanges().pipe(
       map(reps => reps.map(rep => {
         const data = rep.payload.doc.data() as ReportMeta;

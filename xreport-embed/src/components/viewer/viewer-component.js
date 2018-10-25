@@ -1,10 +1,8 @@
 import $ from 'jquery';
 
 function ViewerComponent(title) {
-    var component = $('<div class="card">\
-                        <div class="card-header">\
-                          <h5>' + title + '</h5>\
-                        </div>\
+    var component = $('<h3 class="text-secondary">' + title + '</h3>\
+                        <div class="card">\
                         <div class="x-form card-body">\
                           <form></form>\
                           <div class="text-output collapse">\

@@ -7,6 +7,7 @@ function XFormGroup(orientation, label) {
   XFormElem.call(this, "group");
   this.child = "";
   this.label = new XLabel(label);
+  this.hint;
 }
 
 XFormGroup.prototype = Object.create(XFormElem.prototype);
@@ -47,7 +48,7 @@ XFormGroup.prototype.genText = function() {
       return checked.next().text();
     }
   } else if (isFunction(this.child.genText) && !!this.child.genText() && !this.child.hideFromOutput) {
-    return this.label.val + ": " + this.child.genText();
+    return (this.label.val) ?  (this.label.val + ": " + this.child.genText()) : this.child.genText();
   }
 
   return "";

@@ -88,6 +88,10 @@ function XReportDOM() {
   
             $(this).append(editorWrapper(child, row));
           }, function() {
+              if (cellEditorMode) {
+                return;
+              }
+              
               $(this).find(".x-form-edit-group").remove();
           }
         );
@@ -117,6 +121,10 @@ function XReportDOM() {
 
             $(this).append(editorWrapper(child, row));
           }, function() {
+              if (cellEditorMode) {
+                return;
+              }
+
               $(this).find(".x-form-edit-group").remove();
           }
         );
@@ -197,7 +205,6 @@ function XReportDOM() {
 
   var buildEditor = function(xElem) {
     cellEditorMode = true;
-    sortable.option("disabled", true);
     var editorWrapper = $("<div class='x-editor-wrapper'></div>");
     var closeBtn = $("<button type='button' class='btn btn-sm btn-outline-danger x-editor-close'><i class='far fa-times-circle'></i></div>");
 
@@ -205,7 +212,6 @@ function XReportDOM() {
       $("*[data-x-id='" + xElem.id + "']").removeClass("d-none");
       editorWrapper.remove();
       $(".x-form-edit-btn").toggleClass("collapse");
-      sortable.option("disabled", false);
       cellEditorMode = false;
     });
 

@@ -11,6 +11,7 @@ import { NgProgress } from '@ngx-progressbar/core';
 import { ClipboardService } from 'ngx-clipboard'
 import * as firebase from 'firebase';
 import { Location } from '@angular/common';
+import { NavVisibilityService } from '../services/nav-visibility.service';
 
 @Component({
   selector: 'app-viewer',
@@ -32,7 +33,9 @@ export class ViewerComponent implements OnInit {
               public progress: NgProgress,
               private clipboardService: ClipboardService,
               private storage: AngularFireStorage,
-              private location: Location)  {
+              private location: Location,
+              private navVisibilityService: NavVisibilityService)  {
+      this.navVisibilityService.hideNav();
       this.editorMode = this.editorModeSubject.asObservable();
   }
 
