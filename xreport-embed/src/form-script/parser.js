@@ -159,18 +159,8 @@ function Parser(script) {
         return null;
     }
 
-    var hasHigherPrecedenceOpOnStack = function(token) {
-        var op = operatorStack[operatorStack.length - 1];
-
-        if (!op) {
-            return false;
-        }
-
-        return OP_PRECEDENCE_MAP[op.val].precedence >= OP_PRECEDENCE_MAP[token.val].precedence;
-    }
-
     var getPrecedence = function(op) {
-        if (!OP_PRECEDENCE_MAP[op.val]) {
+        if (!op || !OP_PRECEDENCE_MAP[op.val]) {
             return undefined;
         }
 
@@ -178,7 +168,7 @@ function Parser(script) {
     }
 
     var getAssociavity = function(op) {
-        if (!OP_PRECEDENCE_MAP[op.val]) {
+        if (!op || !OP_PRECEDENCE_MAP[op.val]) {
             return undefined;
         }
 
@@ -199,8 +189,9 @@ function Parser(script) {
                 outputQueue.push(token);
             } else if (token.isOperator) {
                 let top = operatorStack[operatorStack.length - 1];
+                console.log(top);
 
-                while (top && top.isOperator && (getAssociavity(token) === "left" && getPrecedence(token) <= getPrecedence(top)) 
+                while (top !== undefined && top.isOperator && (getAssociavity(token) === "left" && getPrecedence(token) <= getPrecedence(top)) 
                 || (getAssociavity(token) === "right" && getPrecedence(token) < getPrecedence(top))) {
                     outputQueue.push(operatorStack.pop());
                     top = operatorStack[operatorStack.length - 1];

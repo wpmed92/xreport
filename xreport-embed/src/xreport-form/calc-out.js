@@ -49,7 +49,7 @@ XCalcOut.prototype.buildEditor = function() {
   var model = this;
   var editor = $("<div></div>");
   var view = $("*[data-x-id='" + model.id + "']");
-  var unitWrapper = $("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
+  var unitWrapper = $("<div class='form-group' class='form-control'><label>Unit</label></div>");
   var unitControl = $("<input type='text' class='form-control'>");
   unitControl.val(model.unit);
 

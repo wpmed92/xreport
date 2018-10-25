@@ -67,15 +67,15 @@ XMulSel.prototype.hideOption = function(option) {
 }
 
 XMulSel.prototype.genText = function() {
-  var out = "";
+  var out = "\n";
   var view = $("*[data-x-id='" + this.id + "']");
 
   view.find("input:checked").each(function() {
     var label = $(this).next();
-    out += label.text() + ", ";
+    out += "-" + label.text() + "\n";
   });
 
-  out = out.slice(0, out.length - 2);
+  out = out.slice(0, out.length - 1);
 
   return out;
 }
@@ -84,7 +84,7 @@ XMulSel.prototype.buildEditor = function() {
   var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
-  editor.append("<label>Options/label>");
+  editor.append("<label>Options</label>");
   var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
   var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Save</button>");
   var view = $("*[data-x-id='" + model.id + "']");

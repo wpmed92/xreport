@@ -9,7 +9,7 @@ function XHeader(text) {
 XHeader.prototype = Object.create(XLabel.prototype);
 
 XHeader.prototype.render = function() {
-  var view = $("<div><h6>" + this.val + "</h6><hr></div>");
+  var view = $("<div><h5>" + this.val + "</h5><hr></div>");
   this.bind(view);
   return view;
 }
