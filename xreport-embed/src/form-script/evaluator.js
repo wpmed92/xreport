@@ -177,17 +177,18 @@ function Evaluator(context) {
     }
 
     this.bind = function(params) {
-        var that = this;
-        var widget = params.widget;
+        let that = this;
+        let widget = params.widget;
+        let form = widget.getForm();
 
         if (params.context === "builder") {
-            widget.getForm().on("change", function() {
+            form.on("change", function(params) {
                 let start = performance.now();
                 that.eval(widget.getScript(), params.context);
                 console.log(performance.now() - start);
             });
         } else {
-            widget.getForm().on("change", function() {
+            form.on("change", function(params) {
                 that.eval(dom.getScript(), params.context);
             });
         }

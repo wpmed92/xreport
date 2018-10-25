@@ -47,7 +47,7 @@ XFormGroup.prototype.genText = function() {
     if (checked.length > 0) {
       return checked.next().text();
     }
-  } else if (isFunction(this.child.genText) && !!this.child.genText() && !this.child.hideFromOutput) {
+  } else if (isFunction(this.child.genText) && !!this.child.genText() && !this.child.hideFromOutput && !this.child.hidden) {
     return (this.label.val) ?  (this.label.val + ": " + this.child.genText()) : this.child.genText();
   }
 

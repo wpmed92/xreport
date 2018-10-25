@@ -232,8 +232,6 @@ XRating.prototype.genText = function() {
   });
 
   if (out !== "") {
-    out = out.slice(0, out.length - 1);
-  
     if (model.title !== "") {
       out = "(" + model.title + ")\n" + out;
     }

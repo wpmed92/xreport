@@ -67,15 +67,15 @@ XMulSel.prototype.hideOption = function(option) {
 }
 
 XMulSel.prototype.genText = function() {
-  var out = "\n";
+  var out = "";
   var view = $("*[data-x-id='" + this.id + "']");
 
   view.find("input:checked").each(function() {
     var label = $(this).next();
-    out += "-" + label.text() + "\n";
+    out += label.text() + ", ";
   });
 
-  out = out.slice(0, out.length - 1);
+  out = out.slice(0, out.length - 2);
 
   return out;
 }

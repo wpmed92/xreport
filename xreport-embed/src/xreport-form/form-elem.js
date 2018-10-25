@@ -6,6 +6,7 @@ function XFormElem(type) {
   that.id = that.genUniqueId();
   that.scriptAlias = that.id;
   that.hideFromOutput = false;
+  that.hidden = false;
 }
 
 XFormElem.prototype.genUniqueId = function() {
@@ -35,10 +36,12 @@ XFormElem.prototype.buildEditor = function() {
 }
 
 XFormElem.prototype.show = function() {
+  this.hidden = false;
   $("*[data-x-id='" + this.id + "']").closest(".col").show();
 }
 
 XFormElem.prototype.hide = function() {
+  this.hidden = true;
   $("*[data-x-id='" + this.id + "']").closest(".col").hide();
 }
 
