@@ -189,7 +189,6 @@ function Parser(script) {
                 outputQueue.push(token);
             } else if (token.isOperator) {
                 let top = operatorStack[operatorStack.length - 1];
-                console.log(top);
 
                 while (top !== undefined && top.isOperator && (getAssociavity(token) === "left" && getPrecedence(token) <= getPrecedence(top)) 
                 || (getAssociavity(token) === "right" && getPrecedence(token) < getPrecedence(top))) {
@@ -200,9 +199,7 @@ function Parser(script) {
                 operatorStack.push(token);
             } else if (token.type === "LEFT_BRACKET") {
                 operatorStack.push(token);
-                console.log("Got a left bracket");
             } else if (token.type === "RIGHT_BRACKET") {
-                console.log("Got a right bracket");
                 if (peekToken().type === "SEMI_COLON") {
                   break;
                 }
@@ -234,8 +231,6 @@ function Parser(script) {
     this.parse = function() {
       while (cursor < tokenStream.length) {
         var stmt = parseAssignment();
-
-        console.log(JSON.stringify(stmt));
 
         if (!stmt) {
             stmt = parseFunctionCall();

@@ -24,7 +24,7 @@ export class ViewerComponent implements OnInit {
   closeResult: string;
   private SERVERTIME = firebase.firestore.FieldValue.serverTimestamp();
   private editorModeSubject = new BehaviorSubject<Boolean>(false);
-  private editorMode: Observable<Boolean>;
+  public editorMode: Observable<Boolean>;
   private savingTemplate = false;
 
   constructor(private route: ActivatedRoute, 

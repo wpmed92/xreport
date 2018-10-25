@@ -9,7 +9,7 @@ import { NavVisibilityService } from '../services/nav-visibility.service';
 })
 export class NavComponent implements OnInit {
 
-  constructor(public authService: AuthService, private navVisibilityService: NavVisibilityService) {
+  constructor(public authService: AuthService, public navVisibilityService: NavVisibilityService) {
 
   }
 

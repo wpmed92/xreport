@@ -195,8 +195,6 @@ function Tokenizer(script) {
       move();
     }
 
-    console.log(JSON.stringify(tokenStream));
-
     return tokenStream;
   }
 }

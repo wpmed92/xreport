@@ -71,9 +71,7 @@ function Evaluator(context) {
             }
 
             if (tok.type === "FUNCALL") {
-                console.log("Got a funcall in expression");
                 let funVal = evalFunctionCall(tok);
-                console.log(funVal);
                 valueStack.push(funVal);
             }
 
@@ -182,13 +180,13 @@ function Evaluator(context) {
         let form = widget.getForm();
 
         if (params.context === "builder") {
-            form.on("change", function(params) {
+            form.on("change", function() {
                 let start = performance.now();
                 that.eval(widget.getScript(), params.context);
                 console.log(performance.now() - start);
             });
         } else {
-            form.on("change", function(params) {
+            form.on("change", function() {
                 that.eval(dom.getScript(), params.context);
             });
         }
