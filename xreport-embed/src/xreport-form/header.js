@@ -15,7 +15,7 @@ XHeader.prototype.render = function() {
 }
 
 XHeader.prototype.genText = function() {
-  return ("\n" + this.val + "\n------------------------------------");
+  return ("<br><b>" + this.val + "</b><br>");
 }
 
 XHeader.prototype.prettyPrint = function() {

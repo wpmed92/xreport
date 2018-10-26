@@ -3,7 +3,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
-  mode: 'production', 
+  mode: 'development', 
   module: {
     rules: [
       {

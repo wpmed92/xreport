@@ -1,0 +1,9 @@
+.text-output {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    color: #404040;
+}
+
+.text-output strong, b {
+    font-weight: bold;
+}

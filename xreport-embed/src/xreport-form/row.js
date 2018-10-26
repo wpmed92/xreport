@@ -44,18 +44,10 @@ XFormRow.prototype.genText = function() {
   this.children.forEach(function(child) {
     if (isFunction(child.genText) && child.genText() !== "" && !child.hideFromOutput && !child.hidden) {
       out += child.genText();
-
-      if (child.type !== "header") {
-        out += ", ";
-      }
     }
   });
 
-  if (out !== "") {
-    out = out.slice(0, out.length - 2);
-    out += "\n";
-  }
-
+  console.log(out);
   return out;
 }
 

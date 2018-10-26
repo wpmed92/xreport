@@ -187,6 +187,8 @@ function Tokenizer(script) {
           tokenStream.push({ type: "IF_KEYWORD", val: token });
         } else if (isVariableName(token)) {
           tokenStream.push({ type: "VARIABLE_NAME", val: token });
+        } else if (token === "") {
+          //Ignore
         } else {
           throw "Invalid token " + "'" + token + "'";
         }

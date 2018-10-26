@@ -217,27 +217,42 @@ XRating.prototype.buildEditor = function() {
 XRating.prototype.genText = function() {
   var model = this;
   var view = $("*[data-x-id='" + model.id + "']").find("tbody");
-  var parameterIndex = 0;
-  var out = "";
+  var out = $("<table class='table'></table>");
 
-  view.find("tr").each(function() {
-    var row = $(this);
-    var ratingIndex = row.find("input:checked").first().parent().index() - 1;
+  //Build header
+  var header = $("<thead></thead>");
+  var ratingsRow = $("<tr></tr>");
+  ratingsRow.append($("<th class='text-secondary' scope='col'>" + model.title + "</th>"));
 
-    if (ratingIndex >= 0) {
-      out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
-    }
-
-    parameterIndex++;
+  model.ratings.forEach(function(rating) {
+    var headerCell = $("<th scope='col' class='text-center'>" + rating + "</th>");
+    ratingsRow.append(headerCell);
   });
 
-  if (out !== "") {
-    if (model.title !== "") {
-      out = "(" + model.title + ")\n" + out;
+  header.append(ratingsRow);
+  out.append(header);
+
+  //Build body
+  var body = $("<tbody></tbody>");
+  var newRow = "";
+
+  for (var i = 0; i < model.parameters.length; i++) {
+    newRow = $("<tr></tr>");
+    newRow.append($("<td>" + model.parameters[i] + "</td>"));
+
+    for (var j = 0; j < model.ratings.length; j++) {
+        newRow.append($("<td class='text-center'></td>"));
     }
+
+    let selectedCellIndex = view.find("tr").eq(i).find("input:checked").parent().index();
+    console.log("selected cell index: " + selectedCellIndex);
+    newRow.find("td").eq(selectedCellIndex).html("X");
+    body.append(newRow);
   }
 
-  return out;
+  out.append(body);
+
+  return out.prop('outerHTML');;
 }
 
 export { XRating };

@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import "../../css/report-output.css";
 
 function ViewerComponent(title) {
     var component = $('<h3 class="text-secondary">' + title + '</h3>\
@@ -28,7 +29,7 @@ function ViewerComponent(title) {
     this.previewState = function(output) {
       component.find(".text-output").removeClass("collapse");
       component.find("form").addClass("collapse");
-      component.find(".text-output").html("<pre>" + output + "</pre>");
+      component.find(".text-output").html(output);
     }
   
     btnGenText.click(function() {
