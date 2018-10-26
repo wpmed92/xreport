@@ -1,7 +1,12 @@
+import $ from 'jquery';
+
 function XFormElem(type) {
   var that = this;
   that.type = type;
   that.id = that.genUniqueId();
+  that.scriptAlias = that.id;
+  that.hideFromOutput = false;
+  that.hidden = false;
 }
 
 XFormElem.prototype.genUniqueId = function() {
@@ -13,7 +18,31 @@ XFormElem.prototype.bind = function(view) {
 }
 
 XFormElem.prototype.buildEditor = function() {
+  var model = this;
+  var editor = $("<div></div>");
+  var scriptAliasWrapper = $("<div class='form-group'><label>Script alias</label></div>");
+  var scriptAliasInput = $("<input type='text' class='form-control'>");
+  scriptAliasInput.val(model.scriptAlias);
 
+  scriptAliasInput.on("change", function() {
+    var val = $(this).val();
+    model.scriptAlias = val;
+  });
+
+  scriptAliasWrapper.append(scriptAliasInput);
+  editor.append(scriptAliasWrapper);
+
+  return editor;
+}
+
+XFormElem.prototype.show = function() {
+  this.hidden = false;
+  $("*[data-x-id='" + this.id + "']").closest(".col").show();
+}
+
+XFormElem.prototype.hide = function() {
+  this.hidden = true;
+  $("*[data-x-id='" + this.id + "']").closest(".col").hide();
 }
 
 export { XFormElem };

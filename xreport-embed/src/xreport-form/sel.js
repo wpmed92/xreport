@@ -48,11 +48,18 @@ XSel.prototype.getValue = function() {
   return selectedLabel.text();
 }
 
-XSel.prototype.checkOption = function(check, option) {
+XSel.prototype.checkOption = function(option) {
   var model = this;
   var view = $("*[data-x-id='" + model.id + "']");
   var indexOfOption = model.options.indexOf(option);
-  view.find("input").eq(indexOfOption).prop("checked", check);
+  view.find("input").eq(indexOfOption).prop("checked", true);
+}
+
+XSel.prototype.uncheckOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).prop("checked", false);
 }
 
 XSel.prototype.showOption = function(option) {
@@ -77,11 +84,12 @@ XSel.prototype.genText = function() {
 }
 
 XSel.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
-  editor.append("<label>Opciók</label>");
+  editor.append("<label>Options</label>");
   var textArea = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Save</button>");
   var view = $("*[data-x-id='" + model.id + "']");
 
   updateOptionsBtn.click(function() {
@@ -110,7 +118,9 @@ XSel.prototype.buildEditor = function() {
   textArea.val(optionsStringified);
   editor.append(textArea);
   editor.append(updateOptionsBtn);
-  return editor;
+  baseEditor.append(editor);
+
+  return baseEditor;
 }
 
 export { XSel };

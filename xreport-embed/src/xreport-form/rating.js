@@ -3,12 +3,49 @@ import $ from 'jquery';
 
 function XRating() {
   XFormElem.call(this, "rating");
-  this.parameters = ["Paraméter 1", "Paraméter 2"];
-  this.ratings = ["❌", "✔", "Érték 3"];
-  this.title = "Cím";
+  this.parameters = ["Parameter 1", "Parameter 2"];
+  this.ratings = ["Value 1", "Value 2", "Value 3"];
+  this.scores = [0, 1, 2];
+  this.title = "Title";
 }
 
 XRating.prototype = Object.create(XFormElem.prototype);
+
+XRating.prototype.getValues = function() {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']").find("tbody");
+  var scores = [];
+
+  view.find("tr").each(function() {
+    var row = $(this);
+    var ratingIndex = row.find("input:checked").first().parent().index() - 1;
+
+    if (ratingIndex >= 0) {
+      scores.push(model.scores[ratingIndex]);
+    }
+  });
+
+  console.log("Selected scores: " + scores);
+  return scores;
+}
+
+XRating.prototype.max = function() {
+  return Math.max.apply(null, this.getValues());
+}
+
+XRating.prototype.min = function() {
+  return Math.min.apply(null, this.getValues());
+}
+
+XRating.prototype.sum = function() {
+  let sum = 0;
+
+  for (let i = 0; i < this.getValues().length; i++) {
+    sum += this.getValues()[i];
+  }
+
+  return sum;
+}
 
 XRating.prototype.render = function() {
   var view = $("<table class='table table-bordered'></table>");
@@ -29,6 +66,8 @@ XRating.prototype.render = function() {
       for (var i = 0; i < model.parameters.length; i++) {
         $("#" + model.id + i + elemIndex).prop("checked", true);
       }
+
+      view.trigger("change");
     });
 
     ratingsRow.append(headerCell);
@@ -59,20 +98,30 @@ XRating.prototype.render = function() {
 }
 
 XRating.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div class='form-group'></div>");
-  var textAreaParameters = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var textAreaRatings = $("<textarea class='form-control' rows='5' id='comment'></textarea>");
-  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Mentés</button>");
+  var textAreaParameters = $("<textarea class='form-control' rows='4'></textarea>");
+  var textAreaRatings = $("<textarea class='form-control' rows='4'></textarea>");
+  var textAreaScores = $("<textarea class='form-control' rows='4'></textarea>");
+  var updateOptionsBtn = $("<br><button type='button' class='btn btn-secondary'>Save</button>");
+  var hideFromOutput = $('<div class="form-check">\
+                            <input class="form-check-input" type="checkbox" value="' + model.hideFromOutput + '"id="hideFromOutputCheckbox">\
+                            <label class="form-check-label" for="hideFromOutputCheckbox">\
+                              Hide field from output\
+                            </label>\
+                          </div>');
 
   updateOptionsBtn.click(function() {
     var parameters = textAreaParameters.val().split(';');
     var ratings = textAreaRatings.val().split(';');
+    var scores = textAreaScores.val().split(';');
     var view = $("*[data-x-id='" + model.id + "']");
     var newView = "";
     view.html("");
     model.parameters = [];
     model.ratings = [];
+    model.scores = [];
 
     //Parameters
     parameters.forEach(function(parameter) {
@@ -92,12 +141,22 @@ XRating.prototype.buildEditor = function() {
       model.ratings.push(rating);
     });
 
+    //Scores
+    scores.forEach(function(score) {
+      if (!score || score === "") {
+        return;
+      }
+
+      console.log(score);
+      model.scores.push(parseInt(score));
+    });
+
     newView = model.render();
     newView.addClass(view.hasClass("d-none") ? "d-none" : "");
     view.replaceWith(newView);
   });
 
-  var titleEditor = $("<div class='form-group'><label>Táblázat címe</label></div>");
+  var titleEditor = $("<div class='form-group'><label>Title</label></div>");
   var inp = $("<input type='text' class='form-control'>");
   inp.val(model.val);
 
@@ -110,32 +169,49 @@ XRating.prototype.buildEditor = function() {
     newView.addClass(view.hasClass("d-none") ? "d-none" : "");
     view.replaceWith(newView);
   });
+  
+  hideFromOutput.find(".form-check-input").on("change", function() {
+    var val = $(this).prop("checked");
+    model.hideFromOutput = val;
+    console.log("Hide from output: " + val);
+  });
 
   //Fill in model data to editor
   var parametersString = "";
   var ratingsString = "";
+  var scoresString = "";
 
   model.parameters.forEach(function(parameter) {
     parametersString += parameter + ";";
   });
 
   model.ratings.forEach(function(rating) {
-     ratingsString += rating + ";";
+    ratingsString += rating + ";";
+  });
+
+  model.scores.forEach(function(score) {
+    scoresString += score + ";";
   });
 
   inp.val(model.title);
-
+  console.log(model.hideFromOutput);
+  hideFromOutput.find(".form-check-input").prop("checked", model.hideFromOutput);
   textAreaParameters.val(parametersString);
   textAreaRatings.val(ratingsString);
+  textAreaScores.val(scoresString);
   titleEditor.append(inp);
   editor.append(titleEditor);
-  editor.append("<label>Értékek</label>");
+  editor.append(hideFromOutput);
+  editor.append("<label>Values (text)</label>");
   editor.append(textAreaRatings);
-  editor.append("<label>Paraméterek</label>");
+  editor.append("<label>Values (scores)</label>");
+  editor.append(textAreaScores);
+  editor.append("<label>Parameters</label>");
   editor.append(textAreaParameters);
   editor.append(updateOptionsBtn);
+  baseEditor.append(editor);
 
-  return editor;
+  return baseEditor;
 }
 
 XRating.prototype.genText = function() {
@@ -149,11 +225,7 @@ XRating.prototype.genText = function() {
     var ratingIndex = row.find("input:checked").first().parent().index() - 1;
 
     if (ratingIndex >= 0) {
-      if (model.ratings[ratingIndex] === "Van") {
-        out += "->" + model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
-      } else {
-        out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
-      }
+      out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
     }
 
     parameterIndex++;
@@ -161,9 +233,7 @@ XRating.prototype.genText = function() {
 
   if (out !== "") {
     if (model.title !== "") {
-      out = "\n|" + model.title + "|\n" + out;
-    } else {
-      out = "\n" + out;
+      out = "(" + model.title + ")\n" + out;
     }
   }
 

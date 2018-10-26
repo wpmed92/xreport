@@ -1,4 +1,5 @@
-import { XLabel } from './label.js';
+import { XLabel } from './label';
+import { XFormElem } from './form-elem';
 import $ from 'jquery';
 
 function XPlainText(text) {
@@ -16,7 +17,8 @@ XPlainText.prototype.render = function() {
 }
 
 XPlainText.prototype.buildEditor = function() {
-  var baseEditor = XLabel.prototype.buildEditor.call(this);
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
+  var labelEditor = XLabel.prototype.buildEditor.call(this);
   var view = $("<select class='form-control'></select>");
   var model = this;
 
@@ -52,7 +54,9 @@ XPlainText.prototype.buildEditor = function() {
     currentView.replaceWith(model.render());
   });
 
+  baseEditor.append(labelEditor);
   baseEditor.append(view);
+  
   return baseEditor;
 }
 

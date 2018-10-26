@@ -1,6 +1,6 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
-import _ from 'lodash';
+import * as isFunction from 'lodash.isfunction';
 
 function XFormRow() {
   XFormElem.call(this, "row");
@@ -42,7 +42,7 @@ XFormRow.prototype.genText = function() {
   var out = "";
 
   this.children.forEach(function(child) {
-    if (_.isFunction(child.genText) && child.genText() !== "") {
+    if (isFunction(child.genText) && child.genText() !== "" && !child.hideFromOutput && !child.hidden) {
       out += child.genText();
 
       if (child.type !== "header") {

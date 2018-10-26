@@ -1,3 +1,4 @@
+//This evaluator is currently unused in favour of form-script
 import { XSel } from './xreport-form/sel.js';
 import { XMulSel } from './xreport-form/mulsel.js';
 import * as math from 'mathjs';

@@ -26,6 +26,10 @@ XInNum.prototype.render = function() {
   return view;
 }
 
+XInNum.prototype.setValue = function(val) {
+  return $("*[data-x-id='" + this.id + "']").val(val);
+}
+
 XInNum.prototype.getValue = function() {
   return $("*[data-x-id='" + this.id + "']").val();
 }
@@ -46,6 +50,7 @@ XInNum.prototype.prettyPrint = function() {
 }
 
 XInNum.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
   var model = this;
   var editor = $("<div></div>");
   var view = $("*[data-x-id='" + model.id + "']");
@@ -97,8 +102,8 @@ XInNum.prototype.buildEditor = function() {
   editor.append(minWrapper);
   editor.append(maxWrapper);
   editor.append(unitWrapper);
-
-  return editor;
+  baseEditor.append(editor);
+  return baseEditor;
 }
 
 export { XInNum };

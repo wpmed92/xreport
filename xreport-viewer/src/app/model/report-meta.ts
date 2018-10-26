@@ -3,5 +3,5 @@ export class ReportMeta {
     category: any;
     creator: string;
     createdAt: any;
-    contentUrl: string;
+    contentUrl: any;
 }
