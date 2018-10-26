@@ -72,7 +72,15 @@ export class ViewerComponent implements OnInit {
     }
   }
 
-  saveTemplate(): void {
+  saveTemplateHandler(content): void {
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+      this.saveTemplate(result);
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+    });
+  } 
+
+  saveTemplate(mode: string): void {
     if (this.savingTemplate) {
       return;
     }
@@ -84,7 +92,7 @@ export class ViewerComponent implements OnInit {
     let templateId;
     let updateOperation = false;
 
-    if (routeId !== "new") {
+    if (routeId !== "new" && mode === "modify") {
       templateId = routeId;
       updateOperation = true;
     } else {
