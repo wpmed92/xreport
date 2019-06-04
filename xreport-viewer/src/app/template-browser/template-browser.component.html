@@ -1,3 +1,19 @@
+<ng-template #content let-modal>
+  <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">New template</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  <div class="modal-body">
+      <p>Create a new template from this, or edit existing?</p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn btn-success" (click)="modal.close('new')">New</button>
+      <button type="button" class="btn btn-warning" (click)="modal.close('edit')">Edit</button>
+  </div>
+</ng-template>
+
 <div class="container-fluid">
   <div id="li-schemes" class="row mt-4">
     <!-- Categories list -->
@@ -37,7 +53,11 @@
             <div class="card-body">
               <!-- name -->
               <h5 class="card-title">{{report.name}} 
-                <button type="button" class="btn btn-primary btn-sm float-right" [hidden]="report.status === 'ready'" (click)="editTemplate(report)"><i class="fas fa-edit"></i></button>
+                <button type="button" 
+                        class="btn btn-primary btn-sm float-right" 
+                        [hidden]="report.status === 'ready'" 
+                        (click)="editTemplate(report, content)"><i class="fas fa-edit"></i>
+                </button>
               </h5>
 
 
