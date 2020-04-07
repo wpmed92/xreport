@@ -246,7 +246,7 @@ function XReportDOM() {
       return Object.assign(new XTextArea, formElem);
     } else if (type === "sel") {
       return Object.assign(new XSel, formElem);
-    } else if (type === "seldropdown") {
+    } else if (type === "selDropdown") {
       return Object.assign(new XSelDropdown, formElem);
     } else if (type === "mulsel") {
       return Object.assign(new XMulSel, formElem);
