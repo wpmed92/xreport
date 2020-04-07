@@ -17,7 +17,7 @@ XImage.prototype.render = function() {
   });
 
   view.append(questionMark);
-  view.append("<img style='width: 100%; height: auto;' src='" + this.src + "'></img>");
+  view.append("<img class='collapse' style='width: 100%; height: auto;' src='" + this.src + "'></img>");
   this.bind(view);
   
   return view;
