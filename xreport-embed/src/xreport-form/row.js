@@ -19,7 +19,7 @@ XFormRow.prototype.render = function() {
   this.bind(view);
 
   this.children.forEach(function(child) {
-    var col = $("<div class='col my-auto x-form-wrapper'></div>");
+    var col = $("<div style='overflow-x: auto;' class='col my-auto x-form-wrapper'></div>");
     col.append(child.render());
     view.append(col);
   });

@@ -10,6 +10,7 @@ import { XInNum } from './xreport-form/in-num.js';
 import { XInText } from './xreport-form/in-text.js';
 import { XInBool } from './xreport-form/in-bool.js';
 import { XSel } from './xreport-form/sel.js';
+import { XSelDropdown } from './xreport-form/sel-dropdown.js';
 import { XMulSel } from './xreport-form/mulsel.js';
 import { XRating } from './xreport-form/rating.js';
 import { XCalcOut }from './xreport-form/calc-out.js';
@@ -245,6 +246,8 @@ function XReportDOM() {
       return Object.assign(new XTextArea, formElem);
     } else if (type === "sel") {
       return Object.assign(new XSel, formElem);
+    } else if (type === "seldropdown") {
+      return Object.assign(new XSelDropdown, formElem);
     } else if (type === "mulsel") {
       return Object.assign(new XMulSel, formElem);
     } else if (type === "date") {
@@ -335,6 +338,18 @@ function XReportDOM() {
   this.addSelGroup = function(row) {
     var group = new XFormGroup("vertical", "Single choice");
     group.addChild(new XSel("radio"));
+
+    if (row) {
+      appendToRow(row, group);
+      return;
+    }
+
+    addToDOM(group);
+  }
+
+  this.addSelDropdownGroup = function(row) {
+    var group = new XFormGroup("vertical", "Dropdown");
+    group.addChild(new XSelDropdown());
 
     if (row) {
       appendToRow(row, group);

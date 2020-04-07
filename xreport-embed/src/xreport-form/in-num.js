@@ -6,13 +6,14 @@ function XInNum() {
   this.min = -Infinity;
   this.max = Infinity;
   this.unit = "";
+  this.default = 0;
 }
 
 XInNum.prototype = Object.create(XFormElem.prototype);
 
 XInNum.prototype.render = function() {
   var model = this;
-  var view = $("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' >");
+  var view = $("<input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' value='" + model.default + "'>");
   this.bind(view);
 
   if (model.unit) {
@@ -54,6 +55,8 @@ XInNum.prototype.buildEditor = function() {
   var model = this;
   var editor = $("<div></div>");
   var view = $("*[data-x-id='" + model.id + "']");
+  var defaultWrapper = $("<div class='form-group'><label>Alapértelmezett érték</label></div>");
+  var defaultControl = $("<input type='number' class='form-control'>");
   var minWrapper = $("<div class='form-group'><label>Minimum érték</label></div>");
   var minControl = $("<input type='number' class='form-control'>");
   var maxWrapper = $("<div class='form-group'><label>Maximum érték</label></div>");
@@ -64,6 +67,13 @@ XInNum.prototype.buildEditor = function() {
   unitControl.val(model.unit);
   minControl.val(model.min);
   maxControl.val(model.max);
+  defaultControl.val(model.default);
+
+  defaultControl.on("change", function() {
+    var val = $(this).val();
+    model.default = val;
+    view.attr("value", val);
+  });
 
   minControl.on("change", function() {
     var val = $(this).val();
@@ -99,9 +109,11 @@ XInNum.prototype.buildEditor = function() {
   minWrapper.append(minControl);
   maxWrapper.append(maxControl);
   unitWrapper.append(unitControl);
+  defaultWrapper.append(defaultControl);
   editor.append(minWrapper);
   editor.append(maxWrapper);
   editor.append(unitWrapper);
+  editor.append(defaultWrapper);
   baseEditor.append(editor);
   return baseEditor;
 }

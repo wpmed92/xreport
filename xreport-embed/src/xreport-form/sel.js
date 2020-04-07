@@ -19,7 +19,7 @@ XSel.prototype.render = function() {
 
     for (var i = 0; i < model.options.length; i++) {
       view.append($('<div class="form-check">\
-                        <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1">\
+                        <input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1" ' + ((i == 0) ? 'checked' : '') + '>\
                         <label class="form-check-label" for="' + model.id + "-" + i + '">'
                           + model.options[i] +
                         '</label>\

@@ -14,6 +14,7 @@ function AddElemButtonComponent(editor) {
                             <a href="#" data-action="calculated" class="dropdown-item"><i class="fas fa-calculator"></i> Calculated</a>\
                             <a href="#" data-action="boolean-field" class="dropdown-item"><i class="far fa-check-square"></i> Boolean field</a>\
                             <a href="#" data-action="single-choice" class="dropdown-item"><i class="fas fa-bars"></i> Single choice</a>\
+                            <a href="#" data-action="dropdown" class="dropdown-item"><i class="fas fa-bars"></i> Dropdown</a>\
                             <a href="#" data-action="multiple-choice" class="dropdown-item"><i class="fas fa-list"></i> Multiple choice</a>\
                             <a href="#" data-action="textarea" class="dropdown-item"><i class="fas fa-text-width"></i> Textarea</a>\
                             <a href="#" data-action="date" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Date</a>\
@@ -48,6 +49,9 @@ function AddElemButtonComponent(editor) {
                 break;
             case "single-choice":
                 editor.addSelGroup();
+                break;
+            case "dropdown":
+                editor.addSelDropdownGroup();
                 break;
             case "multiple-choice":
                 editor.addMulSelGroup();
