@@ -10,9 +10,16 @@ XImage.prototype = Object.create(XFormElem.prototype);
 
 XImage.prototype.render = function() {
   var view = $("<div></div>")
-  view.append("<img src='" + this.src + "'></img>");
-  this.bind(view);
+  var questionMark = $("<i class='fas fa-question-circle text-info'></i>");
 
+  questionMark.click(function() {
+    $(this).next().toggleClass("collapse");
+  });
+
+  view.append(questionMark);
+  view.append("<img style='width: 100%; height: auto;' src='" + this.src + "'></img>");
+  this.bind(view);
+  
   return view;
 }
 
