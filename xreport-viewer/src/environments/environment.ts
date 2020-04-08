@@ -10,7 +10,8 @@ export const environment = {
     databaseURL: "https://xreport-dev.firebaseio.com",
     projectId: "xreport-dev",
     storageBucket: "xreport-dev.appspot.com",
-    messagingSenderId: "969828348185"
+    messagingSenderId: "969828348185",
+    appId: "1:969828348185:web:f7774f373c10ac530dd588"
   }
 };
 

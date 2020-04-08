@@ -11,6 +11,7 @@ import { NgProgress } from '@ngx-progressbar/core';
 import { ClipboardService } from 'ngx-clipboard'
 import * as firebase from 'firebase';
 import { Location } from '@angular/common';
+import { AngularFireAnalytics } from '@angular/fire/analytics';
 import { NavVisibilityService } from '../services/nav-visibility.service';
 
 @Component({
@@ -34,7 +35,8 @@ export class ViewerComponent implements OnInit {
               private clipboardService: ClipboardService,
               private storage: AngularFireStorage,
               private location: Location,
-              private navVisibilityService: NavVisibilityService)  {
+              private navVisibilityService: NavVisibilityService,
+              private analytics: AngularFireAnalytics)  {
       this.navVisibilityService.hideNav();
       this.editorMode = this.editorModeSubject.asObservable();
   }
@@ -64,6 +66,7 @@ export class ViewerComponent implements OnInit {
 
     if (id === "new") {
       this.initBuilder();
+      this.analytics.logEvent("template_new_clicked");
     } else {
       this.route.queryParams.subscribe(params => {
         let mode = params["mode"];
@@ -128,7 +131,9 @@ export class ViewerComponent implements OnInit {
               resolve(this.afs.collection<ReportMeta>('reports').add(report));
             }
           })).subscribe(() => {
+            this.analytics.logEvent("template_saved");
           }, error => {
+            this.analytics.logEvent("template_save_error");
             reject(error);
           });
       });
@@ -145,6 +150,18 @@ export class ViewerComponent implements OnInit {
 
   discardTemplate(): void {
     this.location.back();
+    this.analytics.logEvent("template_discarded");
+  }
+
+  shareTemplate(): void {
+    const templateId = this.route.snapshot.paramMap.get('id');
+    this.analytics.logEvent("template_shared", { templateId: templateId});
+
+    if (templateId === "8glceGohyNaW2gzfioJn") {
+      this.clipboardService.copyFromContent("https://app.radiosheets.com/link/covid");
+    } else {
+      this.clipboardService.copyFromContent(window.location.href);
+    }
   }
 
   initBuilder(): void {
@@ -176,9 +193,11 @@ export class ViewerComponent implements OnInit {
         "div-card-holder", //DOM element to inject widget to
         mode === "builder" //'builder' or 'viewer'
         ).then(() => {
+          this.analytics.logEvent("template_viewed", { templateId: id});
           this.progress.complete();
           console.log("Content loaded");
         }).catch(error => {
+          this.analytics.logEvent("template_view_error", { templateId: id});
           this.progress.complete();
           console.log(error);
         });
@@ -191,5 +210,6 @@ export class ViewerComponent implements OnInit {
 
   copyReportToClipboard(): void {
     this.clipboardService.copyFromContent(xreportEmbed.getReportAsText());
+    this.analytics.logEvent("copy_report");
   }
 }

@@ -1,6 +1,6 @@
 <ng-progress [spinner]="false"></ng-progress>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" [hidden]="!(navVisibilityService.isNavVisible | async)">
-    <a class="navbar-brand" href="#"><i class="fas fa-file-medical-alt"></i> XReport <span class="text-muted">viewer</span></a>
+    <a class="navbar-brand" href="#"><i class="fas fa-file-medical-alt"></i> Radiosheets <span class="text-muted">viewer</span></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -10,15 +10,6 @@
         <!-- Sablonok -->
         <li class="nav-item">
           <a id="a-schemes" class="nav-link" [routerLink]="['templates']">Templates</a>
-        </li>
-
-        <!-- Kategóriák -->
-        <li id="navbarCategoryDropdown" class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Categories
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-          </div>
         </li>
       </ul>
 
