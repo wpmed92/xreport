@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "public": "dist/xreport-viewer",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "appAssociation": "AUTO",
+    "rewrites": [
+      {
+      "source": "!/link/**",
+      "destination": "/index.html"
+      },
+      { 
+        "source": "/link/**", 
+        "dynamicLinks": true 
+      }
+    ]
+  }
+}

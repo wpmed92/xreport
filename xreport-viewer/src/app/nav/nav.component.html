@@ -1,0 +1,25 @@
+<ng-progress [spinner]="false"></ng-progress>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" [hidden]="!(navVisibilityService.isNavVisible | async)">
+    <a class="navbar-brand" href="#"><i class="fas fa-file-medical-alt"></i> Radiosheets <span class="text-muted">viewer</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <!-- Left -->
+      <ul class="navbar-nav mr-auto">
+        <!-- Sablonok -->
+        <li class="nav-item">
+          <a id="a-schemes" class="nav-link" [routerLink]="['templates']">Templates</a>
+        </li>
+      </ul>
+
+      <!-- Right -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a id="a-login" href="javascript:;" class="nav-link" (click)="authService.login()" [hidden]="(authService.currentUser | async) !== null"><i class="fas fa-sign-in-alt"></i> Sign in</a>
+          <a id="a-logout" href="javascript:;" class="nav-link" (click)="authService.logout()" [hidden]="(authService.currentUser | async) === null"><i class="fas fa-sign-out-alt"></i> {{ (authService.currentUser | async)?.displayName }}<span id="user-info"></span></a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  

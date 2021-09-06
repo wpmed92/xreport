@@ -1,0 +1,80 @@
+<ng-template #content let-modal>
+  <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">New template</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  <div class="modal-body">
+      <p>Create a new template from this, or edit existing?</p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn btn-success" (click)="modal.close('new')">New</button>
+      <button type="button" class="btn btn-warning" (click)="modal.close('edit')">Edit</button>
+  </div>
+</ng-template>
+
+<div class="container-fluid">
+  <div id="li-schemes" class="row mt-4">
+    <!-- Categories list -->
+    <div class="col-xl-2 col-lg-2 col-md-2 d-none d-md-block category-panel">
+      <ul class="nav flex-column mt-4">
+          <li class="nav-item" *ngFor="let category of categories | async" (click)="selectCategory(category)">
+            <a class="nav-link active" href="javacript:void(0);">{{category.name}}</a>
+          </li>
+        </ul>
+    </div>
+
+    <div class="col-xl-9 col-lg-9 col-md-9">
+      <h4>Templates</h4>
+      <hr/>
+      <!-- Selected filters -->
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-2">
+          <span class="badge badge-pill badge-primary mr-2" *ngFor="let category of selectedCategories">#{{ category.name }}</span>
+        </div>
+      </div>
+
+      <!-- Template list -->
+      <div class="row">
+        <!-- New report -->
+        <div class="col-12 col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4" (click)="newReport()">
+          <h4 class="text-muted">Add new template</h4>
+          <div class="card card-shadowed report-list-item report-list-item-new" data-id="new">
+            <div class="card-body text-center">
+              <img src="assets/images/add.png" style="height: 64px; width: 64px">
+            </div>
+          </div>
+        </div>
+
+        <!-- Report list -->
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4"  *ngFor="let report of reports | async" (click)="view(report)">
+          <div class="card card-shadowed report-list-item h-100">
+            <div class="card-body">
+              <!-- name -->
+              <h5 class="card-title">{{report.name}} 
+                <button type="button" 
+                        class="btn btn-primary btn-sm float-right" 
+                        [hidden]="report.status === 'ready'" 
+                        (click)="editTemplate(report, content)"><i class="fas fa-edit"></i>
+                </button>
+              </h5>
+
+
+              <!-- category -->
+              <h6 class="card-subtitle mb-2 text-muted">{{ (report.category | async)?.name }}</h6>
+
+              <!-- status -->
+              <span *ngIf="report.status === 'draft'" class="badge badge-pill badge-warning">draft</span>
+              <span *ngIf="report.status === 'ready'" class="badge badge-pill badge-success">ready</span>
+
+              <!-- creator -->
+              <p class="card-text"><small class="text-muted">Created by <strong>{{report.creator}}</strong> {{ report.createdAt }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- List elem -->
+  </div>
+</div>
