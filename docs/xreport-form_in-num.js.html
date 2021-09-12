@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: xreport-form/in-num.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: xreport-form/in-num.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
+
+/**
+ * Instantiates a new XInNum that renders a numerical input field.
+ * @class
+ * @augments XFormElem
+ */
+function XInNum() {
+  XFormElem.call(this, "innum");
+  this.min = -Infinity;
+  this.max = Infinity;
+  this.unit = "";
+  this.default = 0;
+}
+
+XInNum.prototype = Object.create(XFormElem.prototype);
+
+XInNum.prototype.render = function() {
+  var model = this;
+  var view = $("&lt;input type='number' class='form-control' min='" + model.min + "' max='" + model.max + "' value='" + model.default + "'>");
+  this.bind(view);
+
+  if (model.unit) {
+    view.wrap("&lt;div class='input-group mb-3'>&lt;/div>");
+    view.parent().append("&lt;div class='input-group-append'>\
+                            &lt;span class='input-group-text'>" + model.unit + "&lt;/span>\
+                          &lt;/div>");
+    view = view.parent();
+  }
+
+  return view;
+}
+
+XInNum.prototype.setValue = function(val) {
+  return $("*[data-x-id='" + this.id + "']").val(val);
+}
+
+XInNum.prototype.getValue = function() {
+  return $("*[data-x-id='" + this.id + "']").val();
+}
+
+XInNum.prototype.genText = function() {
+  var val = $("*[data-x-id='" + this.id + "']").val();
+
+  if (!val) {
+    return null;
+  }
+
+  return $("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "");
+}
+
+XInNum.prototype.prettyPrint = function() {
+  var view = "&lt;p>" + $("*[data-x-id='" + this.id + "']").val() + " " + ((this.unit) ? this.unit : "") + "&lt;/p>";
+  return view;
+}
+
+XInNum.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
+  var model = this;
+  var editor = $("&lt;div>&lt;/div>");
+  var view = $("*[data-x-id='" + model.id + "']");
+  var defaultWrapper = $("&lt;div class='form-group'>&lt;label>Alapértelmezett érték&lt;/label>&lt;/div>");
+  var defaultControl = $("&lt;input type='number' class='form-control'>");
+  var minWrapper = $("&lt;div class='form-group'>&lt;label>Minimum érték&lt;/label>&lt;/div>");
+  var minControl = $("&lt;input type='number' class='form-control'>");
+  var maxWrapper = $("&lt;div class='form-group'>&lt;label>Maximum érték&lt;/label>&lt;/div>");
+  var maxControl = $("&lt;input type='number' class='form-control'>");
+  var unitWrapper = $("&lt;div class='form-group' class='form-control'>&lt;label>Mértékegység&lt;/label>&lt;/div>");
+  var unitControl = $("&lt;input type='text' class='form-control'>");
+
+  unitControl.val(model.unit);
+  minControl.val(model.min);
+  maxControl.val(model.max);
+  defaultControl.val(model.default);
+
+  defaultControl.on("change", function() {
+    var val = $(this).val();
+    model.default = val;
+    view.attr("value", val);
+  });
+
+  minControl.on("change", function() {
+    var val = $(this).val();
+    model.min = val;
+    view.attr("min", val);
+  });
+
+  maxControl.on("change", function() {
+    var val = $(this).val();
+    model.max = val;
+    view.attr("max", val);
+  });
+
+  unitControl.on("change", function() {
+    var val = $(this).val();
+    model.unit = val;
+
+    if (!val) {
+      view.parent().find(".input-group-append").remove();
+      return;
+    }
+
+    if (!view.parent().hasClass("input-group")) {
+      view.wrap("&lt;div class='input-group mb-3'>&lt;/div>");
+      view.parent().append("&lt;div class='input-group-append'>\
+                              &lt;span class='input-group-text'>" + model.unit + "&lt;/span>\
+                            &lt;/div>");
+    } else {
+      view.parent().find(".input-group-text").first().html(model.unit);
+    }
+  });
+
+  minWrapper.append(minControl);
+  maxWrapper.append(maxControl);
+  unitWrapper.append(unitControl);
+  defaultWrapper.append(defaultControl);
+  editor.append(minWrapper);
+  editor.append(maxWrapper);
+  editor.append(unitWrapper);
+  editor.append(defaultWrapper);
+  baseEditor.append(editor);
+  return baseEditor;
+}
+
+export { XInNum };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-xreport-dom.html">xreport-dom</a></li><li><a href="module-xreport-embed.html">xreport-embed</a></li></ul><h3>Classes</h3><ul><li><a href="module-xreport-dom-XReportDOM.html">XReportDOM</a></li><li><a href="XCalcOut.html">XCalcOut</a></li><li><a href="XDate.html">XDate</a></li><li><a href="XFormElem.html">XFormElem</a></li><li><a href="XFormGroup.html">XFormGroup</a></li><li><a href="XFormRow.html">XFormRow</a></li><li><a href="XHeader.html">XHeader</a></li><li><a href="XImage.html">XImage</a></li><li><a href="XInBool.html">XInBool</a></li><li><a href="XInfo.html">XInfo</a></li><li><a href="XInNum.html">XInNum</a></li><li><a href="XInText.html">XInText</a></li><li><a href="XLabel.html">XLabel</a></li><li><a href="XMulSel.html">XMulSel</a></li><li><a href="XPlainText.html">XPlainText</a></li><li><a href="XRating.html">XRating</a></li><li><a href="XSel.html">XSel</a></li><li><a href="XSelDropdown.html">XSelDropdown</a></li><li><a href="XTextArea.html">XTextArea</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Sep 12 2021 14:22:46 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

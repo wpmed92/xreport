@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XInText that renders a text 
+ * @class
+ * @augments XFormElem
+ */
 function XInText() {
   XFormElem.call(this, "intext");
 }

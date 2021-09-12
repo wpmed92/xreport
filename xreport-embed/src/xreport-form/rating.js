@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XRating to show a table used for scoring/grading systems
+ * @class
+ * @augments XFormElem
+ */
 function XRating() {
   XFormElem.call(this, "rating");
   this.parameters = ["Parameter 1", "Parameter 2"];

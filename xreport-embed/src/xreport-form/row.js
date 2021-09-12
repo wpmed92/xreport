@@ -2,6 +2,11 @@ import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 import * as isFunction from 'lodash.isfunction';
 
+/**
+ * Instantiates a new XFormRow that show elements in a row
+ * @class
+ * @augments XFormElem
+ */
 function XFormRow() {
   XFormElem.call(this, "row");
   this.children = [];

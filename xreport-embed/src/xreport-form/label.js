@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XLabel
+ * @class
+ * @augments XFormElem
+ */
 function XLabel(label) {
   XFormElem.call(this, "label");
   this.val = label;

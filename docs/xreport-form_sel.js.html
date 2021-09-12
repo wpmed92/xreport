@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: xreport-form/sel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: xreport-form/sel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
+
+/**
+ * Instantiates a new XSel to show a single selection field
+ * @class
+ * @augments XFormElem
+ */
+function XSel(style) {
+  XFormElem.call(this, "sel");
+  this.style = style || "default";
+  this.options = ["Opció 1", "Opció 2"];
+}
+
+XSel.prototype = Object.create(XFormElem.prototype);
+
+XSel.prototype.render = function() {
+  var view = "";
+  var model = this;
+  model.style = "radio";
+
+  if (this.style === "radio") {
+    view = $("&lt;div>&lt;/div>");
+
+    for (var i = 0; i &lt; model.options.length; i++) {
+      view.append($('&lt;div class="form-check">\
+                        &lt;input class="form-check-input" type="radio" name="' + model.id + '" id="' + model.id +  "-" + i + '" value="option1" ' + ((i == 0) ? 'checked' : '') + '>\
+                        &lt;label class="form-check-label" for="' + model.id + "-" + i + '">'
+                          + model.options[i] +
+                        '&lt;/label>\
+                      &lt;/div>')
+                    );
+    }
+  } else {
+    view = $("&lt;select class='form-control'>&lt;/select>");
+
+    model.options.forEach(function(option) {
+      view.append($('&lt;option>', {
+        value: option,
+        text : option
+      }));
+    });
+  }
+
+  this.bind(view);
+  return view;
+}
+
+XSel.prototype.getValue = function() {
+  var view = $("*[data-x-id='" + this.id + "']");
+  var selectedLabel = view.find("input:checked").first().next();
+
+  return selectedLabel.text();
+}
+
+XSel.prototype.checkOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).prop("checked", true);
+}
+
+XSel.prototype.uncheckOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).prop("checked", false);
+}
+
+XSel.prototype.showOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).parent().removeClass("collapse");
+}
+
+XSel.prototype.hideOption = function(option) {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']");
+  var indexOfOption = model.options.indexOf(option);
+  view.find("input").eq(indexOfOption).parent().addClass("collapse");
+}
+
+XSel.prototype.genText = function() {
+  var view = $("*[data-x-id='" + this.id + "']");
+  var selectedLabel = view.find("input:checked").first().next();
+
+  return selectedLabel.text();
+}
+
+XSel.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
+  var model = this;
+  var editor = $("&lt;div class='form-group'>&lt;/div>");
+  editor.append("&lt;label>Options&lt;/label>");
+  var textArea = $("&lt;textarea class='form-control' rows='5' id='comment'>&lt;/textarea>");
+  var updateOptionsBtn = $("&lt;br>&lt;button type='button' class='btn btn-secondary'>Save&lt;/button>");
+  var view = $("*[data-x-id='" + model.id + "']");
+
+  updateOptionsBtn.click(function() {
+    var text = textArea.val();
+    var splitted = text.split(';');
+    model.options = [];
+    view.html("");
+
+    splitted.forEach(function(option) {
+      if (!option || option === "") {
+        return;
+      }
+
+      model.options.push(option);
+    });
+
+    view.replaceWith(model.render());
+  });
+
+  var optionsStringified = "";
+
+  model.options.forEach(function(option) {
+    optionsStringified += option + ";";
+  });
+
+  textArea.val(optionsStringified);
+  editor.append(textArea);
+  editor.append(updateOptionsBtn);
+  baseEditor.append(editor);
+
+  return baseEditor;
+}
+
+export { XSel };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-xreport-dom.html">xreport-dom</a></li><li><a href="module-xreport-embed.html">xreport-embed</a></li></ul><h3>Classes</h3><ul><li><a href="module-xreport-dom-XReportDOM.html">XReportDOM</a></li><li><a href="XCalcOut.html">XCalcOut</a></li><li><a href="XDate.html">XDate</a></li><li><a href="XFormElem.html">XFormElem</a></li><li><a href="XFormGroup.html">XFormGroup</a></li><li><a href="XFormRow.html">XFormRow</a></li><li><a href="XHeader.html">XHeader</a></li><li><a href="XImage.html">XImage</a></li><li><a href="XInBool.html">XInBool</a></li><li><a href="XInfo.html">XInfo</a></li><li><a href="XInNum.html">XInNum</a></li><li><a href="XInText.html">XInText</a></li><li><a href="XLabel.html">XLabel</a></li><li><a href="XMulSel.html">XMulSel</a></li><li><a href="XPlainText.html">XPlainText</a></li><li><a href="XRating.html">XRating</a></li><li><a href="XSel.html">XSel</a></li><li><a href="XSelDropdown.html">XSelDropdown</a></li><li><a href="XTextArea.html">XTextArea</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Sep 12 2021 14:22:46 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

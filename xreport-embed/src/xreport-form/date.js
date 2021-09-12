@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XDate element that enables the input of dates.
+ * @class
+ * @augments XFormElem
+ */
 function XDate() {
   XFormElem.call(this, "date");
 }

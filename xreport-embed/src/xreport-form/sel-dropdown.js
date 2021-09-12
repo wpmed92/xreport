@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XSelDropdown to show a dropdown single selection field
+ * @class
+ * @augments XFormElem
+ */
 function XSelDropdown(style) {
   XFormElem.call(this, "selDropdown");
   this.options = ["Opció 1", "Opció 2"];

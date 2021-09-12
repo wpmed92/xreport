@@ -2,6 +2,11 @@ import { XLabel } from './label';
 import { XFormElem } from './form-elem';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XInfo to show additional information for a given field
+ * @class
+ * @augments XFormElem
+ */
 function XInfo(text, type) {
   XLabel.call(this, text);
   this.type = type;
