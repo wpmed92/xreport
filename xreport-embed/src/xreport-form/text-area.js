@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XTextArea to allow input of long text
+ * @class
+ * @augments XFormElem
+ */
 function XTextArea(rows) {
   XFormElem.call(this, "tarea");
   this.rows = 3;

@@ -2,6 +2,11 @@ import { XLabel } from './label';
 import { XFormElem } from './form-elem';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XPlainText
+ * @class
+ * @augments XFormElem
+ */
 function XPlainText(text) {
   XLabel.call(this, text);
   this.type = "text";

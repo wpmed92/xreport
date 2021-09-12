@@ -1,6 +1,11 @@
 import { XLabel } from './label.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XHeader element. Mainly used for visually separating sections.
+ * @class
+ * @augments XFormElem
+ */
 function XHeader(text) {
   XLabel.call(this, text);
   this.type = "header";

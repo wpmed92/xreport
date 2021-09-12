@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: xreport-form/rating.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: xreport-form/rating.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { XFormElem } from './form-elem.js';
+import $ from 'jquery';
+
+/**
+ * Instantiates a new XRating to show a table used for scoring/grading systems
+ * @class
+ * @augments XFormElem
+ */
+function XRating() {
+  XFormElem.call(this, "rating");
+  this.parameters = ["Parameter 1", "Parameter 2"];
+  this.ratings = ["Value 1", "Value 2", "Value 3"];
+  this.scores = [0, 1, 2];
+  this.title = "Title";
+}
+
+XRating.prototype = Object.create(XFormElem.prototype);
+
+XRating.prototype.getValues = function() {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']").find("tbody");
+  var scores = [];
+
+  view.find("tr").each(function() {
+    var row = $(this);
+    var ratingIndex = row.find("input:checked").first().parent().index() - 1;
+
+    if (ratingIndex >= 0) {
+      scores.push(model.scores[ratingIndex]);
+    }
+  });
+
+  console.log("Selected scores: " + scores);
+  return scores;
+}
+
+XRating.prototype.max = function() {
+  return Math.max.apply(null, this.getValues());
+}
+
+XRating.prototype.min = function() {
+  return Math.min.apply(null, this.getValues());
+}
+
+XRating.prototype.sum = function() {
+  let sum = 0;
+
+  for (let i = 0; i &lt; this.getValues().length; i++) {
+    sum += this.getValues()[i];
+  }
+
+  return sum;
+}
+
+XRating.prototype.render = function() {
+  var view = $("&lt;table class='table table-bordered'>&lt;/table>");
+  var model = this;
+  this.bind(view);
+
+  //Build header
+  var header = $("&lt;thead>&lt;/thead>");
+  var ratingsRow = $("&lt;tr>&lt;/tr>");
+  ratingsRow.append($("&lt;th class='text-secondary' scope='col'>" + model.title + "&lt;/th>"));
+
+  model.ratings.forEach(function(rating) {
+    var headerCell = $("&lt;th scope='col' class='text-center'>&lt;a href='javascript:void(0)'>" + rating + "&lt;/a>&lt;/th>");
+
+    headerCell.click(function() {
+      var elemIndex = $(this).index() - 1;
+
+      for (var i = 0; i &lt; model.parameters.length; i++) {
+        $("#" + model.id + i + elemIndex).prop("checked", true);
+      }
+
+      view.trigger("change");
+    });
+
+    ratingsRow.append(headerCell);
+  });
+
+  header.append(ratingsRow);
+  view.append(header);
+
+  //Build body
+  var body = $("&lt;tbody>&lt;/tbody>");
+  var newRow = "";
+
+  for (var i = 0; i &lt; model.parameters.length; i++) {
+    newRow = $("&lt;tr>&lt;/tr>");
+    newRow.append($("&lt;td>" + model.parameters[i] + "&lt;/td>"));
+
+    for (var j = 0; j &lt; model.ratings.length; j++) {
+      newRow.append($("&lt;td class='text-center'>\
+                          &lt;input id='" + (model.id + i + j) + "'type='radio' name='" + (model.id + "-" + i) + "' value='option1'>\
+                        &lt;/td>"));
+    }
+
+    body.append(newRow);
+  }
+
+  view.append(body);
+  return view;
+}
+
+XRating.prototype.buildEditor = function() {
+  var baseEditor = XFormElem.prototype.buildEditor.call(this);
+  var model = this;
+  var editor = $("&lt;div class='form-group'>&lt;/div>");
+  var textAreaParameters = $("&lt;textarea class='form-control' rows='4'>&lt;/textarea>");
+  var textAreaRatings = $("&lt;textarea class='form-control' rows='4'>&lt;/textarea>");
+  var textAreaScores = $("&lt;textarea class='form-control' rows='4'>&lt;/textarea>");
+  var updateOptionsBtn = $("&lt;br>&lt;button type='button' class='btn btn-secondary'>Save&lt;/button>");
+  var hideFromOutput = $('&lt;div class="form-check">\
+                            &lt;input class="form-check-input" type="checkbox" value="' + model.hideFromOutput + '"id="hideFromOutputCheckbox">\
+                            &lt;label class="form-check-label" for="hideFromOutputCheckbox">\
+                              Hide field from output\
+                            &lt;/label>\
+                          &lt;/div>');
+
+  updateOptionsBtn.click(function() {
+    var parameters = textAreaParameters.val().split(';');
+    var ratings = textAreaRatings.val().split(';');
+    var scores = textAreaScores.val().split(';');
+    var view = $("*[data-x-id='" + model.id + "']");
+    var newView = "";
+    view.html("");
+    model.parameters = [];
+    model.ratings = [];
+    model.scores = [];
+
+    //Parameters
+    parameters.forEach(function(parameter) {
+      if (!parameter || parameter === "") {
+        return;
+      }
+
+      model.parameters.push(parameter);
+    });
+
+    //Ratings
+    ratings.forEach(function(rating) {
+      if (!rating || rating === "") {
+        return;
+      }
+
+      model.ratings.push(rating);
+    });
+
+    //Scores
+    scores.forEach(function(score) {
+      if (!score || score === "") {
+        return;
+      }
+
+      console.log(score);
+      model.scores.push(parseInt(score));
+    });
+
+    newView = model.render();
+    newView.addClass(view.hasClass("d-none") ? "d-none" : "");
+    view.replaceWith(newView);
+  });
+
+  var titleEditor = $("&lt;div class='form-group'>&lt;label>Title&lt;/label>&lt;/div>");
+  var inp = $("&lt;input type='text' class='form-control'>");
+  inp.val(model.val);
+
+  inp.on("change", function() {
+    var val = $(this).val();
+    var view = $("*[data-x-id='" + model.id + "']");
+    var newView = "";
+    model.title = val;
+    newView = model.render();
+    newView.addClass(view.hasClass("d-none") ? "d-none" : "");
+    view.replaceWith(newView);
+  });
+  
+  hideFromOutput.find(".form-check-input").on("change", function() {
+    var val = $(this).prop("checked");
+    model.hideFromOutput = val;
+    console.log("Hide from output: " + val);
+  });
+
+  //Fill in model data to editor
+  var parametersString = "";
+  var ratingsString = "";
+  var scoresString = "";
+
+  model.parameters.forEach(function(parameter) {
+    parametersString += parameter + ";";
+  });
+
+  model.ratings.forEach(function(rating) {
+    ratingsString += rating + ";";
+  });
+
+  model.scores.forEach(function(score) {
+    scoresString += score + ";";
+  });
+
+  inp.val(model.title);
+  console.log(model.hideFromOutput);
+  hideFromOutput.find(".form-check-input").prop("checked", model.hideFromOutput);
+  textAreaParameters.val(parametersString);
+  textAreaRatings.val(ratingsString);
+  textAreaScores.val(scoresString);
+  titleEditor.append(inp);
+  editor.append(titleEditor);
+  editor.append(hideFromOutput);
+  editor.append("&lt;label>Values (text)&lt;/label>");
+  editor.append(textAreaRatings);
+  editor.append("&lt;label>Values (scores)&lt;/label>");
+  editor.append(textAreaScores);
+  editor.append("&lt;label>Parameters&lt;/label>");
+  editor.append(textAreaParameters);
+  editor.append(updateOptionsBtn);
+  baseEditor.append(editor);
+
+  return baseEditor;
+}
+
+XRating.prototype.genText = function() {
+  var model = this;
+  var view = $("*[data-x-id='" + model.id + "']").find("tbody");
+  var parameterIndex = 0;
+  var out = "";
+
+  view.find("tr").each(function() {
+    var row = $(this);
+    var ratingIndex = row.find("input:checked").first().parent().index() - 1;
+
+    if (ratingIndex >= 0) {
+      out += model.parameters[parameterIndex] + ": " + model.ratings[ratingIndex] + "\n";
+    }
+
+    parameterIndex++;
+  });
+
+  if (out !== "") {
+    if (model.title !== "") {
+      out = "(" + model.title + ")\n" + out;
+    }
+  }
+
+  return out;
+}
+
+export { XRating };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-xreport-dom.html">xreport-dom</a></li><li><a href="module-xreport-embed.html">xreport-embed</a></li></ul><h3>Classes</h3><ul><li><a href="module-xreport-dom-XReportDOM.html">XReportDOM</a></li><li><a href="XCalcOut.html">XCalcOut</a></li><li><a href="XDate.html">XDate</a></li><li><a href="XFormElem.html">XFormElem</a></li><li><a href="XFormGroup.html">XFormGroup</a></li><li><a href="XFormRow.html">XFormRow</a></li><li><a href="XHeader.html">XHeader</a></li><li><a href="XImage.html">XImage</a></li><li><a href="XInBool.html">XInBool</a></li><li><a href="XInfo.html">XInfo</a></li><li><a href="XInNum.html">XInNum</a></li><li><a href="XInText.html">XInText</a></li><li><a href="XLabel.html">XLabel</a></li><li><a href="XMulSel.html">XMulSel</a></li><li><a href="XPlainText.html">XPlainText</a></li><li><a href="XRating.html">XRating</a></li><li><a href="XSel.html">XSel</a></li><li><a href="XSelDropdown.html">XSelDropdown</a></li><li><a href="XTextArea.html">XTextArea</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Sep 12 2021 14:22:46 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

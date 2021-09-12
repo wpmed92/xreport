@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XSel to show a single selection field
+ * @class
+ * @augments XFormElem
+ */
 function XSel(style) {
   XFormElem.call(this, "sel");
   this.style = style || "default";

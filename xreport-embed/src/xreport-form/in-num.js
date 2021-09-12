@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XInNum that renders a numerical input field.
+ * @class
+ * @augments XFormElem
+ */
 function XInNum() {
   XFormElem.call(this, "innum");
   this.min = -Infinity;

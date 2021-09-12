@@ -3,6 +3,11 @@ import { XInBool } from './in-bool.js';
 import { XLabel } from './label.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XMulSel to show a multiple selection field
+ * @class
+ * @augments XFormElem
+ */
 function XMulSel(style) {
   XFormElem.call(this, "mulsel");
   this.style = style || "default";

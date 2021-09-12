@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XImage element that renders an image.
+ * @class
+ * @augments XFormElem
+ */
 function XImage() {
   XFormElem.call(this, "image");
   this.src = "https://uploads-ssl.webflow.com/57e5747bd0ac813956df4e96/5aebae14c6d254621d81f826_placeholder.png";

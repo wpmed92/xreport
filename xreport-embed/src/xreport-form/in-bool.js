@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XInBool element that renders an boolean input field.
+ * @class
+ * @augments XFormElem
+ */
 function XInBool(style) {
   XFormElem.call(this, "inbool");
   this.style = style || "checkbox";

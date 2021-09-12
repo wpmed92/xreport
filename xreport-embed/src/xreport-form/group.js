@@ -3,6 +3,11 @@ import { XLabel } from './label.js';
 import $ from 'jquery';
 import * as isFunction from 'lodash.isfunction';
 
+/**
+ * Instantiates a new XFormGroup element that renders a label and a child. The child is another XFormElem instance.
+ * @class
+ * @augments XFormElem
+ */
 function XFormGroup(orientation, label) {
   XFormElem.call(this, "group");
   this.child = "";

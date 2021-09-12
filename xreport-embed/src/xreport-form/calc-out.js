@@ -1,6 +1,11 @@
 import { XFormElem } from './form-elem.js';
 import $ from 'jquery';
 
+/**
+ * Instantiates a new XCalcOut element that shows the result of a calculation.
+ * @class
+ * @augments XFormElem
+ */
 function XCalcOut() {
   XFormElem.call(this, "calcout");
   this.min = -Infinity;
