@@ -5,9 +5,11 @@ XReport is a structured reporting platform for radiologists. It features both te
 
 The project consists of two main parts: `xreport-embed` and `xreport-viewer`.
 
+For a live demo click [here](https://app.radiosheets.com)!
+
 ## xreport-embed
 
-`xreport-embed` is a library that contains the main feature of the platform: template building, template rendering, report generation and script evaluation. It is basically a form builder with custom elements (e.g. scoring table and calculated field, which in combination can be used for a tumor grading system) made specifically for radiological reporting.
+`xreport-embed` is a library that contains the main features of the platform: template building, template rendering, report generation and script evaluation. It is basically a form builder with custom elements (e.g. scoring table and calculated field, which in combination can be used for a tumor grading system) made specifically for radiological reporting.
 
 ### Installation
 
