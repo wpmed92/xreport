@@ -4,8 +4,8 @@ import { Evaluator } from './form-script/evaluator';
 import 'bootstrap';
 
 /**
- * Main entry point of xreport-dom library.
- * @module xreport-dom
+ * Main entry point of xreport-embed library.
+ * @module xreport-embed
  */
 const xreportDOM = new XReportDOM();
 const xreportRenderer = new XReportRenderer(xreportDOM);
