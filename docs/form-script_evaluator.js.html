@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: form-script/evaluator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: form-script/evaluator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { Parser } from './parser';
+
+/**
+ * Main entry point of form-script
+ * @module form-script
+ */
+
+const OPERATORS = {
+    //Binary ops
+    "+": function(left, right) {
+        return left + right;
+    },
+    "-": function(left, right) {
+        return left - right;
+    },
+    "*": function(left, right) {
+        return left * right;
+    },
+    "/": function(left, right) {
+        return left / right;
+    },
+    "%": function(left, right) {
+        return left % right;
+    },
+    "&lt;=": function(left, right) {
+        return left &lt;= right;
+    },
+    ">=": function(left, right) {
+        return left >= right;
+    },
+    "&lt;": function(left, right) {
+        return left &lt; right;
+    },
+    ">": function(left, right) {
+        return left > right;
+    },
+    "==": function(left, right) {
+        return left == right;
+    },
+    "!=": function(left, right) {
+        return left != right;
+    },
+    "and": function(left, right) {
+        return left &amp;&amp; right;
+    },
+    "or": function(left, right) {
+        return left || right;
+    },
+    "^": function(left, right) {
+        return left ** right;
+    },
+    //Unary ops
+    "u+": function(val) {
+        return val;
+    },
+    "u-": function(val) {
+        return -val;
+    },
+    "!": function(val) {
+        return !val;
+    }
+}
+
+/**
+ * Creates a new Evaluator which can be used to evaluate FormScript code.
+ * @class
+ */
+function Evaluator(context) {
+    const dom = context;
+    let ast;
+
+    var evalExpression = function(expression) {
+        let valueStack = [];
+
+        for (let i = 0; i &lt; expression.outputQueue.length; i++) {
+            var tok = expression.outputQueue[i];
+        
+            if (tok.type === "NUMBER" || tok.type === "STRING") {
+                valueStack.push(tok.val);
+            }
+
+            if (tok.type === "FUNCALL") {
+                let funVal = evalFunctionCall(tok);
+                valueStack.push(funVal);
+            }
+
+            if (tok.type === "VARIABLE_NAME") {
+                valueStack.push(extractValue(tok.val));
+            }
+        
+            if (tok.isOperator) {
+                var sum;
+
+                if (tok.isUnary) {
+                    var val = valueStack.pop();
+                    sum = OPERATORS[tok.val](val);
+                } else {
+                    var right = valueStack.pop();
+                    var left = valueStack.pop();
+                    sum = OPERATORS[tok.val](left, right);
+                }
+
+                valueStack.push(sum);
+            }
+        }
+        
+        return valueStack.pop();
+    }
+
+    var extractValue = function(variable) {
+        var xElem = dom.getXElemByScriptAlias(variable);
+        var val = xElem.getValue();
+        var numericVal = parseFloat(val);
+    
+        if (isNaN(numericVal)) {
+            return val;
+        } else {
+            return numericVal;
+        }
+    }
+
+    var evalAssignment = function(assignment) {
+        var xElem = dom.getXElemByScriptAlias(assignment.lhs);
+        var val = evalExpression(assignment.rhs);
+        xElem.setValue(val);
+    }
+
+    var evalFunctionCall = function(functionCall) {
+        var xElem = dom.getXElemByScriptAlias(functionCall.variableName);
+        var funName = functionCall.funName;
+        var args = [];
+
+        for (let i = 0; i &lt; functionCall.args.length; i++) {
+            let arg = functionCall.args[i];
+            let evaluatedArg = evalExpression(arg);
+            args.push(evaluatedArg);
+        }
+
+        return xElem[funName](...args);
+    }
+
+    var evalIfThen = function(ifThen) {
+        let condition = evalExpression(ifThen.condition);
+
+        if (condition) {
+            for (let i = 0; i &lt; ifThen.true.length; i++) {
+                let trueAction = ifThen.true[i];
+                
+                if (trueAction.type === "FUNCALL") {
+                    evalFunctionCall(trueAction);
+                } else if (trueAction.type === "ASSIGNMENT") {
+                    evalAssignment(trueAction);
+                } else {
+                    throw "Invalid action: " + trueAction.type;
+                }
+            }
+        } else {
+            for (let i = 0; i &lt; ifThen.false.length; i++) {
+                var falseAction = ifThen.false[i];
+                evalFunctionCall(falseAction);
+            }
+        }
+    }
+
+    /**
+     * The main method to evaluate FormScript code
+     * @method
+     * @param {string} script - FormScript source code
+     * @param {string} context - The context in which FormScript code is evaluated. Values: "builder", "viewer"
+     */
+    this.eval = function(script, context) {
+        let parser;
+
+        if (context === "builder" || !ast) {
+            parser = new Parser(script);
+            ast = parser.parse();
+        }
+
+        for (let i = 0; i &lt; ast.length; i++) {
+            let stmt = ast[i];
+
+            if (stmt.type === "IFTHEN") {
+                evalIfThen(stmt);
+            } else if (stmt.type === "FUNCALL") {
+                evalFunctionCall(stmt);
+            } else if (stmt.type === "ASSIGNMENT") {
+                evalAssignment(stmt);
+            }
+        }
+    }
+
+    /**
+     * Binds the Evaluator to the form.
+     * @method
+     * @param {object} params.widget - The XReport widget to bind the Evaluator to.
+     * @param {string} params.context - The context in which FormScript code is evaluated. Values: "builder", "viewer"
+     */
+    this.bind = function(params) {
+        let that = this;
+        let widget = params.widget;
+        let form = widget.getForm();
+
+        if (params.context === "builder") {
+            form.on("change", function() {
+                let start = performance.now();
+                that.eval(widget.getScript(), params.context);
+                console.log(performance.now() - start);
+            });
+        } else {
+            form.on("change", function() {
+                that.eval(dom.getScript(), params.context);
+            });
+        }
+        //Initial trigger to go to "init state"
+        widget.getForm().trigger("change");
+      }
+}
+
+export { Evaluator };</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-form-script.html">form-script</a></li><li><a href="module-xreport-embed.html">xreport-embed</a></li></ul><h3>Classes</h3><ul><li><a href="Assignment.html">Assignment</a></li><li><a href="AST.html">AST</a></li><li><a href="Expression.html">Expression</a></li><li><a href="FunctionCall.html">FunctionCall</a></li><li><a href="IfThen.html">IfThen</a></li><li><a href="module-form-script-Evaluator.html">Evaluator</a></li><li><a href="Parser.html">Parser</a></li><li><a href="Tokenizer.html">Tokenizer</a></li><li><a href="XCalcOut.html">XCalcOut</a></li><li><a href="XDate.html">XDate</a></li><li><a href="XFormElem.html">XFormElem</a></li><li><a href="XFormGroup.html">XFormGroup</a></li><li><a href="XFormRow.html">XFormRow</a></li><li><a href="XHeader.html">XHeader</a></li><li><a href="XImage.html">XImage</a></li><li><a href="XInBool.html">XInBool</a></li><li><a href="XInfo.html">XInfo</a></li><li><a href="XInNum.html">XInNum</a></li><li><a href="XInText.html">XInText</a></li><li><a href="XLabel.html">XLabel</a></li><li><a href="XMulSel.html">XMulSel</a></li><li><a href="XPlainText.html">XPlainText</a></li><li><a href="XRating.html">XRating</a></li><li><a href="XSel.html">XSel</a></li><li><a href="XSelDropdown.html">XSelDropdown</a></li><li><a href="XTextArea.html">XTextArea</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 15 2021 23:14:41 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

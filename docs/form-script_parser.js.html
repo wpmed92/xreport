@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: form-script/parser.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: form-script/parser.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { Assignment } from './ast/assignment';
+import { IfThen } from './ast/if-then';
+import { FunctionCall } from './ast/function-call';
+import { Expression } from './ast/expression';
+import { Tokenizer } from './tokenizer';
+
+const OP_PRECEDENCE_MAP = {
+    //Binary ops
+    'or': { precedence: 0, associavity: "left" },
+    'and': { precedence: 1, associavity: "left" },
+    '!=': { precedence: 2, associavity: "left" },
+    '==': { precedence: 2, associavity: "left" },
+    '&lt;=': { precedence: 3, associavity: "left" },
+    '&lt;' : { precedence: 3, associavity: "left" },
+    '>=': { precedence: 3, associavity: "left" },
+    '>': { precedence: 3, associavity: "left" },
+    '+': { precedence: 4, associavity: "left" },
+    '-': { precedence: 4, associavity: "left" },
+    '*': { precedence: 5, associavity: "left" },
+    '/': { precedence: 5, associavity: "left" },
+    '%': { precedence: 5, associavity: "left" },
+    '^': { precedence: 6, associavity: "right" },
+    //Unary ops
+    'u-': { precedence: 7, associavity: "right" },
+    'u+': { precedence: 7, associavity: "right" },
+    '!': { precedence: 7, associavity: "right" }
+}
+
+const INVERT_FUNCTION = {
+    "show": "hide",
+    "hide": "show",
+    "showOption": "hideOption",
+    "hideOption": "showOption",
+    "checkOption": "uncheckOption",
+    "uncheckOption": "checkOption"
+}
+
+/**
+ * Creates a new Parser to parse the token stream coming from Tokenizer
+ * @class
+ * @param {string} script - FormScript code
+ */
+function Parser(script) {
+    let tokenizer = new Tokenizer(script);
+    let tokenStream = tokenizer.tokenize();
+    let cursor = 0;
+    let ast = [];
+
+    var advanceToken = function() {
+        cursor++;
+    }
+
+    var curToken = function() {
+        return tokenStream[cursor];
+    }
+
+    var peekToken = function() {
+        return tokenStream[cursor + 1];
+    }
+
+    var parseAction = function() {
+        var action = parseAssignment();
+
+        if (!action) {
+            action = parseFunctionCall();
+        }
+
+        return action;
+    }
+
+    var parseAssignment = function() {
+        if (curToken().type === "VARIABLE_NAME" &amp;&amp; peekToken().type === "ASSIGN") {
+            var assignment = new Assignment();
+            assignment.lhs = curToken().val;
+            advanceToken();
+            advanceToken();
+            assignment.rhs = parseExpression(";");
+
+            return assignment;
+        }
+
+        return null;
+    }
+
+    var invertFunction = function(action) {
+        let inverted = new FunctionCall();
+        inverted.variableName = action.variableName;
+        inverted.funName = INVERT_FUNCTION[action.funName];
+        inverted.args = action.args;
+
+        return inverted;
+    }
+
+    var parseIfThen = function(ast) {
+        if (curToken().type === "IF_KEYWORD") {
+            var ifThen = new IfThen();
+            advanceToken();
+            ifThen.condition = parseExpression();
+
+            if (curToken().type != "LEFT_CURLY") {
+              throw "{ expected";
+            }
+
+            advanceToken();
+
+            while (curToken().type !== "RIGHT_CURLY") {
+                var action = parseAction();
+
+                if (action) {
+                    ifThen.true.push(action);
+
+                    if (action.type === "FUNCALL" &amp;&amp; INVERT_FUNCTION[action.funName]) {
+                        ifThen.false.push(invertFunction(action));
+                    }
+                } else {
+                    throw "Invalid statement in if body.";
+                }
+
+                advanceToken();
+            }
+            
+            return ifThen;
+        }
+
+        return null;
+    }
+
+    var parseFunctionCall = function(inExpression) {
+        if (curToken().type === "VARIABLE_NAME" &amp;&amp; peekToken().type === "DOT") {
+            var functionCall = new FunctionCall();
+            functionCall.variableName = curToken().val;
+            advanceToken();
+            advanceToken();
+
+            if (curToken().type === "VARIABLE_NAME") {
+                functionCall.funName = curToken().val;
+            } else {
+                throw "Variable name expected.";
+            }
+
+            if (peekToken().type !== "LEFT_BRACKET") {
+                throw "Left bracket expected.";
+            }
+            
+            advanceToken();
+            functionCall.args.push(parseExpression(true));
+
+            while (curToken().type === "COMMA") {
+                advanceToken();
+                functionCall.args.push(parseExpression(true));
+            }
+
+            if (!inExpression) {
+                advanceToken();
+
+                if (curToken().type !== "SEMI_COLON") {
+                    throw "End of statement expected";
+                }
+            }
+
+            return functionCall;
+        }
+
+        return null;
+    }
+
+    var getPrecedence = function(op) {
+        if (!op || !OP_PRECEDENCE_MAP[op.val]) {
+            return undefined;
+        }
+
+        return OP_PRECEDENCE_MAP[op.val].precedence;
+    }
+
+    var getAssociavity = function(op) {
+        if (!op || !OP_PRECEDENCE_MAP[op.val]) {
+            return undefined;
+        }
+
+        return OP_PRECEDENCE_MAP[op.val].associavity;
+    }
+
+    var parseExpression = function(inFunctionCall) {
+        let operatorStack = [];
+        let outputQueue = [];
+
+        while (cursor &lt; tokenStream.length) {
+            var token = curToken();
+            let funCall = parseFunctionCall(/*inExpression*/ true);
+
+            if (funCall) {
+                outputQueue.push(funCall);
+            } else if (token.type === "NUMBER" || token.type === "VARIABLE_NAME" || token.type === "STRING") {
+                outputQueue.push(token);
+            } else if (token.isOperator) {
+                let top = operatorStack[operatorStack.length - 1];
+
+                while (top !== undefined &amp;&amp; top.isOperator &amp;&amp; (getAssociavity(token) === "left" &amp;&amp; getPrecedence(token) &lt;= getPrecedence(top)) 
+                || (getAssociavity(token) === "right" &amp;&amp; getPrecedence(token) &lt; getPrecedence(top))) {
+                    outputQueue.push(operatorStack.pop());
+                    top = operatorStack[operatorStack.length - 1];
+                }
+
+                operatorStack.push(token);
+            } else if (token.type === "LEFT_BRACKET") {
+                operatorStack.push(token);
+            } else if (token.type === "RIGHT_BRACKET") {
+                if (peekToken().type === "SEMI_COLON") {
+                  break;
+                }
+
+                while (operatorStack[operatorStack.length - 1].type !== "LEFT_BRACKET") {
+                    outputQueue.push(operatorStack.pop());
+                }
+
+                //Discard LEFT_BRACKET
+                operatorStack.pop();
+
+                if (operatorStack.length === 0) {
+                    break;
+                }
+            } else {
+                break;
+            }
+
+            advanceToken();
+        }
+
+        while (operatorStack.length > 0) {
+            outputQueue.push(operatorStack.pop());
+        }
+
+        return new Expression(outputQueue);
+    }
+
+    /**
+     * The main parser method.
+     * @method
+     * @returns {AST}
+     */
+    this.parse = function() {
+      while (cursor &lt; tokenStream.length) {
+        var stmt = parseAssignment();
+
+        if (!stmt) {
+            stmt = parseFunctionCall();
+        }
+
+        if (!stmt) {
+            stmt = parseIfThen();
+        }
+
+        if (!stmt) {
+            throw "Invalid statement.";
+        }
+
+        ast.push(stmt);
+        advanceToken();
+      }
+
+      return ast;
+    }
+}
+
+export { Parser };</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-form-script.html">form-script</a></li><li><a href="module-xreport-embed.html">xreport-embed</a></li></ul><h3>Classes</h3><ul><li><a href="Assignment.html">Assignment</a></li><li><a href="AST.html">AST</a></li><li><a href="Expression.html">Expression</a></li><li><a href="FunctionCall.html">FunctionCall</a></li><li><a href="IfThen.html">IfThen</a></li><li><a href="module-form-script-Evaluator.html">Evaluator</a></li><li><a href="Parser.html">Parser</a></li><li><a href="Tokenizer.html">Tokenizer</a></li><li><a href="XCalcOut.html">XCalcOut</a></li><li><a href="XDate.html">XDate</a></li><li><a href="XFormElem.html">XFormElem</a></li><li><a href="XFormGroup.html">XFormGroup</a></li><li><a href="XFormRow.html">XFormRow</a></li><li><a href="XHeader.html">XHeader</a></li><li><a href="XImage.html">XImage</a></li><li><a href="XInBool.html">XInBool</a></li><li><a href="XInfo.html">XInfo</a></li><li><a href="XInNum.html">XInNum</a></li><li><a href="XInText.html">XInText</a></li><li><a href="XLabel.html">XLabel</a></li><li><a href="XMulSel.html">XMulSel</a></li><li><a href="XPlainText.html">XPlainText</a></li><li><a href="XRating.html">XRating</a></li><li><a href="XSel.html">XSel</a></li><li><a href="XSelDropdown.html">XSelDropdown</a></li><li><a href="XTextArea.html">XTextArea</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 15 2021 23:14:41 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
