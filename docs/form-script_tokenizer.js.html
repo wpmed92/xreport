@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: form-script/tokenizer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: form-script/tokenizer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Creates a new Tokenizer to turn input FormScript code into a token stream.
+ * @class
+ * @param {string} script - FormScript code
+ */
+function Tokenizer(script) {
+  let tokenStream = [];
+  let lineCounter = 0;
+  let cursor = 0;
+
+  var parseString = function() {
+    var terminator = getChar();
+    var str = "";
+    move();
+    
+    while (getChar() != terminator) {
+      if (cursor === script.length) {
+        throw { type: "TOKENIZER_ERROR", msg: "String not closed." };
+      }
+
+      str += getChar();
+      move();
+    }
+    
+    return str;
+  }
+
+  var parseToken = function() {
+    var token = "";
+    
+    while (!isTerminalCharacter(getChar()) &amp;&amp; cursor &lt; script.length) {
+      token += getChar();
+      move();
+    }
+    
+    moveBack();
+    return token;
+  }
+
+  var isInteger = function(token) {
+	  return /^\d+$/.test(token);
+  }
+
+  var isVariableName = function(token) {
+	  return /[_a-zA-Z][_a-zA-Z0-9]*/.test(token);
+  }
+
+  var isTerminalCharacter = function(char) {
+    return char === "'" || char === '"' || 
+      char === "&lt;" || char === ">" ||
+      char === "=" || char === "(" ||
+      char === ")" || char === "+" ||
+      char === "-" || char === "/" ||
+      char === "*" || char === ":" ||
+      char === "!" || char === "^" ||
+      char === ";" || char === " " ||
+      char === "{" || char === "}" ||
+      char === "\n" || char === "\t" ||
+      char === "." || char === ",";
+  }
+
+  var skipSpaces = function() {
+	  while ((getChar() == ' ' || getChar() == '\n' || getChar() == '\t') &amp;&amp; cursor &lt; script.length) {
+  	  move();
+    }
+  }
+
+  var move = function() {
+	  cursor++;
+  }
+
+  var moveBack = function() {
+	  cursor--;
+  }
+
+  var rollback = function(to) {
+    cursor = to;
+  }
+
+  var getChar = function() {
+    return script[cursor];
+  }
+
+  var peekChar = function() {
+    return script[cursor + 1];
+  }
+
+  var prevToken = function() {
+    return tokenStream[tokenStream.length - 1];
+  }
+
+  var isCurrentOpUnary = function() {
+    return !(prevToken().type === "NUMBER" || prevToken().type === "STRING" || 
+    prevToken().type === "VARIABLE_NAME" || prevToken().type === "RIGHT_BRACKET");
+  }
+
+  /**
+   * The main tokenizer method.
+   * @method
+   * @returns {Array}
+   */
+  this.tokenize = function() {
+    while (cursor &lt; script.length) {
+      skipSpaces();
+      
+      if (getChar() == "'" || getChar() == '"') {
+        var stringLiteral = parseString();
+        tokenStream.push({ type: 'STRING', val: stringLiteral });
+      } else if (getChar() == '=') {
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'EQUAL', isOperator: true, val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'ASSIGN', val: getChar() });
+        }
+      } else if (getChar() == '&lt;') {
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'LT_EQUAL', isOperator: true, val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'LT', isOperator: true, val: getChar() });
+        }
+      } else if (getChar() == '>') {
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'GT_EQUAL', isOperator: true, val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'GT', isOperator: true, val: getChar() });
+        }
+      } else if (getChar() == '!') {
+        if (peekChar() == '=') {
+          tokenStream.push({ type: 'NOT_EQUAL', isOperator: true, val: getChar() + peekChar() });
+          move();
+        } else {
+          tokenStream.push({ type: 'NOT', isOperator: true, isUnary: true, val: getChar() });
+        }
+      } else if (getChar() == '+') {
+        if (isCurrentOpUnary()) {
+          tokenStream.push({ type: 'UNARY_PLUS', isOperator: true, isUnary: true, val: "u" + getChar() });
+        } else {
+          tokenStream.push({ type: 'PLUS', isOperator: true, val: getChar() });
+        }
+      } else if (getChar() == '-') {
+        if (isCurrentOpUnary()) {
+          tokenStream.push({ type: 'UNARY_MINUS', isOperator: true, isUnary: true, val: "u" + getChar() });
+        } else {
+          tokenStream.push({ type: 'MINUS', isOperator: true, val: getChar() });
+        }
+      } else if (getChar() == '^') {
+        tokenStream.push({ type: 'EXP', isOperator: true, val: getChar() });
+      } else if (getChar() == '*') {
+        tokenStream.push({ type: 'MUL', isOperator: true, val: getChar() });
+      } else if (getChar() == '/') {
+        tokenStream.push({ type: 'DIV', isOperator: true, val: getChar() });
+      } else if (getChar() == '%') {
+        tokenStream.push({ type: 'MOD', isOperator: true, val: getChar() });
+      } else if (getChar() == ':') {
+        tokenStream.push({ type: 'COLON', val: getChar()});
+      } else if (getChar() == ';') {
+        tokenStream.push({ type: 'SEMI_COLON', val: getChar() });
+      } else if (getChar() == '.') {
+        tokenStream.push({ type: 'DOT', val: getChar() });
+      } else if (getChar() == ',') {
+        tokenStream.push({ type: 'COMMA', val: getChar() });
+      } else if (getChar() == '(') {
+        tokenStream.push({ type: 'LEFT_BRACKET', val: getChar()});
+      } else if (getChar() == ')') {
+        tokenStream.push({ type: 'RIGHT_BRACKET', val: getChar()});
+      } else if (getChar() == '{') {
+        tokenStream.push({ type: 'LEFT_CURLY', val: getChar()});
+      } else if (getChar() == '}') {
+        tokenStream.push({ type: 'RIGHT_CURLY', val: getChar()});
+      } else {
+        var token = parseToken();
+        
+        if (isInteger(token)) {
+          if (peekChar() === '.') {
+            var anchorPoint = cursor;
+            move();
+            move();
+            var decimalPart = parseToken();
+
+            if (isInteger(decimalPart)) {
+              var floatNumber = token + "." + decimalPart;
+              tokenStream.push({ type: "NUMBER", val: floatNumber });
+            } else {
+              rollback(anchorPoint);
+            }
+          } else {
+            tokenStream.push({ type: "NUMBER", val: parseInt(token) });
+          }
+        } else if (token === "and") {
+          tokenStream.push({ type: "AND", isOperator: true, val: token });
+        } else if (token === "or") {
+          tokenStream.push({ type: "OR", isOperator: true, val: token});
+        } else if (token === "if") {
+          tokenStream.push({ type: "IF_KEYWORD", val: token });
+        } else if (isVariableName(token)) {
+          tokenStream.push({ type: "VARIABLE_NAME", val: token });
+        } else {
+          throw "Invalid token " + "'" + token + "'";
+        }
+      }
+      
+      move();
+    }
+
+    return tokenStream;
+  }
+}
+
+export { Tokenizer };</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-form-script.html">form-script</a></li><li><a href="module-xreport-embed.html">xreport-embed</a></li></ul><h3>Classes</h3><ul><li><a href="Assignment.html">Assignment</a></li><li><a href="AST.html">AST</a></li><li><a href="Expression.html">Expression</a></li><li><a href="FunctionCall.html">FunctionCall</a></li><li><a href="IfThen.html">IfThen</a></li><li><a href="module-form-script-Evaluator.html">Evaluator</a></li><li><a href="Parser.html">Parser</a></li><li><a href="Tokenizer.html">Tokenizer</a></li><li><a href="XCalcOut.html">XCalcOut</a></li><li><a href="XDate.html">XDate</a></li><li><a href="XFormElem.html">XFormElem</a></li><li><a href="XFormGroup.html">XFormGroup</a></li><li><a href="XFormRow.html">XFormRow</a></li><li><a href="XHeader.html">XHeader</a></li><li><a href="XImage.html">XImage</a></li><li><a href="XInBool.html">XInBool</a></li><li><a href="XInfo.html">XInfo</a></li><li><a href="XInNum.html">XInNum</a></li><li><a href="XInText.html">XInText</a></li><li><a href="XLabel.html">XLabel</a></li><li><a href="XMulSel.html">XMulSel</a></li><li><a href="XPlainText.html">XPlainText</a></li><li><a href="XRating.html">XRating</a></li><li><a href="XSel.html">XSel</a></li><li><a href="XSelDropdown.html">XSelDropdown</a></li><li><a href="XTextArea.html">XTextArea</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 15 2021 23:14:41 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
