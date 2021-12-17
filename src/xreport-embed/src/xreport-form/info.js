@@ -36,11 +36,11 @@ XInfo.prototype.buildEditor = function() {
 
   view.append($('<option>', {
     value: "info",
-    text : "Magyarázó szöveg"
+    text : "Information"
   }));
   view.append($('<option>', {
     value: "danger",
-    text : "Figyelmeztető szöveg"
+    text : "Danger"
   }));
 
   view.on("change", function() {

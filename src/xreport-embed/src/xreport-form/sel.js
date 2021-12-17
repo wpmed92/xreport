@@ -9,7 +9,7 @@ import $ from 'jquery';
 function XSel(style) {
   XFormElem.call(this, "sel");
   this.style = style || "default";
-  this.options = ["Opció 1", "Opció 2"];
+  this.options = ["Option 1", "Option 2"];
 }
 
 XSel.prototype = Object.create(XFormElem.prototype);

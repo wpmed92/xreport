@@ -5,13 +5,13 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyC5hX_N8tFfk211A2kWs5tOhWvjX0YroS0",
-    authDomain: "xreport-dev.firebaseapp.com",
-    databaseURL: "https://xreport-dev.firebaseio.com",
-    projectId: "xreport-dev",
-    storageBucket: "xreport-dev.appspot.com",
-    messagingSenderId: "969828348185",
-    appId: "1:969828348185:web:f7774f373c10ac530dd588"
+    apiKey: "AIzaSyBHQIR9UvMe6O4fmCUHMSGJXvI-fICrGbg",
+    authDomain: "xreport-demo.firebaseapp.com",
+    projectId: "xreport-demo",
+    storageBucket: "xreport-demo.appspot.com",
+    messagingSenderId: "368234453946",
+    appId: "1:368234453946:web:76f9f488bea1bf3ee1db83",
+    measurementId: "G-FF0JHD880R"
   }
 };
 
