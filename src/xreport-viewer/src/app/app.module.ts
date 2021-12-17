@@ -31,7 +31,7 @@ import { ClipboardModule } from 'ngx-clipboard';
     AngularFireAuthModule,
     AngularFireAnalyticsModule,
     NgbModule,
-    NgProgressModule.forRoot(),
+    NgProgressModule,
     ClipboardModule
   ],
   providers: [],

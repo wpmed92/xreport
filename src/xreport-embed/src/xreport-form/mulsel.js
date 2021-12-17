@@ -11,7 +11,7 @@ import $ from 'jquery';
 function XMulSel(style) {
   XFormElem.call(this, "mulsel");
   this.style = style || "default";
-  this.options = ["Opció 1", "Opció 2"];
+  this.options = ["Option 1", "Option 2"];
 }
 
 XMulSel.prototype = Object.create(XFormElem.prototype);

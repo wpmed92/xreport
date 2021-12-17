@@ -2,7 +2,6 @@ import $ from 'jquery';
 
 function ViewerComponent(title) {
     var component = $('<h3 class="text-secondary">' + title + '</h3>\
-                      <p>powered by <a href="/">radiosheets</p></a>\
                         <div class="card">\
                         <div class="x-form card-body">\
                           <form></form>\

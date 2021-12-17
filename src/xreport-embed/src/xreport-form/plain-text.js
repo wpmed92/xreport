@@ -29,27 +29,27 @@ XPlainText.prototype.buildEditor = function() {
 
   view.append($('<option>', {
     value: "primary",
-    text : "Elsődleges"
+    text : "Primary"
   }));
   view.append($('<option>', {
     value: "secondary",
-    text : "Másodlagos"
+    text : "Secondary"
   }));
   view.append($('<option>', {
     value: "success",
-    text : "Siker"
+    text : "Success"
   }));
   view.append($('<option>', {
     value: "danger",
-    text : "Veszély"
+    text : "Danger"
   }));
   view.append($('<option>', {
     value: "warning",
-    text : "Figyelmeztetés"
+    text : "Warning"
   }));
   view.append($('<option>', {
     value: "info",
-    text : "Információ"
+    text : "Information"
   }));
 
   view.on("change", function() {

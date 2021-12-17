@@ -7,7 +7,7 @@ import { AngularFireStorage } from '@angular/fire/storage';
 import { ReportMeta } from '../model/report-meta';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import * as xreportEmbed from 'xreport-embed';
-import { NgProgress } from '@ngx-progressbar/core';
+import { NgProgress, NgProgressRef } from '@ngx-progressbar/core';
 import { ClipboardService } from 'ngx-clipboard'
 import * as firebase from 'firebase';
 import { Location } from '@angular/common';
@@ -27,6 +27,7 @@ export class ViewerComponent implements OnInit {
   private editorModeSubject = new BehaviorSubject<Boolean>(false);
   public editorMode: Observable<Boolean>;
   private savingTemplate = false;
+  private ngProgressRef: NgProgressRef
 
   constructor(private route: ActivatedRoute, 
               private afs: AngularFirestore, 
@@ -38,6 +39,7 @@ export class ViewerComponent implements OnInit {
               private navVisibilityService: NavVisibilityService,
               private analytics: AngularFireAnalytics)  {
       this.navVisibilityService.hideNav();
+      this.ngProgressRef = progress.ref();
       this.editorMode = this.editorModeSubject.asObservable();
   }
 
@@ -94,7 +96,7 @@ export class ViewerComponent implements OnInit {
       return;
     }
 
-    this.progress.start();
+    this.ngProgressRef.start();
     this.savingTemplate = true;
     let templateForUpload = xreportEmbed.getTemplateForUpload();
     const routeId = this.route.snapshot.paramMap.get('id'); 
@@ -139,11 +141,11 @@ export class ViewerComponent implements OnInit {
       });
     }).then(()=> {
       this.savingTemplate = false;
-      this.progress.complete();
+      this.ngProgressRef.complete();
       this.location.back();
     }).catch((error) => {
       this.savingTemplate = false;
-      this.progress.complete();
+      this.ngProgressRef.complete();
       console.log(error);
     });
   }
@@ -156,12 +158,7 @@ export class ViewerComponent implements OnInit {
   shareTemplate(): void {
     const templateId = this.route.snapshot.paramMap.get('id');
     this.analytics.logEvent("template_shared", { templateId: templateId});
-
-    if (templateId === "8glceGohyNaW2gzfioJn") {
-      this.clipboardService.copyFromContent("https://app.radiosheets.com/link/covid");
-    } else {
-      this.clipboardService.copyFromContent(window.location.href);
-    }
+    this.clipboardService.copyFromContent(window.location.href);
   }
 
   initBuilder(): void {
@@ -172,10 +169,10 @@ export class ViewerComponent implements OnInit {
       "",  //Template name
       "div-card-holder", //DOM element to inject widget to
       ).then(() => {
-        this.progress.complete();
+        this.ngProgressRef.complete();
         console.log("Content loaded");
       }).catch(error => {
-        this.progress.complete();
+        this.ngProgressRef.complete();
         console.log(error);
       });
   }
@@ -184,7 +181,7 @@ export class ViewerComponent implements OnInit {
     this.editorModeSubject.next(mode === "builder");
     const id = this.route.snapshot.paramMap.get('id'); 
     this.itemDoc = this.afs.doc<ReportMeta>(`reports/${id}`);
-    this.progress.start();
+    this.ngProgressRef.start();
 
     this.itemDoc.valueChanges().subscribe(report => {
       xreportEmbed.makeWidget(
@@ -194,11 +191,11 @@ export class ViewerComponent implements OnInit {
         mode === "builder" //'builder' or 'viewer'
         ).then(() => {
           this.analytics.logEvent("template_viewed", { templateId: id});
-          this.progress.complete();
+          this.ngProgressRef.complete();
           console.log("Content loaded");
         }).catch(error => {
           this.analytics.logEvent("template_view_error", { templateId: id});
-          this.progress.complete();
+          this.ngProgressRef.complete();
           console.log(error);
         });
     });

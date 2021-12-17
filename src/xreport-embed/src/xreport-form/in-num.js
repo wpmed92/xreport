@@ -60,13 +60,13 @@ XInNum.prototype.buildEditor = function() {
   var model = this;
   var editor = $("<div></div>");
   var view = $("*[data-x-id='" + model.id + "']");
-  var defaultWrapper = $("<div class='form-group'><label>Alapértelmezett érték</label></div>");
+  var defaultWrapper = $("<div class='form-group'><label>Default</label></div>");
   var defaultControl = $("<input type='number' class='form-control'>");
-  var minWrapper = $("<div class='form-group'><label>Minimum érték</label></div>");
+  var minWrapper = $("<div class='form-group'><label>Minimum</label></div>");
   var minControl = $("<input type='number' class='form-control'>");
-  var maxWrapper = $("<div class='form-group'><label>Maximum érték</label></div>");
+  var maxWrapper = $("<div class='form-group'><label>Maximum</label></div>");
   var maxControl = $("<input type='number' class='form-control'>");
-  var unitWrapper = $("<div class='form-group' class='form-control'><label>Mértékegység</label></div>");
+  var unitWrapper = $("<div class='form-group' class='form-control'><label>Unit</label></div>");
   var unitControl = $("<input type='text' class='form-control'>");
 
   unitControl.val(model.unit);
