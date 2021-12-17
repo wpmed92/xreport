@@ -35,17 +35,17 @@ xreportEmbed.makeWidget(
 
 `xreportEmbed.makeWidget` will load the empty builder widget or the existing template to the DOM element specified by the document id.
 
-To learn about all the available form elements (what do they do, how to use them, etc.), read the [documentation]("https://wpmed92.github.io/xreport/").
+To learn about all the available form elements (what do they do, how to use them, etc.), read the [documentation](https://wpmed92.github.io/xreport/).
 
 ## xreport-viewer
 
 `xreport-viewer` is an Angular SPA that incorporates the `xreport-dom` library and serves as an example application for how it can be integrated.
 
-To be able to run the app you have to setup a [Firebase]("https://firebase.google.com/") project.
+To be able to run the app you have to setup a [Firebase](https://firebase.google.com/) project.
 
 ### Setting up the Firebase project
 
-1. Go to [Firebase Console]("https://console.firebase.google.com/")
+1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Click on *Add project*
 3. Go through the 3 step project creation process
 4. On the welcome screen click on the Web icon under "Get started by adding Firebase to your app"
@@ -66,5 +66,5 @@ To be able to run the app you have to setup a [Firebase]("https://firebase.googl
 
 ### Usage
 
-For an introduction on how to use XReport see the [tutorial]("https://github.com/wpmed92/xreport/wiki/Tutorial") on our Wiki.
+For an introduction on how to use XReport see the [tutorial](https://github.com/wpmed92/xreport/wiki/Tutorial) on our Wiki.
 
