@@ -1,11 +1,11 @@
 # XReport
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 XReport is a structured reporting platform for radiologists. It features both template creation and reporting. The created templates can be either static or dynamic. To make them dynamic (e.g. a field only shows up if another field's value is greater than 5) you have to attach FormScript snippets to them.
 
 The project consists of two main parts: `xreport-embed` and `xreport-viewer`.
 
-For a live demo click [here](https://app.radiosheets.com)!
+For a live demo click [here](https://xreport-demo.web.app)!
 
 ## xreport-embed
 
@@ -65,4 +65,6 @@ To be able to run the app you have to setup a [Firebase]("https://firebase.googl
 4. Open the browser
 
 ### Usage
+
+For an introduction on how to use XReport see our Wiki.
 
