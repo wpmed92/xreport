@@ -16,6 +16,11 @@
       <!-- Right -->
       <ul class="navbar-nav">
         <li class="nav-item">
+          <a id="a-xreport-pro" class="nav-link xreport-pro-link" href="https://xreport.pro" target="_blank" rel="noopener">
+            <img src="assets/images/xreport-pro-logo.png" alt="XReport Pro" class="xreport-pro-logo"> Try XReport Pro
+          </a>
+        </li>
+        <li class="nav-item">
           <a id="a-login" href="javascript:;" class="nav-link" (click)="authService.login()" [hidden]="(authService.currentUser | async) !== null"><i class="fas fa-sign-in-alt"></i> Sign in</a>
           <a id="a-logout" href="javascript:;" class="nav-link" (click)="authService.logout()" [hidden]="(authService.currentUser | async) === null"><i class="fas fa-sign-out-alt"></i> {{ (authService.currentUser | async)?.displayName }}<span id="user-info"></span></a>
         </li>

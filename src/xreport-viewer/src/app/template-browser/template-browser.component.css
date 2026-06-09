@@ -8,3 +8,11 @@
 .card-shadowed:focus, .card-shadowed:hover {
     box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
 }
+
+.pro-modal-logo {
+    height: 28px;
+    width: 28px;
+    border-radius: 6px;
+    vertical-align: text-bottom;
+    margin-right: 6px;
+}

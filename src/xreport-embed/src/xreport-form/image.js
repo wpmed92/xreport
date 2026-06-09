@@ -13,6 +13,10 @@ function XImage() {
 
 XImage.prototype = Object.create(XFormElem.prototype);
 
+XImage.prototype.genText = function() {
+  return "";
+}
+
 XImage.prototype.render = function() {
   var view = $("<div></div>")
   var questionMark = $("<i class='fas fa-question-circle text-info'></i>");

@@ -13,6 +13,10 @@ function XLabel(label) {
 
 XLabel.prototype = Object.create(XFormElem.prototype);
 
+XLabel.prototype.genText = function() {
+  return "";
+}
+
 XLabel.prototype.render = function(forId) {
   var _for = (forId) ? ("for='" + forId + "'") : "";
   var formattedVal = (forId) ? this.val : ("<b>" + this.val + "</b>");

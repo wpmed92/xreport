@@ -1,0 +1,11 @@
+.xreport-pro-link {
+  display: flex;
+  align-items: center;
+}
+
+.xreport-pro-logo {
+  height: 24px;
+  width: 24px;
+  border-radius: 6px;
+  margin-right: 6px;
+}

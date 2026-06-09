@@ -1,3 +1,21 @@
+<ng-template #proUpsell let-modal>
+  <div class="modal-header">
+      <h4 class="modal-title">
+        <img src="assets/images/xreport-pro-logo.png" alt="XReport Pro" class="pro-modal-logo"> XReport Pro is here
+      </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  <div class="modal-body">
+      <p>We've released <strong>XReport Pro</strong>, the next generation of XReport. We're phasing out this legacy version, so we recommend creating your new template in XReport Pro.</p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('pro')">Create in XReport Pro</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close('legacy')">Stay in legacy XReport</button>
+  </div>
+</ng-template>
+
 <ng-template #content let-modal>
   <div class="modal-header">
       <h4 class="modal-title" id="modal-basic-title">New template</h4>

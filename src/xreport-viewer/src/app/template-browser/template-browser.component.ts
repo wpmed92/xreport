@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -8,19 +8,24 @@ import { Category } from '../model/category';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NavVisibilityService } from '../services/nav-visibility.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-template-browser',
   templateUrl: './template-browser.component.html',
   styleUrls: ['./template-browser.component.css']
 })
-export class TemplateBrowserComponent implements OnInit {
+export class TemplateBrowserComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('proUpsell') proUpsell: TemplateRef<any>;
 
   reports: Observable<ReportMetaId[]>;
   categories: Observable<Category[]>;
   selectedCategories: Category[] = [];
 
-  constructor(private db: AngularFirestore, private router: Router, private navVisibilityService: NavVisibilityService) {
+  private readonly proUpsellSeenKey = 'xreportProUpsellSeen';
+
+  constructor(private db: AngularFirestore, private router: Router, private navVisibilityService: NavVisibilityService, private modalService: NgbModal) {
     this.navVisibilityService.showNav();
     this.reports = db.collection('reports').snapshotChanges().pipe(
       map(reps => reps.map(rep => {
@@ -46,12 +51,30 @@ export class TemplateBrowserComponent implements OnInit {
   ngOnInit() {
   }
 
+  ngAfterViewInit(): void {
+    if (!localStorage.getItem(this.proUpsellSeenKey)) {
+      localStorage.setItem(this.proUpsellSeenKey, 'true');
+      // Defer to avoid ExpressionChangedAfterItHasBeenChecked during the same change detection cycle.
+      setTimeout(() => this.openProUpsell(false));
+    }
+  }
+
   editTemplate(report: ReportMetaId): void {
     this.router.navigate([`/templates/${report.id}`], { queryParams: { mode: "builder" }});
   }
 
   newReport(): void {
-    this.router.navigate(['/templates/new']);
+    this.openProUpsell(true);
+  }
+
+  private openProUpsell(navigateToLegacyOnStay: boolean): void {
+    this.modalService.open(this.proUpsell).result.then(result => {
+      if (result === 'pro') {
+        window.open('https://xreport.pro', '_blank');
+      } else if (result === 'legacy' && navigateToLegacyOnStay) {
+        this.router.navigate(['/templates/new']);
+      }
+    }, () => {});
   }
 
   view(report: ReportMetaId): void {
